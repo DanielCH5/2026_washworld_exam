@@ -6,6 +6,13 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from icecream import ic
+
+# Setting up .env variables
+import os
+from dotenv import load_dotenv 
+load_dotenv() # Loads the .env variables
+
+db_password = os.getenv("DB_PASSWORD")
 ic.configureOutput(prefix=f"_____ | ", includeContext=True)
 ##############################
 def db():

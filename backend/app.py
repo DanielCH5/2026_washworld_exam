@@ -18,6 +18,10 @@ CORS(app)  # allows everything
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
 jwt = JWTManager(app)
 
+# Setting up .env variables
+import os
+from dotenv import load_dotenv 
+load_dotenv() # Loads the .env variables
 
 ##############################
 @app.post("/login")
