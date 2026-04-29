@@ -2,10 +2,10 @@
 -- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Host: mariadb
--- Generation Time: Apr 27, 2026 at 12:29 PM
--- Server version: 10.6.20-MariaDB-ubu2004
--- PHP Version: 8.3.26
+-- Vært: mariadb
+-- Genereringstid: 29. 04 2026 kl. 11:21:08
+-- Serverversion: 10.6.20-MariaDB-ubu2004
+-- PHP-version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `addons`
+-- Struktur-dump for tabellen `addons`
 --
 
 CREATE TABLE `addons` (
@@ -35,7 +35,18 @@ CREATE TABLE `addons` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `brands`
+-- Struktur-dump for tabellen `addons_orders`
+--
+
+CREATE TABLE `addons_orders` (
+  `order_fk` char(32) NOT NULL,
+  `addon_fk` char(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur-dump for tabellen `brands`
 --
 
 CREATE TABLE `brands` (
@@ -46,7 +57,7 @@ CREATE TABLE `brands` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cars`
+-- Struktur-dump for tabellen `cars`
 --
 
 CREATE TABLE `cars` (
@@ -54,50 +65,52 @@ CREATE TABLE `cars` (
   `user_fk` char(32) NOT NULL,
   `model_fk` char(32) NOT NULL,
   `car_nickname` varchar(50) NOT NULL,
-  `car_electric` char(1) NOT NULL,
-  `wash_fk` char(1) NOT NULL
+  `car_electric` tinyint(1) NOT NULL,
+  `car_deleted_at` bigint(20) NOT NULL,
+  `subscription_fk` char(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `locations`
+-- Struktur-dump for tabellen `locations`
 --
 
 CREATE TABLE `locations` (
   `location_pk` char(32) NOT NULL,
   `location_name` varchar(50) NOT NULL,
   `location_address` varchar(100) NOT NULL,
-  `location_lat` varchar(13) NOT NULL,
-  `location_lon` varchar(13) NOT NULL,
-  `location_open_hours` varchar(5) NOT NULL,
-  `location_wash_halls` char(1) NOT NULL,
-  `location_mat_cleaner` char(1) NOT NULL,
-  `location_vacuum` char(1) NOT NULL,
-  `location_pre_wash` char(1) NOT NULL,
-  `location_max_meters` decimal(3,2) NOT NULL,
-  `location_max_mirrors_width_meters` decimal(3,2) NOT NULL,
+  `location_lat` decimal(10,7) NOT NULL,
+  `location_lon` decimal(10,7) NOT NULL,
+  `location_open_hours` varchar(20) NOT NULL,
+  `location_wash_halls` tinyint(1) NOT NULL,
+  `locaiton_empty_wash_halls` int(11) NOT NULL,
+  `location_mat_cleaner` tinyint(1) NOT NULL,
+  `location_vacuum` tinyint(1) NOT NULL,
+  `location_pre_wash` tinyint(1) NOT NULL,
+  `location_max_meters` decimal(5,2) NOT NULL,
+  `location_max_mirrors_width_meters` decimal(5,2) NOT NULL,
   `region_fk` char(1) NOT NULL,
-  `location_end_url` varchar(50) NOT NULL,
-  `location_image_end_url` varchar(100) NOT NULL
+  `location_end_url` varchar(50) DEFAULT NULL,
+  `location_image_end_url` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `models`
+-- Struktur-dump for tabellen `models`
 --
 
 CREATE TABLE `models` (
   `model_pk` char(32) NOT NULL,
-  `brands_fk` char(32) NOT NULL,
+  `brand_fk` char(32) NOT NULL,
   `model_name` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `orders`
+-- Struktur-dump for tabellen `orders`
 --
 
 CREATE TABLE `orders` (
@@ -106,14 +119,14 @@ CREATE TABLE `orders` (
   `wash_fk` char(1) NOT NULL,
   `order_time_at` bigint(20) UNSIGNED NOT NULL,
   `location_fk` char(32) NOT NULL,
-  `car_fk` char(32) NOT NULL,
+  `car_fk` varchar(10) NOT NULL,
   `status_fk` char(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `regions`
+-- Struktur-dump for tabellen `regions`
 --
 
 CREATE TABLE `regions` (
@@ -124,7 +137,7 @@ CREATE TABLE `regions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `status`
+-- Struktur-dump for tabellen `status`
 --
 
 CREATE TABLE `status` (
@@ -135,7 +148,21 @@ CREATE TABLE `status` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Struktur-dump for tabellen `subscriptions`
+--
+
+CREATE TABLE `subscriptions` (
+  `subscription_pk` char(32) NOT NULL,
+  `wash_fk` char(1) NOT NULL,
+  `location_fk` char(32) DEFAULT NULL,
+  `all_locations` tinyint(1) DEFAULT NULL,
+  `subscription_deleted_at` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur-dump for tabellen `users`
 --
 
 CREATE TABLE `users` (
@@ -145,18 +172,18 @@ CREATE TABLE `users` (
   `user_email` varchar(100) NOT NULL,
   `user_hashed_password` varchar(255) NOT NULL,
   `user_created_at` bigint(20) UNSIGNED NOT NULL,
-  `user_verified_at` bigint(20) UNSIGNED NOT NULL,
-  `user_changed_at` bigint(20) UNSIGNED NOT NULL,
-  `user_deleted_at` bigint(20) UNSIGNED NOT NULL,
-  `user_reset_at` bigint(20) UNSIGNED NOT NULL,
-  `user_reset_password_key` char(32) NOT NULL,
-  `user_verification_key` char(32) NOT NULL
+  `user_verified_at` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_changed_at` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_deleted_at` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_reset_at` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_reset_password_key` char(32) DEFAULT NULL,
+  `user_verification_key` char(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `washes`
+-- Struktur-dump for tabellen `washes`
 --
 
 CREATE TABLE `washes` (
@@ -165,113 +192,142 @@ CREATE TABLE `washes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Begrænsninger for dumpede tabeller
 --
 
 --
--- Indexes for table `addons`
+-- Indeks for tabel `addons`
 --
 ALTER TABLE `addons`
   ADD PRIMARY KEY (`addon_pk`);
 
 --
--- Indexes for table `brands`
+-- Indeks for tabel `addons_orders`
+--
+ALTER TABLE `addons_orders`
+  ADD KEY `idx_addons_orders_order` (`order_fk`),
+  ADD KEY `idx_addons_orders_addon` (`addon_fk`);
+
+--
+-- Indeks for tabel `brands`
 --
 ALTER TABLE `brands`
   ADD PRIMARY KEY (`brand_pk`);
 
 --
--- Indexes for table `cars`
+-- Indeks for tabel `cars`
 --
 ALTER TABLE `cars`
   ADD PRIMARY KEY (`car_pk`),
-  ADD KEY `model_fk` (`model_fk`),
-  ADD KEY `cars_ibfk_1` (`user_fk`),
-  ADD KEY `wash_fk` (`wash_fk`);
+  ADD KEY `idx_cars_user` (`user_fk`),
+  ADD KEY `idx_cars_model` (`model_fk`),
+  ADD KEY `idx_cars_subscription` (`subscription_fk`);
 
 --
--- Indexes for table `locations`
+-- Indeks for tabel `locations`
 --
 ALTER TABLE `locations`
   ADD PRIMARY KEY (`location_pk`),
-  ADD KEY `region_fk` (`region_fk`);
+  ADD KEY `idx_locations_region` (`region_fk`);
 
 --
--- Indexes for table `models`
+-- Indeks for tabel `models`
 --
 ALTER TABLE `models`
   ADD PRIMARY KEY (`model_pk`),
-  ADD KEY `brands_fk` (`brands_fk`);
+  ADD KEY `idx_models_brand` (`brand_fk`);
 
 --
--- Indexes for table `orders`
+-- Indeks for tabel `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_pk`),
-  ADD KEY `car_fk` (`car_fk`),
-  ADD KEY `location_fk` (`location_fk`),
-  ADD KEY `status_fk` (`status_fk`),
-  ADD KEY `user_fk` (`user_fk`),
-  ADD KEY `wash_fk` (`wash_fk`);
+  ADD KEY `idx_orders_user` (`user_fk`),
+  ADD KEY `idx_orders_wash` (`wash_fk`),
+  ADD KEY `idx_orders_location` (`location_fk`),
+  ADD KEY `idx_orders_car` (`car_fk`),
+  ADD KEY `idx_orders_status` (`status_fk`);
 
 --
--- Indexes for table `regions`
+-- Indeks for tabel `regions`
 --
 ALTER TABLE `regions`
   ADD PRIMARY KEY (`region_pk`);
 
 --
--- Indexes for table `status`
+-- Indeks for tabel `status`
 --
 ALTER TABLE `status`
   ADD PRIMARY KEY (`status_pk`);
 
 --
--- Indexes for table `users`
+-- Indeks for tabel `subscriptions`
+--
+ALTER TABLE `subscriptions`
+  ADD PRIMARY KEY (`subscription_pk`),
+  ADD KEY `idx_subscriptions_wash` (`wash_fk`),
+  ADD KEY `idx_subscriptions_location` (`location_fk`);
+
+--
+-- Indeks for tabel `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_pk`),
   ADD UNIQUE KEY `user_email` (`user_email`);
 
 --
--- Indexes for table `washes`
+-- Indeks for tabel `washes`
 --
 ALTER TABLE `washes`
   ADD PRIMARY KEY (`wash_pk`);
 
 --
--- Constraints for dumped tables
+-- Begrænsninger for dumpede tabeller
 --
 
 --
--- Constraints for table `cars`
+-- Begrænsninger for tabel `addons_orders`
+--
+ALTER TABLE `addons_orders`
+  ADD CONSTRAINT `fk_addons_orders_addon` FOREIGN KEY (`addon_fk`) REFERENCES `addons` (`addon_pk`),
+  ADD CONSTRAINT `fk_addons_orders_order` FOREIGN KEY (`order_fk`) REFERENCES `orders` (`order_pk`);
+
+--
+-- Begrænsninger for tabel `cars`
 --
 ALTER TABLE `cars`
-  ADD CONSTRAINT `cars_ibfk_1` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`),
-  ADD CONSTRAINT `cars_ibfk_2` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`),
-  ADD CONSTRAINT `model_fk` FOREIGN KEY (`model_fk`) REFERENCES `models` (`model_pk`);
+  ADD CONSTRAINT `fk_cars_model` FOREIGN KEY (`model_fk`) REFERENCES `models` (`model_pk`),
+  ADD CONSTRAINT `fk_cars_subscription` FOREIGN KEY (`subscription_fk`) REFERENCES `subscriptions` (`subscription_pk`),
+  ADD CONSTRAINT `fk_cars_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`);
 
 --
--- Constraints for table `locations`
+-- Begrænsninger for tabel `locations`
 --
 ALTER TABLE `locations`
-  ADD CONSTRAINT `region_fk` FOREIGN KEY (`region_fk`) REFERENCES `regions` (`region_pk`);
+  ADD CONSTRAINT `fk_locations_region` FOREIGN KEY (`region_fk`) REFERENCES `regions` (`region_pk`);
 
 --
--- Constraints for table `models`
+-- Begrænsninger for tabel `models`
 --
 ALTER TABLE `models`
-  ADD CONSTRAINT `brands_fk` FOREIGN KEY (`brands_fk`) REFERENCES `brands` (`brand_pk`);
+  ADD CONSTRAINT `fk_models_brand` FOREIGN KEY (`brand_fk`) REFERENCES `brands` (`brand_pk`);
 
 --
--- Constraints for table `orders`
+-- Begrænsninger for tabel `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `car_fk` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`),
-  ADD CONSTRAINT `location_fk` FOREIGN KEY (`location_fk`) REFERENCES `locations` (`location_pk`),
-  ADD CONSTRAINT `status_fk` FOREIGN KEY (`status_fk`) REFERENCES `status` (`status_pk`),
-  ADD CONSTRAINT `user_fk` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`),
-  ADD CONSTRAINT `wash_fk` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
+  ADD CONSTRAINT `fk_orders_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`),
+  ADD CONSTRAINT `fk_orders_location` FOREIGN KEY (`location_fk`) REFERENCES `locations` (`location_pk`),
+  ADD CONSTRAINT `fk_orders_status` FOREIGN KEY (`status_fk`) REFERENCES `status` (`status_pk`),
+  ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`),
+  ADD CONSTRAINT `fk_orders_wash` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
+
+--
+-- Begrænsninger for tabel `subscriptions`
+--
+ALTER TABLE `subscriptions`
+  ADD CONSTRAINT `fk_subscriptions_location` FOREIGN KEY (`location_fk`) REFERENCES `locations` (`location_pk`),
+  ADD CONSTRAINT `fk_subscriptions_wash` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
