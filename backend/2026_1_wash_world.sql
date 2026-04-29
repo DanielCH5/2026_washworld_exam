@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: mariadb
--- Genereringstid: 29. 04 2026 kl. 11:06:41
+-- Genereringstid: 29. 04 2026 kl. 11:21:08
 -- Serverversion: 10.6.20-MariaDB-ubu2004
 -- PHP-version: 8.3.26
 
@@ -84,6 +84,7 @@ CREATE TABLE `locations` (
   `location_lon` decimal(10,7) NOT NULL,
   `location_open_hours` varchar(20) NOT NULL,
   `location_wash_halls` tinyint(1) NOT NULL,
+  `locaiton_empty_wash_halls` int(11) NOT NULL,
   `location_mat_cleaner` tinyint(1) NOT NULL,
   `location_vacuum` tinyint(1) NOT NULL,
   `location_pre_wash` tinyint(1) NOT NULL,
