@@ -304,12 +304,21 @@ def get_locations_da():
             location_lon = location["coordinates"]["x"]
             location_open_hours = location["open_hours"] # Should we split this into open and close?
             location_wash_halls = location["service_units"]["hall"]["total_count"]
+            location_empty_wash_halls = location["service_units"]["hall"]["total_count"] # Skal rettes til live updates
             location_self_wash = location["service_units"]["self_wash"]["total_count"]
             location_mat_cleaner = location["service_units"]["mat_cleaner"]["total_count"]
             location_vacuum = location["service_units"]["vacuum"]["total_count"]
             location_pre_wash = location["service_units"]["pre_wash"]["total_count"]
-            location_max_meters = location["max_height"]
-            location_max_mirror_width_meters = location["mirror_length"]
+
+            # Washworld inserted decimals with a ",", split strings apart and insert comma for db
+
+            location_max_meters_comma = location["max_height"].split(",")
+            location_max_meters = ".".join(location_max_meters_comma)
+            ic(location_max_meters)
+            ic(location_name)
+            location_max_mirror_width_meters_comma = location["mirror_length"].split(",")
+            location_max_mirror_width_meters = ".".join(location_max_mirror_width_meters_comma)
+
             location_region = location["region_name"] # Could be in a regions table instead, idk
 
             location_end_url = location["url"]
@@ -331,9 +340,9 @@ def get_locations_da():
                 case "Fyn":
                     region_fk = "3"
 
-            q = "INSERT INTO locations VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            q = "INSERT INTO locations VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             cursor.execute(q, (location_pk, location_name, location_address, location_lat, location_lon,
-            location_open_hours, location_wash_halls, location_self_wash, location_mat_cleaner, location_vacuum,
+            location_open_hours, location_wash_halls, location_empty_wash_halls, location_self_wash, location_mat_cleaner, location_vacuum,
             location_pre_wash, location_max_meters, location_max_mirror_width_meters, region_fk, location_end_url, location_image_end_url))
             db.commit()
 
