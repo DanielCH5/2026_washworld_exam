@@ -84,7 +84,7 @@ CREATE TABLE `locations` (
   `location_lon` decimal(10,7) NOT NULL,
   `location_open_hours` varchar(20) NOT NULL,
   `location_wash_halls` tinyint(1) NOT NULL,
-  `locaiton_empty_wash_halls` int(11) NOT NULL,
+  `location_empty_wash_halls` int(11) NOT NULL,
   `location_mat_cleaner` tinyint(1) NOT NULL,
   `location_vacuum` tinyint(1) NOT NULL,
   `location_pre_wash` tinyint(1) NOT NULL,
