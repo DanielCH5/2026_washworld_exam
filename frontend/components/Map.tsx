@@ -6,14 +6,14 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // Fix for missing marker icons in bundlers like Vite/Webpack
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/ww-pin-green.png";
+
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconUrl: markerIcon,
-    iconRetinaUrl: markerIcon2x,
+    iconUrl: "/ww-pin-green.png",
+    iconRetinaUrl: "/ww-pin-green.png",
     shadowUrl: markerShadow,
     iconSize: [38, 47]
 });
