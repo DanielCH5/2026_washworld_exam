@@ -88,39 +88,67 @@ def show_signup():
         ic(ex)
         str(ex), 500
 ##############################
-@app.post("/signup")
-def signup():
+@app.post("/user-signup")
+def user_signup():
     try:
-        # TODO: Validate user data
+        # TODO: Validate user input
+        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name")
+        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name")
+        user_email = x.validate_email(request.form.get("user_email", ""))
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+
         user_pk = uuid.uuid4().hex
-        user_name = x.validate_user_name(request.form.get("user_name", ""))
-        user_last_name = x.validate_user_name(request.form.get("user_last_name", ""))
-        email = x.validate_email(request.form.get("em", ""))
-        verification_key = uuid.uuid4().hex
-        password = x.validate_user_password(request.form.get("password", ""))
-        hashed_password = generate_password_hash(password)
-        ic(verification_key)
+        user_hashed_password = generate_password_hash(user_password)
+
+        user_created_at = int(time.time())
+        user_verified_at = 0
+        user_changed_at = 0
+        user_deleted_at = 0
+        user_reset_at = 0
+
+        user_reset_password_key = uuid.uuid4().hex
+        user_verification_key = uuid.uuid4().hex
+
+
         
-        user_reset_password_key = uuid.uuid4().hex + uuid.uuid4().hex
-        ic(user_reset_password_key)
         
         db, cursor = x.db()
-        q = "INSERT INTO users VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        q = "INSERT INTO users VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-        cursor.execute(q, (user_pk, user_name, verification_key, 0, user_reset_password_key, email, hashed_password, user_last_name))
+        cursor.execute(q, (user_pk, user_first_name, user_last_name, 
+        user_email, user_hashed_password, user_created_at, user_verified_at, user_changed_at,
+        user_deleted_at, user_reset_at, user_verification_key, user_reset_password_key))
 
         db.commit()
 
-        html = render_template("email_welcome.html", verification_key=verification_key)
+        html = render_template("email_welcome.html", user_verification_key=user_verification_key)
 
         x.send_email("Please verify your account", html)
-        return "Please check email maybe it arrived in spam folder"
+        return {
+            "user_first_name" : user_first_name,
+            "user_last_name" : user_last_name,
+            "user_email" : user_email,
+            "user_pk" : user_pk,
+            "user_hashed_password" : user_hashed_password,
+            "user_password" : user_password,
+            "user_created_at" : user_created_at,
+            "user_verified_at" : user_verified_at,
+            "user_changed_at" : user_changed_at,
+            "user_deleted_at" : user_deleted_at,
+            "user_reset_at" : user_reset_at,
+            "user_reset_password_key" : user_reset_password_key,
+            "user_verification_key" : user_verification_key
+        }
     except Exception as ex:
         ic(ex)
-        if "company_exception user_name" in str(ex): 
-            return "user name invalid", 400
+        if "company_exception user_first_name" in str(ex): 
+            return f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", 400
+        if "company_exception user_last_name" in str(ex): 
+            return f"Last name must be between {x.NAME_MIN} and {x.NAME_MAX}", 400
         if "company_exception email" in str(ex):
-            return "Invalid email", 400
+            return "Please enter a valid email", 400
+        if "company_exception password" in str(ex):
+            return f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", 400
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
