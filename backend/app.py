@@ -23,6 +23,124 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+
+##############################
+@app.post("/car")
+def create_car():
+    #TODO USER_FK FROM SESSION
+    try:
+        #user_fk = session["user"]["user_pk"]
+        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
+        model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
+        car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
+        car_electric = x.validate_electric(request.form.get("car_electric", ""))
+        car_deleted_at = 0
+        db, cursor = x.db()
+
+        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`, `car_deleted_at`) VALUES (%s,%s,%s,%s,%s,%s)"
+        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric, car_deleted_at))
+        db.commit()
+
+        return "car created", 201
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        if "company_exception nickname" in str(ex):
+            return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
+        if "company_exception electric" in str(ex):
+            return "Car electric must be 0 or 1", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+        
+
+##############################
+@app.get("/car/<car_pk>")
+def get_car(car_pk):
+    try:
+        db, cursor = x.db()
+        car_pk = x.validate_license_plate(car_pk)
+        q = "SELECT * FROM `cars` WHERE car_pk=%s"
+        cursor.execute(q, (car_pk,))
+        car = cursor.fetchone()
+        return car
+    except Exception as ex:
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+
+##############################
+@app.get("/cars/<user_fk>")
+def get_cars(user_fk):
+    try:
+        db, cursor = x.db()
+        user_fk = x.validate_uuid4(user_fk)
+        q = "SELECT * FROM `cars` WHERE user_fk=%s"
+        cursor.execute(q, (user_fk,))
+        cars = cursor.fetchall()
+
+        return cars
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+@app.patch("/car/<car_pk>")
+def update_car(car_pk):
+    try:
+        car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
+        car_pk = x.validate_license_plate(car_pk)
+        db, cursor = x.db()
+        q = "UPDATE `cars` SET car_nickname=%s WHERE car_pk=%s"
+        cursor.execute(q, (car_nickname, car_pk))
+        db.commit()
+
+        return "car updated"
+    except Exception as ex:
+        if "company_exception nickname" in str(ex):
+            return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+@app.delete("/car/<car_pk>")
+def delete_car(car_pk):
+   try: 
+        db, cursor = x.db()
+        car_pk = x.validate_license_plate(car_pk)
+        q = 'DELETE FROM `cars` WHERE car_pk=%s'
+        cursor.execute(q, (car_pk, ))
+        db.commit()
+        return "car deleted", 200
+   except Exception as ex:
+       if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+       return str(ex), 500
+   finally:
+       if "cursor" in locals(): cursor.close()
+       if "db" in locals(): db.close()
+   
+
+
+
+
 ##############################
 @app.post("/login")
 def login():

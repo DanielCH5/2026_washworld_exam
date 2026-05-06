@@ -40,6 +40,33 @@ def no_cache(view):
         response.headers["Expires"] = "0"
         return response
     return no_cache_view
+
+##############################
+REGEX_LICENSE_PLATE = "^[A-Z0-9]{1,10}$"
+def validate_license_plate(key):
+    key = key.strip()
+    if not re.match(REGEX_LICENSE_PLATE, key):
+        raise Exception("company_exception license plate")
+    return key
+
+##############################
+NICKNAME_MIN = 1
+NICKNAME_MAX = 50
+REGEX_NICKNAME = f"^.{{{NICKNAME_MIN},{NICKNAME_MAX}}}$"
+def validate_nickname(name):
+    nickname = name.strip()
+    if not re.match(REGEX_NICKNAME, nickname):
+        raise Exception("company_exception nickname")
+    return nickname
+
+##############################
+REGEX_ELECTRIC = f"^[01]$"
+def validate_electric(key):
+    if not re.match(REGEX_ELECTRIC, key):
+        raise Exception("company_exception electric")
+    return key
+
+
 ##############################
 REGEX_UUID4 = "^[0-9a-f]{32}$"
 def validate_uuid4(key):
