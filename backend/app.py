@@ -284,7 +284,23 @@ def forgot_password():
         if "db" in locals(): db.close()
 
 
+##############################
+@app.get("/get-data")
+def get_data():
+    try:
+        db, cursor = x.db()
 
+        q = "SELECT * FROM locations"
+        cursor.execute(q)
+        locations = cursor.fetchall()
+
+
+
+        return locations
+    except Exception as ex:
+        ic(ex)
+        return "ups", 500
+    
 ##############################
 @app.get("/get-locations_da")
 def get_locations_da():
