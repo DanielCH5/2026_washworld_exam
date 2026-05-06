@@ -284,7 +284,23 @@ def forgot_password():
         if "db" in locals(): db.close()
 
 
+##############################
+@app.get("/get-data")
+def get_data():
+    try:
+        db, cursor = x.db()
 
+        q = "SELECT * FROM locations"
+        cursor.execute(q)
+        locations = cursor.fetchall()
+
+
+
+        return locations
+    except Exception as ex:
+        ic(ex)
+        return "ups", 500
+    
 ##############################
 @app.get("/get-locations_da")
 def get_locations_da():
@@ -292,28 +308,59 @@ def get_locations_da():
         # TODO: Connect to db
         api_url = "https://washworld.dk/wp-json/ww/v1/locations?country=da" # Import location data from Washworld
         locations = requests.get(api_url).json() # Use request module to extract json data from the url = JSON objects with all the locations
-        count = 0
+        #count = 0
+        db, cursor = x.db()
 
         
         for location in locations:
             location_pk = uuid.uuid4().hex
-            name = location["name"]
-            address = location["address"]
-            lat = location["coordinates"]["y"]
-            lon = location["coordinates"]["x"]
-            open_hours = location["open_hours"] # Should we split this into open and close?
-            wash_halls = location["service_units"]["hall"]["total_count"]
-            self_wash = location["service_units"]["self_wash"]["total_count"]
-            mat_cleaner = location["service_units"]["mat_cleaner"]["total_count"]
-            vacuum = location["service_units"]["vacuum"]["total_count"]
-            pre_wash = location["service_units"]["pre_wash"]["total_count"]
-            max_height_meters = location["max_height"]
-            max_mirror_width_meters = location["mirror_length"]
-            region = location["region_name"] # Could be in a regions table instead, idk
-            url = location["url"]
-            image_url = location["image"]
-            if wash_halls == 1:
-                count = count + 1
+            location_name = location["name"]
+            location_address = location["address"]
+            location_lat = location["coordinates"]["y"]
+            location_lon = location["coordinates"]["x"]
+            location_open_hours = location["open_hours"] # Should we split this into open and close?
+            location_wash_halls = location["service_units"]["hall"]["total_count"]
+            location_empty_wash_halls = location["service_units"]["hall"]["total_count"] # Skal rettes til live updates
+            location_self_wash = location["service_units"]["self_wash"]["total_count"]
+            location_mat_cleaner = location["service_units"]["mat_cleaner"]["total_count"]
+            location_vacuum = location["service_units"]["vacuum"]["total_count"]
+            location_pre_wash = location["service_units"]["pre_wash"]["total_count"]
+
+            # Washworld inserted decimals with a ",", split strings apart and insert comma for db
+
+            location_max_meters_comma = location["max_height"].split(",")
+            location_max_meters = ".".join(location_max_meters_comma)
+            ic(location_max_meters)
+            ic(location_name)
+            location_max_mirror_width_meters_comma = location["mirror_length"].split(",")
+            location_max_mirror_width_meters = ".".join(location_max_mirror_width_meters_comma)
+
+            location_region = location["region_name"] # Could be in a regions table instead, idk
+
+            location_end_url = location["url"]
+            if location_end_url:
+                split_string = location_end_url.split("/find-wash-world-vaskehal")
+                location_end_url = split_string[1]
+            
+            location_image_end_url = location["image"]
+            if location_image_end_url:
+                split_string = location_image_end_url.split("/uploads")
+                location_image_end_url = split_string[1]
+                        
+            
+            match location_region:
+                case "Sjælland":
+                    region_fk = "1"
+                case "Jylland":
+                    region_fk = "2"
+                case "Fyn":
+                    region_fk = "3"
+
+            q = "INSERT INTO locations VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(q, (location_pk, location_name, location_address, location_lat, location_lon,
+            location_open_hours, location_wash_halls, location_empty_wash_halls, location_self_wash, location_mat_cleaner, location_vacuum,
+            location_pre_wash, location_max_meters, location_max_mirror_width_meters, region_fk, location_end_url, location_image_end_url))
+            db.commit()
 
 
 
@@ -323,8 +370,8 @@ def get_locations_da():
             #vacuum,
             #pre_wash)
             
-
-        ic(count)
+        ic("done")
+        #ic(count)
         return locations    
 
     except Exception as ex:
