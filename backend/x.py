@@ -114,7 +114,7 @@ def validate_name(name, input_field):
 ################################################### VALIDATIONS END ####################################################
 
 ##############################
-def send_email(subject, html):
+def send_email(subject, html, user_email):
     try:    
         # Create a gmail 
         # Enable (turn on) 2 step verification/factor in the google account manager
@@ -122,11 +122,11 @@ def send_email(subject, html):
         # Copy the key :
  
         # Email and password of the sender's Gmail account
-        sender_email = "danielc.hansen1@gmail.com"
-        password = "bcdj oimt gusw hspv"  # If 2FA is on, use an App Password instead
+        sender_email = os.getenv("APP_EMAIL")
+        password = os.getenv("APP_PASSWORD")  # If 2FA is on, use an App Password instead
  
         # Receiver email address
-        receiver_email = "danielc.hansen1@gmail.com"
+        receiver_email = user_email
         
         # Create the email message
         message = MIMEMultipart()

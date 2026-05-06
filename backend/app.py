@@ -241,7 +241,7 @@ def user_signup():
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key)
 
-        x.send_email("Please verify your account", html)
+        x.send_email("Please verify your account", html, user_email)
         return {
             "user_first_name" : user_first_name,
             "user_last_name" : user_last_name,
@@ -265,7 +265,7 @@ def user_signup():
             return f"Last name must be between {x.NAME_MIN} and {x.NAME_MAX}", 400
         if "company_exception email" in str(ex):
             return "Please enter a valid email", 400
-        if "company_exception password" in str(ex):
+        if "company_exception user_password" in str(ex):
             return f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", 400
         return str(ex), 500
     finally:
