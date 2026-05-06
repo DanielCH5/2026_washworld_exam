@@ -75,14 +75,14 @@ def validate_user_password(password):
     return user_password
 
 ##############################
-USER_NAME_MIN = 2
-USER_NAME_MAX = 20
-REGEX_USER_NAME = f"^.{{{USER_NAME_MIN},{USER_NAME_MAX}}}$"
-def validate_user_name(name):
-    user_name = name.strip()
-    if not re.match(REGEX_USER_NAME, user_name):
-        raise Exception("company_exception user_name")
-    return user_name
+NAME_MIN = 2
+NAME_MAX = 20
+REGEX_NAME = f"^.{{{NAME_MIN},{NAME_MAX}}}$"
+def validate_name(name, input_field):
+    name = name.strip()
+    if not re.match(REGEX_NAME, name):
+        raise Exception(f"company_exception {input_field}")
+    return name
 
 ################################################### VALIDATIONS END ####################################################
 
