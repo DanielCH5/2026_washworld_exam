@@ -31,7 +31,10 @@ export default function Map() {
                     lat: location.location_lat,
                     lng: location.location_lon,
                     label: location.location_name,
+                    adress: location.location_address,
+                    opening: location.location_open_hours,
                     washHalls: location.location_wash_halls,
+                    selfWash: location.location_self_wash,
                 }))
             ))
             .catch((err) => console.error("Failed to fetch markers:", err));
@@ -49,8 +52,18 @@ export default function Map() {
 
             {markers.map((marker, index) => (
                 <Marker key={index} position={[marker.lat, marker.lng]}>
-                    <Popup>{marker.label ?? `Marker ${index + 1}`}
-                        <p>{marker.washHalls}</p>
+                    <Popup>
+                        <p className="text-xl font-bold">{marker.label ?? `Marker ${index + 1}`}</p>
+                        <div className="flex row"><p className="font-bold">1,2 km</p>
+                        <p>{marker.adress}</p></div>
+                        <div className="flex row content-center items-center gap-2">
+                        <div>timeicon</div>
+                        <p>Åbningstid: <span className="font-bold">{marker.opening}</span></p>
+                        </div>
+                        
+                        <p>______________________________________</p>
+                        <p className="font-bold">Vaskehaller  {marker.washHalls}</p>
+                        <p className="font-bold">Vash Selv  {marker.selfWash}</p>
                     </Popup>
                 </Marker>
             ))}

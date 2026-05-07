@@ -1,5 +1,10 @@
+
+
 .leaflet-popup-content-wrapper {
-    background-color: orange;
-    padding: 400px;
+    background-color: var(--solid-White);
+    color: var(--solid-Black);
+    padding: 20px;
+    border-radius: 0px;
+    box-shadow: var(--box-Shadow-Hall-Free);
 }
 

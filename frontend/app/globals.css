@@ -1,8 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+  /*----------------COLORS----------------*/
+  /*Primary colors*/
+  --green-White-BG: #06C167;
+  --green-Black-BG: #0ce578;
+  --solid-Black:#000000;
+  --solid-White:#ffffff;
+
+  /*Secondary colors*/
+  --orange-Splash: #ff6B06
+  --grey-80: #333333;
+  --grey-60: #666666;
+  --grey-10: "E5E5E5";
+  --grey-5: #F7F7F7;
+
+  /*Tertiary colors*/
+  --warning-Red: #cd0909;
+  --darker-Green-Details:#089a54;
+
+  /*----------------BOX STYLING----------------*/
+  /*box-shadow for bottom green line*/
+  --box-Bottom-Green-Line: 0px 4px 0px 0px var(--darker-Green-Details);
+
+  /*box shadow for subtly raising white boxes*/
+  --box-Shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.377);
+
+  /*box shadow for free wash hall*/
+  --box-Shadow-Hall-Free: 0px 0px 10px 1px rgba(54, 157, 43, 0.917);
+
+  /*box shadow for occupied wash hall*/
+  --box-Shadow-Hall-Occupied: 0px 0px 10px 0px var(--warning-Red);
 }
 
 @theme inline {
