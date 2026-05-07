@@ -2,10 +2,10 @@
 -- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Host: mariadb
--- Generation Time: Apr 29, 2026 at 12:06 PM
--- Server version: 10.6.20-MariaDB-ubu2004
--- PHP Version: 8.3.26
+-- Vært: mariadb
+-- Genereringstid: 07. 05 2026 kl. 10:36:18
+-- Serverversion: 10.6.20-MariaDB-ubu2004
+-- PHP-version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `addons`
+-- Struktur-dump for tabellen `addons`
 --
 
 CREATE TABLE `addons` (
@@ -35,7 +35,7 @@ CREATE TABLE `addons` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `addons_orders`
+-- Struktur-dump for tabellen `addons_orders`
 --
 
 CREATE TABLE `addons_orders` (
@@ -46,7 +46,7 @@ CREATE TABLE `addons_orders` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `brands`
+-- Struktur-dump for tabellen `brands`
 --
 
 CREATE TABLE `brands` (
@@ -54,10 +54,17 @@ CREATE TABLE `brands` (
   `brand_name` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Data dump for tabellen `brands`
+--
+
+INSERT INTO `brands` (`brand_pk`, `brand_name`) VALUES
+('7bbcd63ef50c4e73afddabdc2f085cb9', 'Volkswagen');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cars`
+-- Struktur-dump for tabellen `cars`
 --
 
 CREATE TABLE `cars` (
@@ -66,14 +73,22 @@ CREATE TABLE `cars` (
   `model_fk` char(32) NOT NULL,
   `car_nickname` varchar(50) NOT NULL,
   `car_electric` tinyint(1) NOT NULL,
-  `car_deleted_at` bigint(20) NOT NULL,
   `subscription_fk` char(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data dump for tabellen `cars`
+--
+
+INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`, `subscription_fk`) VALUES
+('AAAAAAAAAA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Bobby Mobile', 0, NULL),
+('BBBBBBBB', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Ganja Car', 0, NULL),
+('DDDDDDDD', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `locations`
+-- Struktur-dump for tabellen `locations`
 --
 
 CREATE TABLE `locations` (
@@ -97,7 +112,7 @@ CREATE TABLE `locations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `locations`
+-- Data dump for tabellen `locations`
 --
 
 INSERT INTO `locations` (`location_pk`, `location_name`, `location_address`, `location_lat`, `location_lon`, `location_open_hours`, `location_wash_halls`, `location_empty_wash_halls`, `location_self_wash`, `location_mat_cleaner`, `location_vacuum`, `location_pre_wash`, `location_max_meters`, `location_max_mirrors_width_meters`, `region_fk`, `location_end_url`, `location_image_end_url`) VALUES
@@ -176,7 +191,7 @@ INSERT INTO `locations` (`location_pk`, `location_name`, `location_address`, `lo
 -- --------------------------------------------------------
 
 --
--- Table structure for table `models`
+-- Struktur-dump for tabellen `models`
 --
 
 CREATE TABLE `models` (
@@ -185,10 +200,17 @@ CREATE TABLE `models` (
   `model_name` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Data dump for tabellen `models`
+--
+
+INSERT INTO `models` (`model_pk`, `brand_fk`, `model_name`) VALUES
+('55cbfe908f9246e4969941ddcd993542', '7bbcd63ef50c4e73afddabdc2f085cb9', 'Golf');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `orders`
+-- Struktur-dump for tabellen `orders`
 --
 
 CREATE TABLE `orders` (
@@ -204,7 +226,7 @@ CREATE TABLE `orders` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `regions`
+-- Struktur-dump for tabellen `regions`
 --
 
 CREATE TABLE `regions` (
@@ -213,7 +235,7 @@ CREATE TABLE `regions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `regions`
+-- Data dump for tabellen `regions`
 --
 
 INSERT INTO `regions` (`region_pk`, `region_name`) VALUES
@@ -224,7 +246,7 @@ INSERT INTO `regions` (`region_pk`, `region_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `status`
+-- Struktur-dump for tabellen `status`
 --
 
 CREATE TABLE `status` (
@@ -235,7 +257,7 @@ CREATE TABLE `status` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `subscriptions`
+-- Struktur-dump for tabellen `subscriptions`
 --
 
 CREATE TABLE `subscriptions` (
@@ -243,13 +265,13 @@ CREATE TABLE `subscriptions` (
   `wash_fk` char(1) NOT NULL,
   `location_fk` char(32) DEFAULT NULL,
   `all_locations` tinyint(1) DEFAULT NULL,
-  `subscription_deleted_at` bigint(20) NOT NULL
+  `car_fk` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Struktur-dump for tabellen `users`
 --
 
 CREATE TABLE `users` (
@@ -267,10 +289,22 @@ CREATE TABLE `users` (
   `user_verification_key` char(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Data dump for tabellen `users`
+--
+
+INSERT INTO `users` (`user_pk`, `user_first_name`, `user_last_name`, `user_email`, `user_hashed_password`, `user_created_at`, `user_verified_at`, `user_changed_at`, `user_deleted_at`, `user_reset_at`, `user_reset_password_key`, `user_verification_key`) VALUES
+('41b9383ed3b240cea9c327b01918564d', 'Bob', 'Marley', 'bob@marley.com', '12345', 1778057276, NULL, NULL, NULL, NULL, NULL, NULL),
+('c633870018c741b1a09e299a732c0c85', 'John1', 'Johnson1', 'john1@john.com', 'scrypt:32768:8:1$GqXDLzWCfqNUHGqj$696446430630f185ba518bac298dc87623ed34dee82d4e405664d0fb8c4246a3bf7e0cc297802f5e0c4a16cef7b7d0a80b2973d95c92c4ad207e86cbd98e36ab', 1778089426, 0, 0, 0, 0, '4bf90a46e09c406f810418ae29aae888', '627d0ad37acb4d3dab0d3fa483f7142f'),
+('d4b89fc72b6e4babb8b0235a0257c43d', 'John2', 'Johnson2', 'john22@stud.ek.dk', 'scrypt:32768:8:1$iXOCJTbsjc5FxugV$9b3b7f75cdaf0523641ce35f83a984b9a6ffd358c3ff08e2a244313df7f11aac3db40508371252e5d94e180247c3c442693869b13f6a4185823ce2c341337cf7', 1778144718, 0, 0, 0, 0, '6bad24ff9d0f44f0b98fc8b361bca52b', 'a5f085c74cbe4d3987820076db329c6d'),
+('d94290b9ee2846c7a2b40db263eb76bd', 'John2', 'Johnson2', 'masi0001@stud.ek.dk', 'scrypt:32768:8:1$HzXppg0pK4GThqHX$53c12376ea2a3d8300ae5606d6833d09ead7bff99508b2d024f9b63239e4c47f524ab46fbbb28f7924a3a51649cc8f589192c82f3afde7d01601aa3444701e4b', 1778092970, 0, 0, 0, 0, '16dc6ab08d36418e890d4e18726d44f9', 'f24358d5dbae4f44a83ab0c4df4a8c18'),
+('e088541b09e34e54b58f3377ab86507b', 'John2', 'Johnson2', 'john2@stud.ek.dk', 'scrypt:32768:8:1$0PkmHnRBQKBrQfNG$cf2eb48fdea4ecfe1fff64a967098ee477f3df55cc2f64f6f258d6389682c0aadc3819ac6b37bb74d299c3f21004f6ed5019a5e08d544af04e577e48eee69e7c', 1778144705, 0, 0, 0, 0, 'e4aa1bc40c9a445ba1330556efeede39', '6524ebe3c0b64ec98efcda6b312cb029'),
+('e5967722bf2f47c48597b5085c49b8c5', 'John', 'Johnson', 'john@john.com', 'scrypt:32768:8:1$jFdezWG5Dy1qhdje$9489f0889ed727995c546a0e9706da1a5c906c30e0b4ff20b59f68ce694ca2c96cf8cfed257e3834fda6e27d60d73aa47a437b596fe703ba09a0423fe8afbe4f', 1778089271, 0, 0, 0, 0, 'f9464edd40a44e90895be9abb0bf119e', '5db11f4264c24ade9ca21ed0c51a7a55');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `washes`
+-- Struktur-dump for tabellen `washes`
 --
 
 CREATE TABLE `washes` (
@@ -279,53 +313,61 @@ CREATE TABLE `washes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Data dump for tabellen `washes`
+--
+
+INSERT INTO `washes` (`wash_pk`, `wash_name`) VALUES
+('1', 'Guld'),
+('2', 'Premium'),
+('3', 'Brilliant');
+
+--
+-- Begrænsninger for dumpede tabeller
 --
 
 --
--- Indexes for table `addons`
+-- Indeks for tabel `addons`
 --
 ALTER TABLE `addons`
   ADD PRIMARY KEY (`addon_pk`);
 
 --
--- Indexes for table `addons_orders`
+-- Indeks for tabel `addons_orders`
 --
 ALTER TABLE `addons_orders`
   ADD KEY `idx_addons_orders_order` (`order_fk`),
   ADD KEY `idx_addons_orders_addon` (`addon_fk`);
 
 --
--- Indexes for table `brands`
+-- Indeks for tabel `brands`
 --
 ALTER TABLE `brands`
   ADD PRIMARY KEY (`brand_pk`);
 
 --
--- Indexes for table `cars`
+-- Indeks for tabel `cars`
 --
 ALTER TABLE `cars`
   ADD PRIMARY KEY (`car_pk`),
   ADD KEY `idx_cars_user` (`user_fk`),
-  ADD KEY `idx_cars_model` (`model_fk`),
-  ADD KEY `idx_cars_subscription` (`subscription_fk`);
+  ADD KEY `idx_cars_model` (`model_fk`);
 
 --
--- Indexes for table `locations`
+-- Indeks for tabel `locations`
 --
 ALTER TABLE `locations`
   ADD PRIMARY KEY (`location_pk`),
   ADD KEY `idx_locations_region` (`region_fk`);
 
 --
--- Indexes for table `models`
+-- Indeks for tabel `models`
 --
 ALTER TABLE `models`
   ADD PRIMARY KEY (`model_pk`),
   ADD KEY `idx_models_brand` (`brand_fk`);
 
 --
--- Indexes for table `orders`
+-- Indeks for tabel `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_pk`),
@@ -336,51 +378,52 @@ ALTER TABLE `orders`
   ADD KEY `idx_orders_status` (`status_fk`);
 
 --
--- Indexes for table `regions`
+-- Indeks for tabel `regions`
 --
 ALTER TABLE `regions`
   ADD PRIMARY KEY (`region_pk`);
 
 --
--- Indexes for table `status`
+-- Indeks for tabel `status`
 --
 ALTER TABLE `status`
   ADD PRIMARY KEY (`status_pk`);
 
 --
--- Indexes for table `subscriptions`
+-- Indeks for tabel `subscriptions`
 --
 ALTER TABLE `subscriptions`
   ADD PRIMARY KEY (`subscription_pk`),
   ADD KEY `idx_subscriptions_wash` (`wash_fk`),
-  ADD KEY `idx_subscriptions_location` (`location_fk`);
+  ADD KEY `idx_subscriptions_location` (`location_fk`),
+  ADD KEY `fk_subscriptions_car` (`car_fk`);
 
 --
--- Indexes for table `users`
+-- Indeks for tabel `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_pk`),
   ADD UNIQUE KEY `user_email` (`user_email`);
 
 --
--- Indexes for table `washes`
+-- Indeks for tabel `washes`
 --
 ALTER TABLE `washes`
   ADD PRIMARY KEY (`wash_pk`);
 
 --
--- Constraints for dumped tables
+-- Begrænsninger for dumpede tabeller
 --
 
 --
--- Constraints for table `addons_orders`
+-- Begrænsninger for tabel `addons_orders`
 --
 ALTER TABLE `addons_orders`
   ADD CONSTRAINT `fk_addons_orders_addon` FOREIGN KEY (`addon_fk`) REFERENCES `addons` (`addon_pk`),
   ADD CONSTRAINT `fk_addons_orders_order` FOREIGN KEY (`order_fk`) REFERENCES `orders` (`order_pk`);
 
 --
--- Constraints for table `cars`
+-- Begrænsninger for tabel `cars`
 --
 ALTER TABLE `cars`
   ADD CONSTRAINT `fk_cars_model` FOREIGN KEY (`model_fk`) REFERENCES `models` (`model_pk`),
@@ -388,19 +431,19 @@ ALTER TABLE `cars`
   ADD CONSTRAINT `fk_cars_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`);
 
 --
--- Constraints for table `locations`
+-- Begrænsninger for tabel `locations`
 --
 ALTER TABLE `locations`
   ADD CONSTRAINT `fk_locations_region` FOREIGN KEY (`region_fk`) REFERENCES `regions` (`region_pk`);
 
 --
--- Constraints for table `models`
+-- Begrænsninger for tabel `models`
 --
 ALTER TABLE `models`
   ADD CONSTRAINT `fk_models_brand` FOREIGN KEY (`brand_fk`) REFERENCES `brands` (`brand_pk`);
 
 --
--- Constraints for table `orders`
+-- Begrænsninger for tabel `orders`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`),
@@ -410,9 +453,10 @@ ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_wash` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
 
 --
--- Constraints for table `subscriptions`
+-- Begrænsninger for tabel `subscriptions`
 --
 ALTER TABLE `subscriptions`
+  ADD CONSTRAINT `fk_subscriptions_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`),
   ADD CONSTRAINT `fk_subscriptions_location` FOREIGN KEY (`location_fk`) REFERENCES `locations` (`location_pk`),
   ADD CONSTRAINT `fk_subscriptions_wash` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
 COMMIT;
