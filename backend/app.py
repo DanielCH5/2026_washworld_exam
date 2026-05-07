@@ -235,28 +235,15 @@ def user_signup():
 
         cursor.execute(q, (user_pk, user_first_name, user_last_name, 
         user_email, user_hashed_password, user_created_at, user_verified_at, user_changed_at,
-        user_deleted_at, user_reset_at, user_verification_key, user_reset_password_key))
+        user_deleted_at, user_reset_at, user_reset_password_key, user_verification_key))
 
         db.commit()
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key)
 
         x.send_email("Please verify your account", html, user_email)
-        return {
-            "user_first_name" : user_first_name,
-            "user_last_name" : user_last_name,
-            "user_email" : user_email,
-            "user_pk" : user_pk,
-            "user_hashed_password" : user_hashed_password,
-            "user_password" : user_password,
-            "user_created_at" : user_created_at,
-            "user_verified_at" : user_verified_at,
-            "user_changed_at" : user_changed_at,
-            "user_deleted_at" : user_deleted_at,
-            "user_reset_at" : user_reset_at,
-            "user_reset_password_key" : user_reset_password_key,
-            "user_verification_key" : user_verification_key
-        }
+        # TODO: Specify return values and the structure of the json objects we should return
+        return "User created", 201
     except Exception as ex:
         ic(ex)
         if "company_exception user_first_name" in str(ex): 
@@ -280,11 +267,10 @@ def verify_account(key):
         # TODO: Validate the key
         user_verification_key = x.validate_uuid4(key)
         user_verified_at = int(time.time())
+
         # TODO: Connect to the db
-        db, cursor = x.db()
-      
-        
-        
+        db, cursor = x.db()      
+          
         # TODO: Update the verified_at column
         # TODO: Update the verification_key column
 
@@ -292,22 +278,16 @@ def verify_account(key):
 
         cursor.execute(q, (user_verified_at, key))
         rows = cursor.rowcount
-        ic(rows)
+
         if not rows:
-            raise Exception("company_exception no_user")
+            return "User already verified", 400
+        
         db.commit()
-        # TODO: Check for previous verification
-
-
-
         return f"User is verified with key {key}"
     except Exception as ex:
         ic(ex)
         if "company_exception key" in str(ex):
-            return "Invalid verification key", 400
-
-        if "company_exception no_user" in str(ex):
-            return "User already verified", 400
+            return "Invalid verification key", 400         
         
         return str(ex), 500
 
