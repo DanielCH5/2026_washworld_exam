@@ -4,7 +4,7 @@ import time
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from flask_cors import CORS
 import requests
 
@@ -243,31 +243,37 @@ def user_verify_account(key):
 ######################### LOGIN API AND RESET/CHANGE    #########################
 @app.post("/login")
 def login():
-    # Email
-    # Password
-
-    user_email = x.validate_email(request.form.get("user_email", ""))
-    user_password = x.validate_user_password(request.form.get("user_password", ""))
-
-    ic(password)
-    db, cursor = x.db()
-    q = "SELECT user_first_name, user_hashed_password, user_last_name FROM users WHERE user_email = %s"
-    cursor.execute(q, (email,))
-    user = cursor.fetchone()
-    ic(user)
-    if not user:
-        return "Invalid email or password", 400
-    if not check_password_hash(user["user_hashed_password"], user_password):
-            return "Invalid email or password", 400
-
-    user_logged_in = {
-        "name" : user["user_first_name"],
-        "last_name" : user["user_last_name"]
-    }
-
-    access_token = create_access_token(identity=str(user_logged_in))
-
-    return jsonify(access_token=access_token)
+    try:
+        user_email = x.validate_email(request.form.get("user_email", ""))
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+    
+        db, cursor = x.db()
+        q = "SELECT user_first_name, user_last_name, user_hashed_password FROM users WHERE user_email = %s"
+        cursor.execute(q, (user_email,))
+        user = cursor.fetchone()
+        ic(user)
+        if not user:
+            return jsonify({"error": "Invalid email or password"}), 401
+        if not check_password_hash(user["user_hashed_password"], user_password):
+            return jsonify({"error": "Invalid email or password"}), 401
+        
+        user_logged_in = {
+            "name" : user["user_first_name"],
+            "last_name" : user["user_last_name"]
+        }
+    
+        access_token = create_access_token(identity=str(user_logged_in))
+    
+        return jsonify(access_token=access_token)
+    except Exception as ex:
+        ic(ex)
+        if "company_exception email" in str(ex):
+            return "Please enter a valid email", 400
+        if "company_exception user_password" in str(ex):
+            return f"Please enter a valid password", 400
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
 @app.get("/profile")
 @jwt_required()
