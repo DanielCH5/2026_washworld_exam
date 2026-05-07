@@ -154,6 +154,8 @@ def create_car():
 
 
 
+
+
         return "car created", 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
@@ -164,6 +166,7 @@ def create_car():
             return "Invalid license plate", 400
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
+        if "company_exception 01" in str(ex):
         if "company_exception 01" in str(ex):
             return "Car electric must be 0 or 1", 400
         

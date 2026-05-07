@@ -74,11 +74,18 @@ def validate_nickname(name):
     return nickname
 
 ##############################
-REGEX_ELECTRIC = f"^[01]$"
-def validate_electric(key):
-    if not re.match(REGEX_ELECTRIC, key):
-        raise Exception("company_exception electric")
+REGEX_01 = f"^[01]$"
+def validate_01(key):
+    if not re.match(REGEX_01, key):
+        raise Exception("company_exception 01")
     return key
+
+##############################
+REGEX_ONE_NUMBER = f"^\d$"
+def validate_one_number(number):
+    if not re.match(REGEX_ONE_NUMBER, number):
+        raise Exception("company_exception number")
+    return number
 
 
 ##############################
