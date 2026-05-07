@@ -210,8 +210,8 @@ def show_signup():
 def user_signup():
     try:
         # TODO: Validate user input
-        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name")
-        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name")
+        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name").capitalize()
+        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name").capitalize()
         user_email = x.validate_email(request.form.get("user_email", ""))
         user_password = x.validate_user_password(request.form.get("user_password", ""))
 
@@ -239,7 +239,7 @@ def user_signup():
 
         db.commit()
 
-        html = render_template("email_welcome.html", user_verification_key=user_verification_key)
+        html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
 
         x.send_email("Please verify your account", html, user_email)
         # TODO: Specify return values and the structure of the json objects we should return
