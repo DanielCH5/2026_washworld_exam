@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "../public/map.css";
 import L from "leaflet";
 
 // Fix for missing marker icons in bundlers like Vite/Webpack
@@ -30,6 +31,7 @@ export default function Map() {
                     lat: location.location_lat,
                     lng: location.location_lon,
                     label: location.location_name,
+                    washHalls: location.location_wash_halls,
                 }))
             ))
             .catch((err) => console.error("Failed to fetch markers:", err));
@@ -47,7 +49,9 @@ export default function Map() {
 
             {markers.map((marker, index) => (
                 <Marker key={index} position={[marker.lat, marker.lng]}>
-                    <Popup>{marker.label ?? `Marker ${index + 1}`}</Popup>
+                    <Popup>{marker.label ?? `Marker ${index + 1}`}
+                        <p>{marker.washHalls}</p>
+                    </Popup>
                 </Marker>
             ))}
         </MapContainer>
