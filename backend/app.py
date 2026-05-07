@@ -24,7 +24,12 @@ from dotenv import load_dotenv
 load_dotenv() # Loads the .env variables
 
 
-##############################
+############################################################
+############################################################
+#############      CAR API FUNCTIONS    ####################
+############################################################
+############################################################
+############################################################
 @app.post("/car")
 def create_car():
     #TODO USER_FK FROM SESSION
@@ -137,75 +142,15 @@ def delete_car(car_pk):
        if "cursor" in locals(): cursor.close()
        if "db" in locals(): db.close()
    
+############################################################
+############################################################
+#############     USER API FUNCTIONS    ####################
+############################################################
+############################################################
+############################################################
 
 
-
-
-##############################
-@app.post("/login")
-def login():
-    # Email
-    # Password
-
-    email = x.validate_email(request.form.get("email", ""))
-    password = x.validate_user_password(request.form.get("password", ""))
-
-    ic(password)
-    db, cursor = x.db()
-    q = "SELECT user_name, user_password, user_last_name FROM users WHERE user_email = %s"
-    cursor.execute(q, (email,))
-    user = cursor.fetchone()
-    ic(user)
-    if not user:
-        return "Invalid credentials", 400
-    if not check_password_hash(user["user_password"], password):
-            return "Invalid credentials", 400
-
-    user_logged_in = {
-        "name" : user["user_name"],
-        "last_name" : user["user_last_name"]
-    }
-
-    access_token = create_access_token(identity=str(user_logged_in))
-
-    return jsonify(access_token=access_token)
-##############################
-@app.get("/profile")
-@jwt_required()
-def show_profile():
-    return "profile"
-
-##############################
-@app.get("/login")
-def show_login():
-    return render_template("page_login.html")
-
-##############################
-@app.get("/")
-def index():
-    return jsonify({"status":"ok", "message":"Connected"})
-
-
-##############################
-@app.route("/people")
-def get_people():
-    return jsonify({
-        "people": [
-            {"first_name" : "Daniel", "last_name" : "Hansen", "cpr" : "1234567890"},
-            {"first_name" : "A", "last_name" : "Aa", "cpr" : "2"},
-            {"first_name" : "Bb", "last_name" : "BBB", "cpr" : "1"},
-            ]
-    })    
-##############################
-@app.get("/signup")
-def show_signup():
-    try:
-        signup_page = render_template("page_signup.html")
-        return signup_page
-    except Exception as ex:
-        ic(ex)
-        str(ex), 500
-##############################
+######################### SIGN UP APIs AND VERIFICATION #########################
 @app.post("/user-signup")
 def user_signup():
     try:
@@ -262,7 +207,7 @@ def user_signup():
 
 ##############################
 @app.get("/verify/<key>")
-def verify_account(key):
+def user_verify_account(key):
     try:
         # TODO: Validate the key
         user_verification_key = x.validate_uuid4(key)
@@ -280,7 +225,7 @@ def verify_account(key):
         rows = cursor.rowcount
 
         if not rows:
-            return "User already verified", 400
+            return "User already verified", 400 # If the user clicks the link again, this will get returned
         
         db.commit()
         return f"User is verified with key {key}"
@@ -294,7 +239,50 @@ def verify_account(key):
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+######################### LOGIN API AND RESET/CHANGE    #########################
+@app.post("/login")
+def login():
+    # Email
+    # Password
+
+    user_email = x.validate_email(request.form.get("user_email", ""))
+    user_password = x.validate_user_password(request.form.get("user_password", ""))
+
+    ic(password)
+    db, cursor = x.db()
+    q = "SELECT user_first_name, user_hashed_password, user_last_name FROM users WHERE user_email = %s"
+    cursor.execute(q, (email,))
+    user = cursor.fetchone()
+    ic(user)
+    if not user:
+        return "Invalid email or password", 400
+    if not check_password_hash(user["user_hashed_password"], user_password):
+            return "Invalid email or password", 400
+
+    user_logged_in = {
+        "name" : user["user_first_name"],
+        "last_name" : user["user_last_name"]
+    }
+
+    access_token = create_access_token(identity=str(user_logged_in))
+
+    return jsonify(access_token=access_token)
 ##############################
+@app.get("/profile")
+@jwt_required()
+def show_profile():
+    return "profile"
+
+##############################
+@app.get("/login")
+def show_login():
+    return render_template("page_login.html")
+
+##############################
+@app.get("/")
+def index():
+    return jsonify({"status":"ok", "message":"Connected"})
 
 @app.get("/forgot-password")
 def show_forgot_password():
