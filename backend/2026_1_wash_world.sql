@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: mariadb
--- Genereringstid: 07. 05 2026 kl. 11:22:19
+-- Genereringstid: 07. 05 2026 kl. 13:38:17
 -- Serverversion: 10.6.20-MariaDB-ubu2004
 -- PHP-version: 8.3.26
 
@@ -81,8 +81,7 @@ CREATE TABLE `cars` (
 
 INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES
 ('AAAAAAAAAA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Bobby Mobile', 0),
-('BBBBBBBB', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Ganja Car', 0),
-('DDDDDDDD', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0);
+('DDDDDDDA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0);
 
 -- --------------------------------------------------------
 
@@ -267,6 +266,13 @@ CREATE TABLE `subscriptions` (
   `car_fk` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Data dump for tabellen `subscriptions`
+--
+
+INSERT INTO `subscriptions` (`subscription_pk`, `wash_fk`, `location_fk`, `all_locations`, `car_fk`) VALUES
+('4dcc3cb3f42748f4a69c77cd79462320', '2', '052fb920997248898e5b26533fd68195', 1, 'AAAAAAAAAA');
+
 -- --------------------------------------------------------
 
 --
@@ -295,6 +301,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_pk`, `user_first_name`, `user_last_name`, `user_email`, `user_hashed_password`, `user_created_at`, `user_verified_at`, `user_changed_at`, `user_deleted_at`, `user_reset_at`, `user_reset_password_key`, `user_verification_key`) VALUES
 ('41b9383ed3b240cea9c327b01918564d', 'Bob', 'Marley', 'bob@marley.com', '12345', 1778057276, NULL, NULL, NULL, NULL, NULL, NULL),
 ('c633870018c741b1a09e299a732c0c85', 'John1', 'Johnson1', 'john1@john.com', 'scrypt:32768:8:1$GqXDLzWCfqNUHGqj$696446430630f185ba518bac298dc87623ed34dee82d4e405664d0fb8c4246a3bf7e0cc297802f5e0c4a16cef7b7d0a80b2973d95c92c4ad207e86cbd98e36ab', 1778089426, 0, 0, 0, 0, '4bf90a46e09c406f810418ae29aae888', '627d0ad37acb4d3dab0d3fa483f7142f'),
+('d3af55b485564244924390234cd16a71', 'John2', 'Johnson2', 'john2@john.com', 'scrypt:32768:8:1$7Ga7EpiUsD16UWKy$3265d86a5f56907c3d1a32b43b07b00dce9caaf92eaf9ae976e871fe4e63e82204fcd1356f2f3b0c7f2f407a7809d2770e1a0e9d494f1b9870278217fdbe1d20', 1778159905, 0, 0, 0, 0, '05d4c7f958e84a6dbef29510ce10c894', '2439f2abac9b4d0a8e256ee0684b8be2'),
 ('d4b89fc72b6e4babb8b0235a0257c43d', 'John2', 'Johnson2', 'john22@stud.ek.dk', 'scrypt:32768:8:1$iXOCJTbsjc5FxugV$9b3b7f75cdaf0523641ce35f83a984b9a6ffd358c3ff08e2a244313df7f11aac3db40508371252e5d94e180247c3c442693869b13f6a4185823ce2c341337cf7', 1778144718, 0, 0, 0, 0, '6bad24ff9d0f44f0b98fc8b361bca52b', 'a5f085c74cbe4d3987820076db329c6d'),
 ('d94290b9ee2846c7a2b40db263eb76bd', 'John2', 'Johnson2', 'masi0001@stud.ek.dk', 'scrypt:32768:8:1$HzXppg0pK4GThqHX$53c12376ea2a3d8300ae5606d6833d09ead7bff99508b2d024f9b63239e4c47f524ab46fbbb28f7924a3a51649cc8f589192c82f3afde7d01601aa3444701e4b', 1778092970, 0, 0, 0, 0, '16dc6ab08d36418e890d4e18726d44f9', 'f24358d5dbae4f44a83ab0c4df4a8c18'),
 ('e088541b09e34e54b58f3377ab86507b', 'John2', 'Johnson2', 'john2@stud.ek.dk', 'scrypt:32768:8:1$0PkmHnRBQKBrQfNG$cf2eb48fdea4ecfe1fff64a967098ee477f3df55cc2f64f6f258d6389682c0aadc3819ac6b37bb74d299c3f21004f6ed5019a5e08d544af04e577e48eee69e7c', 1778144705, 0, 0, 0, 0, 'e4aa1bc40c9a445ba1330556efeede39', '6524ebe3c0b64ec98efcda6b312cb029'),
@@ -393,9 +400,9 @@ ALTER TABLE `status`
 --
 ALTER TABLE `subscriptions`
   ADD PRIMARY KEY (`subscription_pk`),
+  ADD UNIQUE KEY `car_fk` (`car_fk`),
   ADD KEY `idx_subscriptions_wash` (`wash_fk`),
-  ADD KEY `idx_subscriptions_location` (`location_fk`),
-  ADD KEY `fk_subscriptions_car` (`car_fk`);
+  ADD KEY `idx_subscriptions_location` (`location_fk`);
 
 --
 -- Indeks for tabel `users`
@@ -454,7 +461,7 @@ ALTER TABLE `orders`
 -- Begrænsninger for tabel `subscriptions`
 --
 ALTER TABLE `subscriptions`
-  ADD CONSTRAINT `fk_subscriptions_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`),
+  ADD CONSTRAINT `fk_subscriptions_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_subscriptions_location` FOREIGN KEY (`location_fk`) REFERENCES `locations` (`location_pk`),
   ADD CONSTRAINT `fk_subscriptions_wash` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
 COMMIT;

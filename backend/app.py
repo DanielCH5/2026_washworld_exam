@@ -42,6 +42,8 @@ def create_subscription():
 
         return "Subscription created", 201
     except Exception as ex:
+        if "Duplicate entry" in str(ex):
+            return "This car already has a subscription", 400
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
         if "company_exception key" in str(ex):
@@ -145,16 +147,12 @@ def create_car():
         car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
-        car_electric = x.validate_electric(request.form.get("car_electric", ""))
+        car_electric = x.validate_01(request.form.get("car_electric", ""))
         db, cursor = x.db()
 
         q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES (%s,%s,%s,%s,%s)"
         cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric))
         db.commit()
-
-
-
-
 
         return "car created", 201
     except Exception as ex:
@@ -166,7 +164,6 @@ def create_car():
             return "Invalid license plate", 400
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
-        if "company_exception 01" in str(ex):
         if "company_exception 01" in str(ex):
             return "Car electric must be 0 or 1", 400
         
@@ -385,7 +382,7 @@ def user_signup():
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key)
 
-        x.send_email("Please verify your account", html, user_email)
+        #x.send_email("Please verify your account", html, user_email)
         return {
             "user_first_name" : user_first_name,
             "user_last_name" : user_last_name,
