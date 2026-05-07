@@ -23,6 +23,117 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+##############################
+@app.post("/subscription")
+def create_subscription():
+    try:
+
+        subscription_pk = uuid.uuid4().hex
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        all_locations = x.validate_01(request.form.get("all_locations", ""))
+        location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+
+        db, cursor = x.db()
+
+        q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk ))
+        db.commit()
+
+        return "Subscription created", 201
+    except Exception as ex:
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception 01" in str(ex):
+            return "All_locations must be 0 or 1", 400
+        if "company_exception number" in str(ex):
+            return f"Wash ID is incorrect", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+        
+##############################
+@app.patch("/subscription/<subscription_pk>")
+def update_subscription(subscription_pk):
+    try:
+        parts = []
+        values = []
+
+        subscription_pk = x.validate_uuid4(subscription_pk)
+
+        if "wash_pk" in request.form:
+            wash_fk = x.validate_one_number(request.form.get("wash_pk", ""))
+            parts.append("wash_fk = %s")
+            values.append(wash_fk)
+
+        
+
+        if "location_pk" in request.form:
+            location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+            parts.append("location_fk = %s")
+            values.append(location_fk)
+
+        
+        if "all_locations" in request.form:
+            all_locations = x.validate_01(request.form.get("all_locations", ""))
+            parts.append("all_locations = %s")
+            values.append(all_locations)
+        
+        if "wash_pk" not in request.form and "location_pk" not in request.form and "all_locations" not in request.form:
+            return "nothing to update", 400
+        
+        partial_query = ", ".join(parts)
+
+        values.append(subscription_pk)
+
+        db, cursor = x.db()
+        q = f"""
+            UPDATE subscriptions
+            SET	{partial_query}
+            WHERE subscription_pk = %s
+        """
+        cursor.execute(q, values)
+        db.commit()
+
+        return "Subcription updated"
+    except Exception as ex:
+
+        if "company_exception number" in str(ex):
+            return f"Wash_pk is invalid", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception 01" in str(ex):
+            return "All_locations must be 0 or 1", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.delete("/subscription/<subscription_pk>")
+def delete_subscription(subscription_pk):
+   try: 
+        db, cursor = x.db()
+        subscription_pk = x.validate_uuid4(subscription_pk)
+        q = 'DELETE FROM `subscriptions` WHERE subscription_pk=%s'
+        cursor.execute(q, (subscription_pk, ))
+        db.commit()
+        return "subscription deleted", 200
+   except Exception as ex:
+       if "company_exception key" in str(ex):
+            return "Invalid key", 400
+       return str(ex), 500
+   finally:
+       if "cursor" in locals(): cursor.close()
+       if "db" in locals(): db.close()
+   
+
 
 ##############################
 @app.post("/car")
@@ -35,22 +146,25 @@ def create_car():
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
         car_electric = x.validate_electric(request.form.get("car_electric", ""))
-        car_deleted_at = 0
         db, cursor = x.db()
 
-        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`, `car_deleted_at`) VALUES (%s,%s,%s,%s,%s,%s)"
-        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric, car_deleted_at))
+        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES (%s,%s,%s,%s,%s)"
+        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric))
         db.commit()
+
+
 
         return "car created", 201
     except Exception as ex:
+        if "Duplicate entry" in str(ex):
+            return "License plate already exists", 400
         if "company_exception key" in str(ex):
             return "Invalid key", 400
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
-        if "company_exception electric" in str(ex):
+        if "company_exception 01" in str(ex):
             return "Car electric must be 0 or 1", 400
         
         return str(ex), 500
@@ -65,7 +179,22 @@ def get_car(car_pk):
     try:
         db, cursor = x.db()
         car_pk = x.validate_license_plate(car_pk)
-        q = "SELECT * FROM `cars` WHERE car_pk=%s"
+        q = """SELECT
+    cars.*,
+    subscriptions.subscription_pk,
+    subscriptions.wash_fk,
+    subscriptions.location_fk,
+    subscriptions.all_locations,
+    washes.wash_name AS wash_name,
+    locations.location_name AS location_name
+FROM cars
+LEFT JOIN subscriptions
+    ON subscriptions.car_fk = cars.car_pk
+LEFT JOIN washes
+    ON subscriptions.wash_fk = washes.wash_pk
+LEFT JOIN locations
+    ON subscriptions.location_fk = locations.location_pk
+WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
         return car
@@ -85,7 +214,21 @@ def get_cars(user_fk):
     try:
         db, cursor = x.db()
         user_fk = x.validate_uuid4(user_fk)
-        q = "SELECT * FROM `cars` WHERE user_fk=%s"
+        q = """SELECT
+    cars.*,
+    subscriptions.subscription_pk,
+    subscriptions.wash_fk,
+    subscriptions.location_fk,
+    washes.wash_name AS wash_name,
+    locations.location_name AS location_name
+FROM cars
+LEFT JOIN subscriptions
+    ON subscriptions.car_fk = cars.car_pk
+LEFT JOIN washes
+    ON subscriptions.wash_fk = washes.wash_pk
+LEFT JOIN locations
+    ON subscriptions.location_fk = locations.location_pk
+WHERE cars.user_fk = %s"""
         cursor.execute(q, (user_fk,))
         cars = cursor.fetchall()
 
@@ -98,6 +241,7 @@ def get_cars(user_fk):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+##############################
 @app.patch("/car/<car_pk>")
 def update_car(car_pk):
     try:
@@ -119,7 +263,7 @@ def update_car(car_pk):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
+##############################
 @app.delete("/car/<car_pk>")
 def delete_car(car_pk):
    try: 
@@ -137,9 +281,6 @@ def delete_car(car_pk):
        if "cursor" in locals(): cursor.close()
        if "db" in locals(): db.close()
    
-
-
-
 
 ##############################
 @app.post("/login")
