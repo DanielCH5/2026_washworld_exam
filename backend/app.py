@@ -23,6 +23,59 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+##############################
+@app.post("/subscription")
+def create_subscription():
+    try:
+        parts = []
+        values = []
+
+        subscription_pk = uuid.uuid4().hex
+        parts.append("subscription_pk")
+        values.append(subscription_pk)
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        parts.append("wash_fk")
+        values.append(wash_fk)
+
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        parts.append("car_fk")
+        values.append(car_fk)
+        
+        all_locations = x.validate_01(request.form.get("all_locations", ""))
+        parts.append("all_locations")
+        values.append(all_locations)
+        ic(all_locations)
+
+        if all_locations == "0":
+            location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+            parts.append("location_fk")
+            values.append(location_fk)
+        db, cursor = x.db()
+
+        columns = ", ".join(parts)
+        placeholders = ", ".join(["%s"] * len(values))
+
+        q = f"INSERT INTO subscriptions ({columns}) VALUES ({placeholders})"
+        cursor.execute(q, values)
+        db.commit()
+
+        return "Subscription created", 201
+    except Exception as ex:
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception 01" in str(ex):
+            return "All_locations must be 0 or 1", 400
+        if "company_exception number" in str(ex):
+            return f"Wash ID is incorrect", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+        
+
 
 ##############################
 @app.post("/car")
@@ -42,6 +95,8 @@ def create_car():
         cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric, car_deleted_at))
         db.commit()
 
+
+
         return "car created", 201
     except Exception as ex:
         if "company_exception key" in str(ex):
@@ -50,7 +105,7 @@ def create_car():
             return "Invalid license plate", 400
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
-        if "company_exception electric" in str(ex):
+        if "company_exception 01" in str(ex):
             return "Car electric must be 0 or 1", 400
         
         return str(ex), 500

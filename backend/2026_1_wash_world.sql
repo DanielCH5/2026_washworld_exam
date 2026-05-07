@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: mariadb
--- Genereringstid: 07. 05 2026 kl. 10:36:18
+-- Genereringstid: 07. 05 2026 kl. 11:22:19
 -- Serverversion: 10.6.20-MariaDB-ubu2004
 -- PHP-version: 8.3.26
 
@@ -72,18 +72,17 @@ CREATE TABLE `cars` (
   `user_fk` char(32) NOT NULL,
   `model_fk` char(32) NOT NULL,
   `car_nickname` varchar(50) NOT NULL,
-  `car_electric` tinyint(1) NOT NULL,
-  `subscription_fk` char(32) DEFAULT NULL
+  `car_electric` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Data dump for tabellen `cars`
 --
 
-INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`, `subscription_fk`) VALUES
-('AAAAAAAAAA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Bobby Mobile', 0, NULL),
-('BBBBBBBB', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Ganja Car', 0, NULL),
-('DDDDDDDD', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0, NULL);
+INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES
+('AAAAAAAAAA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Bobby Mobile', 0),
+('BBBBBBBB', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Ganja Car', 0),
+('DDDDDDDD', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0);
 
 -- --------------------------------------------------------
 
@@ -427,7 +426,6 @@ ALTER TABLE `addons_orders`
 --
 ALTER TABLE `cars`
   ADD CONSTRAINT `fk_cars_model` FOREIGN KEY (`model_fk`) REFERENCES `models` (`model_pk`),
-  ADD CONSTRAINT `fk_cars_subscription` FOREIGN KEY (`subscription_fk`) REFERENCES `subscriptions` (`subscription_pk`),
   ADD CONSTRAINT `fk_cars_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`);
 
 --
