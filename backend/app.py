@@ -23,6 +23,131 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+
+##############################
+@app.post("/order")
+def create_order():
+    try:
+
+        order_pk = uuid.uuid4().hex
+        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        order_time_at = int(time.time())
+        location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        addon_list = [x.validate_numbers_upto_12(a) for a in request.form.getlist("addon_pk")]
+        car_status = "1"
+
+        if x.check_car_active_order(car_fk):
+            return "This car already has an active order", 400
+        
+        db, cursor = x.db()
+
+        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (order_pk, user_fk, wash_fk, order_time_at, location_fk, car_fk, car_status ))
+        db.commit()
+        
+
+        q = "Insert into `addons_orders` VALUES(%s, %s)"
+        for addon_fk in addon_list:
+            cursor.execute(q, (order_pk, addon_fk))
+        db.commit()
+        
+
+        return "Order created", 201
+    except Exception as ex:
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception number" in str(ex):
+            return "Invalid wash type", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.get("/order/<order_pk>")
+def get_order(order_pk):
+    try:
+        db, cursor = x.db()
+        order_pk = x.validate_uuid4(order_pk)
+        q = """SELECT 
+    o.*,
+    GROUP_CONCAT(ao.addon_fk) AS addon_list
+FROM orders o
+LEFT JOIN addons_orders ao 
+    ON o.order_pk = ao.order_fk
+WHERE o.order_pk = %s
+GROUP BY o.order_pk
+"""
+        cursor.execute(q, (order_pk,))
+        car = cursor.fetchone()
+        return car
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.get("/order/status/<order_pk>")
+def change_order_status(order_pk):
+    try:
+        order_pk = x.validate_uuid4(order_pk)
+
+        db, cursor = x.db()
+        q = "SELECT status_fk FROM `orders` WHERE order_pk=%s"
+        cursor.execute(q, (order_pk,))
+        row = cursor.fetchone()
+
+        order_status = row["status_fk"]
+
+        if order_status == "1":
+            order_status = "2"
+        else:
+            order_status = "3"
+
+        q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
+        cursor.execute(q, (order_status, order_pk))
+        db.commit()
+
+        return "order updated"
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return f"Invalid key", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.delete("/order/<order_pk>")
+def delete_order(order_pk):
+   try: 
+        db, cursor = x.db()
+        order_pk = x.validate_uuid4(order_pk)
+        q = 'DELETE FROM `orders` WHERE order_pk=%s and status_fk=1'
+        cursor.execute(q, (order_pk, ))
+        db.commit()
+
+        if cursor.rowcount == 0:
+            return "Order not deleted(Not found or status not reserved)", 400
+
+        return "order deleted", 200
+   except Exception as ex:
+       if "company_exception key" in str(ex):
+            return "Invalid key", 400
+       return str(ex), 500
+   finally:
+       if "cursor" in locals(): cursor.close()
+       if "db" in locals(): db.close()
+   
+
 ##############################
 @app.post("/subscription")
 def create_subscription():
