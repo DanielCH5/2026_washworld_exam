@@ -4,7 +4,7 @@ import time
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from flask_cors import CORS
 import requests
 
@@ -15,7 +15,10 @@ app = Flask(__name__)
 CORS(app)  # allows everything
 
 # Secret key (change this in production!)
+app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
+app.config["JWT_COOKIE_SECURE"] = True
+
 jwt = JWTManager(app)
 
 # Setting up .env variables
@@ -248,29 +251,26 @@ def login():
         user_password = x.validate_user_password(request.form.get("user_password", ""))
     
         db, cursor = x.db()
-        q = "SELECT user_first_name, user_last_name, user_hashed_password FROM users WHERE user_email = %s"
+        q = "SELECT user_pk, user_first_name, user_last_name, user_hashed_password FROM users WHERE user_email = %s"
         cursor.execute(q, (user_email,))
         user = cursor.fetchone()
-        ic(user)
+        #ic(user)
         if not user:
             return jsonify({"error": "Invalid email or password"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
             return jsonify({"error": "Invalid email or password"}), 401
         
-        user_logged_in = {
-            "name" : user["user_first_name"],
-            "last_name" : user["user_last_name"]
-        }
-    
-        access_token = create_access_token(identity=str(user_logged_in))
-    
-        return jsonify(access_token=access_token)
+        response = jsonify({"msg": "login successful"})
+        additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
+        access_token = create_access_token(identity=user["user_pk"], additional_claims=additional_claims)
+        set_access_cookies(response, access_token)
+        return response
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
-            return "Please enter a valid email", 400
+            return jsonify({"error": "Please enter a valid email"}), 400
         if "company_exception user_password" in str(ex):
-            return f"Please enter a valid password", 400
+            return jsonify({"error": "Please enter a valid password"}), 400
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
@@ -278,7 +278,9 @@ def login():
 @app.get("/profile")
 @jwt_required()
 def show_profile():
-    return "profile"
+    claims = get_jwt()
+    #ic(claims)
+    return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
 
 ##############################
 @app.get("/login")
