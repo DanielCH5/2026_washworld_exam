@@ -5,6 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../public/map.css";
 import L from "leaflet";
+import ArrowButton from "./buttons/__ArrowButton";
+import { FaRegClock } from "react-icons/fa6";
 
 // Fix for missing marker icons in bundlers like Vite/Webpack
 
@@ -51,22 +53,89 @@ export default function Map() {
             />
 
             {markers.map((marker, index) => (
-                <Marker key={index} position={[marker.lat, marker.lng]}>
-                    <Popup>
-                        <p className="text-xl font-bold">{marker.label ?? `Marker ${index + 1}`}</p>
-                        <div className="flex row"><p className="font-bold">1,2 km</p>
-                        <p>{marker.adress}</p></div>
-                        <div className="flex row content-center items-center gap-2">
-                        <div>timeicon</div>
-                        <p>Åbningstid: <span className="font-bold">{marker.opening}</span></p>
-                        </div>
-                        
-                        <p>______________________________________</p>
-                        <p className="font-bold">Vaskehaller  {marker.washHalls}</p>
-                        <p className="font-bold">Vash Selv  {marker.selfWash}</p>
-                    </Popup>
-                </Marker>
-            ))}
+  <Marker key={index} position={[marker.lat, marker.lng]}>
+    <Popup className="custom-popup">
+      <div className="relative w-[400px] overflow-visible bg-white ">
+
+        {/* den grønne boks uden for card der har cut */}
+        <div className="absolute -bottom-3 left-0 h-[13px] w-45.5 bg-green-500" 
+             style={{
+              clipPath: "polygon(0% 0, 100% 0, 96% 100%, 0 100%)",
+              }}>
+        </div>
+
+        {/* alt indhold i marker*/}
+        <div className="p-6 pb-20">
+
+          {/* Header */}
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <h2 className="text-3xl font-bold leading-tight">
+                {marker.label ?? `Marker ${index + 1}`}
+              </h2>
+
+              <div className="mt-3 flex items-start gap-3">
+                <p className="font-bold text-green-500 whitespace-nowrap">
+                  1,2 km
+                </p>
+
+                <p className="text-gray-600">
+                  {marker.adress}
+                </p>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="h-3 w-3 rounded-full bg-green-500"></span>
+              <p className="font-bold text-green-500">Ledig</p>
+            </div>
+          </div>
+
+          {/* åbningstider */}
+          <div className="flex items-center gap-2">
+           <FaRegClock className="text-[17px]"></FaRegClock>
+
+            <p>
+              Åbningstid:{" "}
+              <span className="font-bold text-green-500">
+                {marker.opening}
+              </span>
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="my-6 h-[1px] w-full bg-gray-300"></div>
+
+          {/* Info */}
+          <div className="space-y-4 text-l">
+            <p>
+              Vaskehaller{" "}
+              <span className="font-bold">
+                {marker.washHalls}
+              </span>
+            </p>
+
+            <p>
+              Vask Selv{" "}
+              <span className="font-bold">
+                {marker.selfWash}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* GREEN BUTTON SECTION OUTSIDE CARD */}
+        <div className="absolute bottom-0 right-0 overflow-hidden">
+          
+            {/* Your micro component */}
+            <ArrowButton text="Vis vej" />
+          
+        </div>
+      </div>
+    </Popup>
+  </Marker>
+))}
         </MapContainer>
     );
 }
