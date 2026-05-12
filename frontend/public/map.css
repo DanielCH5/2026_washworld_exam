@@ -16,3 +16,9 @@
 .custom-popup .leaflet-popup-tip-container {
   display: none;
 }
+
+.leaflet-container .custom-popup a{
+    color: var(--green-White-BG)!important;
+    font-family: 'GilroyBold'!important; 
+    font-size: 16px!important;
+}

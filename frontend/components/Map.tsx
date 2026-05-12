@@ -10,6 +10,11 @@ import { FaRegClock } from "react-icons/fa6";
 
 // Fix for missing marker icons in bundlers like Vite/Webpack
 
+//TODO:
+// Tilføj "læs mere" med link til single page for hver location
+// Få rettet i akavet kryds position
+// "vis vej" skal linke til google maps med adressen på den markerede location
+
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 
@@ -70,11 +75,17 @@ export default function Map() {
           {/* Header */}
           <div className="flex items-start justify-between gap-6">
             <div>
-              <h2 className="text-3xl font-bold leading-tight">
+                {/* Status */}
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                <span className="h-3 w-3 rounded-full bg-green-500"></span>
+                <p className="font-bold text-green-500">Ledig</p>
+                </div>
+
+              <h2 className="leading-tight">
                 {marker.label ?? `Marker ${index + 1}`}
               </h2>
 
-              <div className="mt-3 flex items-start gap-3">
+              <div className="flex items-start gap-3">
                 <p className="font-bold text-green-500 whitespace-nowrap">
                   1,2 km
                 </p>
@@ -83,12 +94,6 @@ export default function Map() {
                   {marker.adress}
                 </p>
               </div>
-            </div>
-
-            {/* Status */}
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <span className="h-3 w-3 rounded-full bg-green-500"></span>
-              <p className="font-bold text-green-500">Ledig</p>
             </div>
           </div>
 
@@ -105,7 +110,7 @@ export default function Map() {
           </div>
 
           {/* Divider */}
-          <div className="my-6 h-[1px] w-full bg-gray-300"></div>
+          <div className="my-2 h-[1px] w-full bg-gray-300"></div>
 
           {/* Info */}
           <div className="space-y-4 text-l">
@@ -123,9 +128,12 @@ export default function Map() {
               </span>
             </p>
           </div>
+         {/*Tilføjer linking til single page for se det virker :D lort */}
+         <div>
+            <a href="/singleLocation" className="hover:underline">Læs Mere</a>
+         </div>
         </div>
 
-        {/* GREEN BUTTON SECTION OUTSIDE CARD */}
         <div className="absolute bottom-0 right-0 overflow-hidden">
           
             {/* Your micro component */}
