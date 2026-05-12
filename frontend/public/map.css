@@ -1,13 +1,9 @@
 
 .leaflet-popup-content-wrapper {
  box-shadow: var(--box-Shadow-Hall-Free);
+ background: transparent;
 }
 
-.custom-popup .leaflet-popup-content-wrapper {
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-}
 
 .custom-popup .leaflet-popup-content {
   margin: 0;
