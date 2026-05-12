@@ -60,7 +60,7 @@ export default function Map() {
             {markers.map((marker, index) => (
   <Marker key={index} position={[marker.lat, marker.lng]}>
     <Popup className="custom-popup">
-      <div className="relative w-[400px] overflow-visible bg-white ">
+      <div className="relative overflow-visible w-[400px] bg-white ">
 
         {/* den grønne boks uden for card der har cut */}
         <div className="absolute -bottom-3 left-0 h-[13px] w-45.5 bg-green-500" 
@@ -75,11 +75,6 @@ export default function Map() {
           {/* Header */}
           <div className="flex items-start justify-between gap-6">
             <div>
-                {/* Status */}
-                <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="h-3 w-3 rounded-full bg-green-500"></span>
-                <p className="font-bold text-green-500">Ledig</p>
-                </div>
 
               <h2 className="leading-tight">
                 {marker.label ?? `Marker ${index + 1}`}
@@ -94,6 +89,12 @@ export default function Map() {
                   {marker.adress}
                 </p>
               </div>
+            </div>
+
+            {/* Status */}
+            <div className="flex items-center gap-2 whitespace-nowrap">
+            <span className="h-3 w-3 rounded-full bg-green-500"></span>
+            <p className="font-bold text-green-500">Ledig</p>
             </div>
           </div>
 
@@ -134,7 +135,7 @@ export default function Map() {
          </div>
         </div>
 
-        <div className="absolute bottom-0 right-0 overflow-hidden">
+        <div className="absolute bottom-0 right-0">
           
             {/* Your micro component */}
             <ArrowButton text="Vis vej" />
