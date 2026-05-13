@@ -101,20 +101,34 @@ def change_order_status(order_pk):
         order_pk = x.validate_uuid4(order_pk)
 
         db, cursor = x.db()
-        q = "SELECT status_fk FROM `orders` WHERE order_pk=%s"
+        q = "SELECT `location_fk`, `status_fk` FROM `orders` WHERE order_pk=%s"
         cursor.execute(q, (order_pk,))
-        row = cursor.fetchone()
+        order = cursor.fetchone()
+        order_status = order["status_fk"]
+        location_fk = order["location_fk"]
 
-        order_status = row["status_fk"]
+        q = "SELECT location_empty_wash_halls FROM `locations` WHERE location_pk=%s"
+        cursor.execute(q, (location_fk,))
+        location = cursor.fetchone()
+        location_empty_wash_halls = location["location_empty_wash_halls"]
+
 
         if order_status == "1":
             order_status = "2"
-        else:
+            location_empty_wash_halls = location_empty_wash_halls-1
+        elif order_status == "2":
             order_status = "3"
+            location_empty_wash_halls = location_empty_wash_halls+1
+        else:
+            return "This order is already done", 400
 
         q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
         cursor.execute(q, (order_status, order_pk))
+
+        q = "UPDATE `locations` SET location_empty_wash_halls=%s WHERE location_pk=%s"
+        cursor.execute(q, (location_empty_wash_halls, location_fk))
         db.commit()
+
 
         return "order updated"
     except Exception as ex:
