@@ -130,7 +130,7 @@ def change_order_status(order_pk):
         db.commit()
 
 
-        return "order updated"
+        return "order status updated"
     except Exception as ex:
         if "company_exception key" in str(ex):
             return f"Invalid key", 400
