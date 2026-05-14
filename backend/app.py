@@ -12,13 +12,13 @@ from icecream import ic
 ic.configureOutput(prefix=f"_____ | ", includeContext=True)
 
 app = Flask(__name__)
-CORS(app)  # allows everything
+CORS(app, supports_credentials=True, origins=["http://localhost:3000"])  # Change in Prod to actual domain
 
 # Secret key (change this in production!)
-app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
-app.config["JWT_COOKIE_SECURE"] = True
-
+app.config["JWT_COOKIE_SECURE"] = True # Cookies skal være sikre for at tillade CSRF i browser
+app.config["JWT_COOKIE_SAMESITE"] = "None" # Tillader CSRF
 jwt = JWTManager(app)
 
 # Setting up .env variables
@@ -280,8 +280,9 @@ def login():
 def show_profile(): # This routing is gonna be handled by Nextjs no?
     try:
         claims = get_jwt()
-        #ic(claims)
+        ic(claims)
         return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
+
     except Exception as ex:
         # JWT library kinda handles the exceptions here?
         ic(ex)
@@ -312,14 +313,18 @@ def forgot_password():
         q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
         cursor.execute(q, (user_email,))
         row = cursor.fetchone()
-        ic(row)
-        paranoia_uuid4 = row["key"]
-        
-        new_key_time_stamp = paranoia_uuid4 + "-" + str(int(time.time()))
-        ic(new_key_time_stamp)
         if not row: return "Email not found", 400
-        
-        html = render_template("email_forgot_password.html", user_reset_password_key=new_key_time_stamp)
+
+        ic(row)
+        user_reset_password_key = row["key"]
+        user_reset_at = int(time.time())
+        key_time_stamp = user_reset_password_key + "-" + str(user_reset_at)
+        ic(key_time_stamp)
+        update_time_q = "UPDATE users SET user_reset_at = %s WHERE user_reset_password_key = %s AND user_email = %s"
+        cursor.execute(update_time_q, (user_reset_at, user_reset_password_key, user_email))
+        db.commit()
+
+        html = render_template("email_forgot_password.html", user_reset_password_key=key_time_stamp)
 
         x.send_email("Reset your password", html, user_email)
 
@@ -342,24 +347,24 @@ def show_reset_password(key):
 
         # TODO:
         key_split = key.split("-")
-        key = x.validate_uuid4(key_split[0]) 
-        key_time_stamp = key_split[0] + "-" + key_split[1]
-        current_time = int(time.time())
+        user_reset_password_key = x.validate_uuid4(key_split[0])
         key_time = int(key_split[1])
+        ic(key_time)
+        current_time = int(time.time())
         if current_time > (key_time + 3600):
             return "Link expired"
         # TODO: Connect to the db
         db, cursor = x.db()
-        # TODO: Update the verified_at column
-        # TODO: Update the verification_key column
 
-        q = """SELECT user_reset_password_key FROM users WHERE user_reset_password_key = %s"""
+        # Query to check that the epoch in the link and in the DB are the same, so an unwanted user can't access the link after expiry.
+        q = """SELECT user_reset_password_key FROM users WHERE user_reset_password_key = %s AND user_reset_at = %s"""
 
-        cursor.execute(q, (key,))
+        cursor.execute(q, (user_reset_password_key, key_time))
         row = cursor.fetchone()
-        if not row: return "ups...", 400
+        if not row: return "Please click the link in the email again.", 400 # User has messed with the epoch in the link sent to them (potential malicious behavior)
 
-        return render_template("page_reset_password.html", key=key_time_stamp)
+        # Change this to work with React/Nextjs
+        return render_template("page_reset_password.html", key=key)
 
 
         return f"User is verified with key {key}"
