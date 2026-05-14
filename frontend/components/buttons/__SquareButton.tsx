@@ -1,0 +1,1 @@
+// Square button for the membership/payment section

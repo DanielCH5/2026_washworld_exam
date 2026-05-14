@@ -147,7 +147,8 @@ def send_email(subject, html, user_email):
         password = os.getenv("APP_PASSWORD")  # If 2FA is on, use an App Password instead
  
         # Receiver email address
-        receiver_email = user_email
+        #TODO: Change to user_email
+        receiver_email = os.getenv("APP_RECEIVER_EMAIL") 
         
         # Create the email message
         message = MIMEMultipart()

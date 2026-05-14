@@ -4,7 +4,7 @@ import time
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from flask_cors import CORS
 import requests
 
@@ -351,8 +351,8 @@ def show_signup():
 def user_signup():
     try:
         # TODO: Validate user input
-        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name")
-        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name")
+        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name").capitalize()
+        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name").capitalize()
         user_email = x.validate_email(request.form.get("user_email", ""))
         user_password = x.validate_user_password(request.form.get("user_password", ""))
 
@@ -376,11 +376,11 @@ def user_signup():
 
         cursor.execute(q, (user_pk, user_first_name, user_last_name, 
         user_email, user_hashed_password, user_created_at, user_verified_at, user_changed_at,
-        user_deleted_at, user_reset_at, user_verification_key, user_reset_password_key))
+        user_deleted_at, user_reset_at, user_reset_password_key, user_verification_key))
 
         db.commit()
 
-        html = render_template("email_welcome.html", user_verification_key=user_verification_key)
+        html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
 
         #x.send_email("Please verify your account", html, user_email)
         return {
@@ -416,16 +416,15 @@ def user_signup():
 
 ##############################
 @app.get("/verify/<key>")
-def verify_account(key):
+def user_verify_account(key):
     try:
         # TODO: Validate the key
         user_verification_key = x.validate_uuid4(key)
         user_verified_at = int(time.time())
+
         # TODO: Connect to the db
-        db, cursor = x.db()
-      
-        
-        
+        db, cursor = x.db()      
+          
         # TODO: Update the verified_at column
         # TODO: Update the verification_key column
 
@@ -433,29 +432,72 @@ def verify_account(key):
 
         cursor.execute(q, (user_verified_at, key))
         rows = cursor.rowcount
-        ic(rows)
+
         if not rows:
-            raise Exception("company_exception no_user")
+            return "User already verified", 400 # If the user clicks the link again, this will get returned
+        
         db.commit()
-        # TODO: Check for previous verification
-
-
-
         return f"User is verified with key {key}"
     except Exception as ex:
         ic(ex)
         if "company_exception key" in str(ex):
-            return "Invalid verification key", 400
-
-        if "company_exception no_user" in str(ex):
-            return "User already verified", 400
+            return "Invalid verification key", 400         
         
         return str(ex), 500
 
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+######################### LOGIN API AND RESET/CHANGE    #########################
+@app.post("/login")
+def login():
+    try:
+        user_email = x.validate_email(request.form.get("user_email", ""))
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+    
+        db, cursor = x.db()
+        q = "SELECT user_first_name, user_last_name, user_hashed_password FROM users WHERE user_email = %s"
+        cursor.execute(q, (user_email,))
+        user = cursor.fetchone()
+        ic(user)
+        if not user:
+            return jsonify({"error": "Invalid email or password"}), 401
+        if not check_password_hash(user["user_hashed_password"], user_password):
+            return jsonify({"error": "Invalid email or password"}), 401
+        
+        user_logged_in = {
+            "name" : user["user_first_name"],
+            "last_name" : user["user_last_name"]
+        }
+    
+        access_token = create_access_token(identity=str(user_logged_in))
+    
+        return jsonify(access_token=access_token)
+    except Exception as ex:
+        ic(ex)
+        if "company_exception email" in str(ex):
+            return "Please enter a valid email", 400
+        if "company_exception user_password" in str(ex):
+            return f"Please enter a valid password", 400
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
+@app.get("/profile")
+@jwt_required()
+def show_profile():
+    return "profile"
+
+##############################
+@app.get("/login")
+def show_login():
+    return render_template("page_login.html")
+
+##############################
+@app.get("/")
+def index():
+    return jsonify({"status":"ok", "message":"Connected"})
 
 @app.get("/forgot-password")
 def show_forgot_password():

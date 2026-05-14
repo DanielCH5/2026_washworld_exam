@@ -1,0 +1,1 @@
+//button with both ends cut 60 degrees, its used in the help page 
