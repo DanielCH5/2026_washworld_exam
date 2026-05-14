@@ -275,7 +275,7 @@ def login():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
-@app.get("/profile")
+@app.post("/profile")
 @jwt_required()
 def show_profile(): # This routing is gonna be handled by Nextjs no?
     try:

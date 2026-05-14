@@ -19,7 +19,6 @@ export default function showLogin() {
             body: formData,
             credentials: "include"
 
-
         })
         const data = await response.json()
         console.log(data)
@@ -34,8 +33,8 @@ export default function showLogin() {
             method: "GET",
             credentials: "include",
             headers: {
-                'X-CSRF-TOKEN': Cookies.get('csrf_access_token') ?? ""
-            },
+                'X-CSRF-TOKEN': Cookies.get('csrf_access_token') ?? "" // This one is actually not needed since it's a GET request and CSRF protection is only implemented on 
+            },                                                         // on POST, PUT, PATCH, DELETE, but it's worth keeping for later and other uses :)
         })
 
         const result = await response.json();
