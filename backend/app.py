@@ -277,11 +277,15 @@ def login():
 ##############################
 @app.get("/profile")
 @jwt_required()
-def show_profile():
-    claims = get_jwt()
-    #ic(claims)
-    return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
-
+def show_profile(): # This routing is gonna be handled by Nextjs no?
+    try:
+        claims = get_jwt()
+        #ic(claims)
+        return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
+    except Exception as ex:
+        # JWT library kinda handles the exceptions here?
+        ic(ex)
+        return "ups", 500
 ##############################
 @app.get("/login")
 def show_login():
@@ -292,16 +296,53 @@ def show_login():
 def index():
     return jsonify({"status":"ok", "message":"Connected"})
 
+##############################
+
 @app.get("/forgot-password")
 def show_forgot_password():
     return render_template("page_forgot_password.html")
+
+##############################
+
+@app.post("/forgot-password")
+def forgot_password():
+    try:
+        user_email = x.validate_email( request.form.get("user_email", "") )
+        db, cursor = x.db()
+        q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
+        cursor.execute(q, (user_email,))
+        row = cursor.fetchone()
+        ic(row)
+        paranoia_uuid4 = row["key"]
+        
+        new_key_time_stamp = paranoia_uuid4 + "-" + str(int(time.time()))
+        ic(new_key_time_stamp)
+        if not row: return "Email not found", 400
+        
+        html = render_template("email_forgot_password.html", user_reset_password_key=new_key_time_stamp)
+
+        x.send_email("Reset your password", html, user_email)
+
+        return "Check your email"
+
+    except Exception as ex:
+        ic(ex)
+        if "company_exception email" in str(ex):
+            return "Invalid email", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
 ##############################
 @app.get("/reset-password/<key>")
 def show_reset_password(key):
     try:
-        # TODO: Validate the key
+
+        # TODO:
         key_split = key.split("-")
-        key = x.validate_uuid4_paranoia(key_split[0]) 
+        key = x.validate_uuid4(key_split[0]) 
         key_time_stamp = key_split[0] + "-" + key_split[1]
         current_time = int(time.time())
         key_time = int(key_split[1])
@@ -373,38 +414,6 @@ def reset_password():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-##############################
-
-@app.post("/forgot-password")
-def forgot_password():
-    try:
-        email = x.validate_email( request.form.get("email", "") )
-        db, cursor = x.db()
-        q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
-        cursor.execute(q, (email,))
-        row = cursor.fetchone()
-        ic(row)
-        paranoia_uuid4 = row["key"]
-        
-        new_key_time_stamp = paranoia_uuid4 + "-" + str(int(time.time()))
-        ic(new_key_time_stamp)
-        if not row: return "Email not found", 400
-        
-        html = render_template("email_forgot_password.html", user_reset_password_key=new_key_time_stamp)
-
-        x.send_email("Reset your password", html)
-
-        return "Check your email"
-
-    except Exception as ex:
-        ic(ex)
-        if "company_exception email" in str(ex):
-            return "Invalid email", 400
-        return str(ex), 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
-
 
 ##############################
 @app.get("/get-data")
