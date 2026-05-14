@@ -54,7 +54,7 @@ def create_order():
         db.commit()
         
 
-        return "Order created", 201
+        return jsonify({"message": "Order created"}), 201
     except Exception as ex:
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
@@ -84,8 +84,8 @@ WHERE o.order_pk = %s
 GROUP BY o.order_pk
 """
         cursor.execute(q, (order_pk,))
-        car = cursor.fetchone()
-        return car
+        order = cursor.fetchone()
+        return jsonify(order)
     except Exception as ex:
         if "company_exception key" in str(ex):
             return "Invalid key", 400
@@ -106,6 +106,8 @@ def change_order_status(order_pk):
         order = cursor.fetchone()
         order_status = order["status_fk"]
         location_fk = order["location_fk"]
+        ic(order_status)
+    
 
         q = "SELECT location_empty_wash_halls FROM `locations` WHERE location_pk=%s"
         cursor.execute(q, (location_fk,))
@@ -113,14 +115,14 @@ def change_order_status(order_pk):
         location_empty_wash_halls = location["location_empty_wash_halls"]
 
 
-        if order_status == "1":
-            order_status = "2"
+        if order_status == 1:
+            order_status = 2
             location_empty_wash_halls = location_empty_wash_halls-1
-        elif order_status == "2":
-            order_status = "3"
+        elif order_status == 2:
+            order_status = 3
             location_empty_wash_halls = location_empty_wash_halls+1
         else:
-            return "This order is already done", 400
+            return jsonify({"message": "This order is already done"}), 400
 
         q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
         cursor.execute(q, (order_status, order_pk))
@@ -130,7 +132,7 @@ def change_order_status(order_pk):
         db.commit()
 
 
-        return "order status updated"
+        return jsonify({"message": "Order status updated"}), 200
     except Exception as ex:
         if "company_exception key" in str(ex):
             return f"Invalid key", 400
@@ -150,9 +152,9 @@ def delete_order(order_pk):
         db.commit()
 
         if cursor.rowcount == 0:
-            return "Order not deleted(Not found or status not reserved)", 400
+            return jsonify({"message": "Order not deleted(Not found or status not reserved)"}), 400
 
-        return "order deleted", 200
+        return jsonify({"message": "Order deleted"}), 200
    except Exception as ex:
        if "company_exception key" in str(ex):
             return "Invalid key", 400
@@ -177,9 +179,10 @@ def create_subscription():
 
         q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk ))
-        db.commit()
+        db.commit(),
 
-        return "Subscription created", 201
+
+        return jsonify({"message": "Subscription created"}), 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
             return "This car already has a subscription", 400
@@ -225,7 +228,7 @@ def update_subscription(subscription_pk):
             values.append(all_locations)
         
         if "wash_pk" not in request.form and "location_pk" not in request.form and "all_locations" not in request.form:
-            return "nothing to update", 400
+            return jsonify({"message": "Nothing to update"}), 400
         
         partial_query = ", ".join(parts)
 
@@ -240,7 +243,7 @@ def update_subscription(subscription_pk):
         cursor.execute(q, values)
         db.commit()
 
-        return "Subcription updated"
+        return jsonify({"message": "Subscription updated"}), 200
     except Exception as ex:
 
         if "company_exception number" in str(ex):
@@ -265,7 +268,7 @@ def delete_subscription(subscription_pk):
         q = 'DELETE FROM `subscriptions` WHERE subscription_pk=%s'
         cursor.execute(q, (subscription_pk, ))
         db.commit()
-        return "subscription deleted", 200
+        return jsonify({"message": "Subscription deleted"}), 200
    except Exception as ex:
        if "company_exception key" in str(ex):
             return "Invalid key", 400
@@ -293,7 +296,7 @@ def create_car():
         cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric))
         db.commit()
 
-        return "car created", 201
+        return jsonify({"message": "Car created"}), 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
             return "License plate already exists", 400
@@ -336,7 +339,7 @@ LEFT JOIN locations
 WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
-        return car
+        return jsonify(car)
     except Exception as ex:
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
@@ -371,7 +374,7 @@ WHERE cars.user_fk = %s"""
         cursor.execute(q, (user_fk,))
         cars = cursor.fetchall()
 
-        return cars
+        return jsonify(cars)
     except Exception as ex:
         if "company_exception key" in str(ex):
             return "Invalid key", 400
@@ -391,7 +394,7 @@ def update_car(car_pk):
         cursor.execute(q, (car_nickname, car_pk))
         db.commit()
 
-        return "car updated"
+        return jsonify({"message": "Car updated"}), 200
     except Exception as ex:
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
@@ -411,7 +414,7 @@ def delete_car(car_pk):
         q = 'DELETE FROM `cars` WHERE car_pk=%s'
         cursor.execute(q, (car_pk, ))
         db.commit()
-        return "car deleted", 200
+        return jsonify({"message": "Car deleted"}), 200
    except Exception as ex:
        if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
