@@ -95,7 +95,7 @@ GROUP BY o.order_pk
         if "db" in locals(): db.close()
 
 ##############################
-@app.get("/order/status/<order_pk>")
+@app.patch("/order/status/<order_pk>")
 def change_order_status(order_pk):
     try:
         order_pk = x.validate_uuid4(order_pk)
