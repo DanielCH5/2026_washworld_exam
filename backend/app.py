@@ -522,7 +522,7 @@ def user_signup():
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
 
-        #x.send_email("Please verify your account", html, user_email)
+        x.send_email("Please verify your account", html, user_email)
         return {
             "user_first_name" : user_first_name,
             "user_last_name" : user_last_name,
