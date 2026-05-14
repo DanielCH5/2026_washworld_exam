@@ -28,7 +28,6 @@ load_dotenv() # Loads the .env variables
 @app.post("/order")
 def create_order():
     try:
-
         order_pk = uuid.uuid4().hex
         user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
         wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
@@ -42,18 +41,15 @@ def create_order():
             return "This car already has an active order", 400
         
         db, cursor = x.db()
-
         q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(q, (order_pk, user_fk, wash_fk, order_time_at, location_fk, car_fk, car_status ))
         db.commit()
         
-
         q = "Insert into `addons_orders` VALUES(%s, %s)"
         for addon_fk in addon_list:
             cursor.execute(q, (order_pk, addon_fk))
         db.commit()
         
-
         return jsonify({"message": "Order created"}), 201
     except Exception as ex:
         if "company_exception license plate" in str(ex):
@@ -85,10 +81,12 @@ GROUP BY o.order_pk
 """
         cursor.execute(q, (order_pk,))
         order = cursor.fetchone()
+
         return jsonify(order)
     except Exception as ex:
         if "company_exception key" in str(ex):
             return "Invalid key", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -106,14 +104,11 @@ def change_order_status(order_pk):
         order = cursor.fetchone()
         order_status = order["status_fk"]
         location_fk = order["location_fk"]
-        ic(order_status)
     
-
         q = "SELECT location_empty_wash_halls FROM `locations` WHERE location_pk=%s"
         cursor.execute(q, (location_fk,))
         location = cursor.fetchone()
         location_empty_wash_halls = location["location_empty_wash_halls"]
-
 
         if order_status == 1:
             order_status = 2
@@ -131,11 +126,11 @@ def change_order_status(order_pk):
         cursor.execute(q, (location_empty_wash_halls, location_fk))
         db.commit()
 
-
         return jsonify({"message": "Order status updated"}), 200
     except Exception as ex:
         if "company_exception key" in str(ex):
             return f"Invalid key", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -158,6 +153,7 @@ def delete_order(order_pk):
    except Exception as ex:
        if "company_exception key" in str(ex):
             return "Invalid key", 400
+       
        return str(ex), 500
    finally:
        if "cursor" in locals(): cursor.close()
@@ -168,7 +164,6 @@ def delete_order(order_pk):
 @app.post("/subscription")
 def create_subscription():
     try:
-
         subscription_pk = uuid.uuid4().hex
         wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
@@ -176,11 +171,9 @@ def create_subscription():
         location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
 
         db, cursor = x.db()
-
         q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk ))
         db.commit(),
-
 
         return jsonify({"message": "Subscription created"}), 201
     except Exception as ex:
@@ -214,13 +207,10 @@ def update_subscription(subscription_pk):
             parts.append("wash_fk = %s")
             values.append(wash_fk)
 
-        
-
         if "location_pk" in request.form:
             location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
             parts.append("location_fk = %s")
             values.append(location_fk)
-
         
         if "all_locations" in request.form:
             all_locations = x.validate_01(request.form.get("all_locations", ""))
@@ -231,7 +221,6 @@ def update_subscription(subscription_pk):
             return jsonify({"message": "Nothing to update"}), 400
         
         partial_query = ", ".join(parts)
-
         values.append(subscription_pk)
 
         db, cursor = x.db()
@@ -254,6 +243,7 @@ def update_subscription(subscription_pk):
             return "Invalid key", 400
         if "company_exception 01" in str(ex):
             return "All_locations must be 0 or 1", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -268,10 +258,12 @@ def delete_subscription(subscription_pk):
         q = 'DELETE FROM `subscriptions` WHERE subscription_pk=%s'
         cursor.execute(q, (subscription_pk, ))
         db.commit()
+
         return jsonify({"message": "Subscription deleted"}), 200
    except Exception as ex:
        if "company_exception key" in str(ex):
             return "Invalid key", 400
+       
        return str(ex), 500
    finally:
        if "cursor" in locals(): cursor.close()
@@ -339,10 +331,12 @@ LEFT JOIN locations
 WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
+
         return jsonify(car)
     except Exception as ex:
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -378,6 +372,7 @@ WHERE cars.user_fk = %s"""
     except Exception as ex:
         if "company_exception key" in str(ex):
             return "Invalid key", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -400,6 +395,7 @@ def update_car(car_pk):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -414,10 +410,12 @@ def delete_car(car_pk):
         q = 'DELETE FROM `cars` WHERE car_pk=%s'
         cursor.execute(q, (car_pk, ))
         db.commit()
+        
         return jsonify({"message": "Car deleted"}), 200
    except Exception as ex:
        if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
+       
        return str(ex), 500
    finally:
        if "cursor" in locals(): cursor.close()
