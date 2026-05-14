@@ -1,0 +1,26 @@
+
+.leaflet-popup-content-wrapper {
+ box-shadow: var(--box-Shadow-Hall-Free);
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+.custom-popup .leaflet-popup-tip-container {
+  display: none;
+}
+
+.leaflet-container .custom-popup a{
+    color: var(--green-White-BG)!important;
+    font-family: 'GilroyBold'!important; 
+    font-size: 16px!important;
+}
+
