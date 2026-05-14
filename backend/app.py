@@ -26,10 +26,11 @@ load_dotenv() # Loads the .env variables
 
 ##############################
 @app.post("/order")
+@jwt_required()
 def create_order():
     try:
         order_pk = uuid.uuid4().hex
-        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        user_fk = get_jwt_identity()
         wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         order_time_at = int(time.time())
         location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
@@ -273,11 +274,10 @@ def delete_subscription(subscription_pk):
 
 ##############################
 @app.post("/car")
+@jwt_required()
 def create_car():
-    #TODO USER_FK FROM SESSION
     try:
-        #user_fk = session["user"]["user_pk"]
-        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        user_fk = get_jwt_identity()
         car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
@@ -345,11 +345,12 @@ WHERE cars.car_pk = %s"""
 
 
 ##############################
-@app.get("/cars/<user_fk>")
-def get_cars(user_fk):
+@app.get("/cars")
+@jwt_required() ######### SKAL VI BRUGE COOKIE ELLER URL HER??????????????????????????????????????????????
+def get_cars():
     try:
         db, cursor = x.db()
-        user_fk = x.validate_uuid4(user_fk)
+        user_fk = get_jwt_identity()
         q = """SELECT
     cars.*,
     subscriptions.subscription_pk,
