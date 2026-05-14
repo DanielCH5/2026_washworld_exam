@@ -42,6 +42,52 @@ def no_cache(view):
     return no_cache_view
 
 ##############################
+def check_car_active_order(car_pk):
+    try:
+        connection, cursor = db()
+        q = "SELECT status_fk FROM `orders` WHERE car_fk=%s"
+        cursor.execute(q, (car_pk,))
+        rows = cursor.fetchall()
+
+        if not rows:
+                return False
+    
+        for row in rows:
+            order_status = row["status_fk"]
+            if order_status == "1" or order_status == "2":
+                return True
+            else:
+                return False
+        
+    except Exception as ex:
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "connection" in locals(): connection.close()
+    
+
+##############################
+REGEX_NUMBER_UPTO_12 = r"^(?:[1-9]|1[0-2])$"
+def validate_numbers_upto_12(number):
+    if not re.match(REGEX_NUMBER_UPTO_12, number):
+        raise Exception("company_exception number12")
+    return number
+
+##############################
+REGEX_01 = f"^[01]$"
+def validate_01(key):
+    if not re.match(REGEX_01, key):
+        raise Exception("company_exception 01")
+    return key
+
+##############################
+REGEX_ONE_NUMBER = f"^\d$"
+def validate_one_number(number):
+    if not re.match(REGEX_ONE_NUMBER, number):
+        raise Exception("company_exception number")
+    return number
+
+##############################
 REGEX_LICENSE_PLATE = "^[A-Z0-9]{1,10}$"
 def validate_license_plate(key):
     key = key.strip()
@@ -60,11 +106,18 @@ def validate_nickname(name):
     return nickname
 
 ##############################
-REGEX_ELECTRIC = f"^[01]$"
-def validate_electric(key):
-    if not re.match(REGEX_ELECTRIC, key):
-        raise Exception("company_exception electric")
+REGEX_01 = f"^[01]$"
+def validate_01(key):
+    if not re.match(REGEX_01, key):
+        raise Exception("company_exception 01")
     return key
+
+##############################
+REGEX_ONE_NUMBER = f"^\d$"
+def validate_one_number(number):
+    if not re.match(REGEX_ONE_NUMBER, number):
+        raise Exception("company_exception number")
+    return number
 
 
 ##############################

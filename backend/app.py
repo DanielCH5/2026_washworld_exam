@@ -24,12 +24,254 @@ from dotenv import load_dotenv
 load_dotenv() # Loads the .env variables
 
 
-############################################################
-############################################################
-#############      CAR API FUNCTIONS    ####################
-############################################################
-############################################################
-############################################################
+##############################
+@app.post("/order")
+def create_order():
+    try:
+        order_pk = uuid.uuid4().hex
+        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        order_time_at = int(time.time())
+        location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        addon_list = [x.validate_numbers_upto_12(a) for a in request.form.getlist("addon_pk")]
+        car_status = "1"
+
+        if x.check_car_active_order(car_fk):
+            return "This car already has an active order", 400
+        
+        db, cursor = x.db()
+        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (order_pk, user_fk, wash_fk, order_time_at, location_fk, car_fk, car_status ))
+        db.commit()
+        
+        q = "Insert into `addons_orders` VALUES(%s, %s)"
+        for addon_fk in addon_list:
+            cursor.execute(q, (order_pk, addon_fk))
+        db.commit()
+        
+        return jsonify({"message": "Order created"}), 201
+    except Exception as ex:
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception number" in str(ex):
+            return "Invalid wash type", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.get("/order/<order_pk>")
+def get_order(order_pk):
+    try:
+        db, cursor = x.db()
+        order_pk = x.validate_uuid4(order_pk)
+        q = """SELECT 
+    o.*,
+    GROUP_CONCAT(ao.addon_fk) AS addon_list
+FROM orders o
+LEFT JOIN addons_orders ao 
+    ON o.order_pk = ao.order_fk
+WHERE o.order_pk = %s
+GROUP BY o.order_pk
+"""
+        cursor.execute(q, (order_pk,))
+        order = cursor.fetchone()
+
+        return jsonify(order)
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.patch("/order/status/<order_pk>")
+def change_order_status(order_pk):
+    try:
+        order_pk = x.validate_uuid4(order_pk)
+
+        db, cursor = x.db()
+        q = "SELECT `location_fk`, `status_fk` FROM `orders` WHERE order_pk=%s"
+        cursor.execute(q, (order_pk,))
+        order = cursor.fetchone()
+        order_status = order["status_fk"]
+        location_fk = order["location_fk"]
+    
+        q = "SELECT location_empty_wash_halls FROM `locations` WHERE location_pk=%s"
+        cursor.execute(q, (location_fk,))
+        location = cursor.fetchone()
+        location_empty_wash_halls = location["location_empty_wash_halls"]
+
+        if order_status == 1:
+            order_status = 2
+            location_empty_wash_halls = location_empty_wash_halls-1
+        elif order_status == 2:
+            order_status = 3
+            location_empty_wash_halls = location_empty_wash_halls+1
+        else:
+            return jsonify({"message": "This order is already done"}), 400
+
+        q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
+        cursor.execute(q, (order_status, order_pk))
+
+        q = "UPDATE `locations` SET location_empty_wash_halls=%s WHERE location_pk=%s"
+        cursor.execute(q, (location_empty_wash_halls, location_fk))
+        db.commit()
+
+        return jsonify({"message": "Order status updated"}), 200
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return f"Invalid key", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.delete("/order/<order_pk>")
+def delete_order(order_pk):
+   try: 
+        db, cursor = x.db()
+        order_pk = x.validate_uuid4(order_pk)
+        q = 'DELETE FROM `orders` WHERE order_pk=%s and status_fk=1'
+        cursor.execute(q, (order_pk, ))
+        db.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"message": "Order not deleted(Not found or status not reserved)"}), 400
+
+        return jsonify({"message": "Order deleted"}), 200
+   except Exception as ex:
+       if "company_exception key" in str(ex):
+            return "Invalid key", 400
+       
+       return str(ex), 500
+   finally:
+       if "cursor" in locals(): cursor.close()
+       if "db" in locals(): db.close()
+   
+
+##############################
+@app.post("/subscription")
+def create_subscription():
+    try:
+        subscription_pk = uuid.uuid4().hex
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        all_locations = x.validate_01(request.form.get("all_locations", ""))
+        location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+
+        db, cursor = x.db()
+        q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk ))
+        db.commit(),
+
+        return jsonify({"message": "Subscription created"}), 201
+    except Exception as ex:
+        if "Duplicate entry" in str(ex):
+            return "This car already has a subscription", 400
+        if "company_exception license plate" in str(ex):
+            return "Invalid license plate", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception 01" in str(ex):
+            return "All_locations must be 0 or 1", 400
+        if "company_exception number" in str(ex):
+            return f"Wash ID is incorrect", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+        
+##############################
+@app.patch("/subscription/<subscription_pk>")
+def update_subscription(subscription_pk):
+    try:
+        parts = []
+        values = []
+
+        subscription_pk = x.validate_uuid4(subscription_pk)
+
+        if "wash_pk" in request.form:
+            wash_fk = x.validate_one_number(request.form.get("wash_pk", ""))
+            parts.append("wash_fk = %s")
+            values.append(wash_fk)
+
+        if "location_pk" in request.form:
+            location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+            parts.append("location_fk = %s")
+            values.append(location_fk)
+        
+        if "all_locations" in request.form:
+            all_locations = x.validate_01(request.form.get("all_locations", ""))
+            parts.append("all_locations = %s")
+            values.append(all_locations)
+        
+        if "wash_pk" not in request.form and "location_pk" not in request.form and "all_locations" not in request.form:
+            return jsonify({"message": "Nothing to update"}), 400
+        
+        partial_query = ", ".join(parts)
+        values.append(subscription_pk)
+
+        db, cursor = x.db()
+        q = f"""
+            UPDATE subscriptions
+            SET	{partial_query}
+            WHERE subscription_pk = %s
+        """
+        cursor.execute(q, values)
+        db.commit()
+
+        return jsonify({"message": "Subscription updated"}), 200
+    except Exception as ex:
+
+        if "company_exception number" in str(ex):
+            return f"Wash_pk is invalid", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception key" in str(ex):
+            return "Invalid key", 400
+        if "company_exception 01" in str(ex):
+            return "All_locations must be 0 or 1", 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.delete("/subscription/<subscription_pk>")
+def delete_subscription(subscription_pk):
+   try: 
+        db, cursor = x.db()
+        subscription_pk = x.validate_uuid4(subscription_pk)
+        q = 'DELETE FROM `subscriptions` WHERE subscription_pk=%s'
+        cursor.execute(q, (subscription_pk, ))
+        db.commit()
+
+        return jsonify({"message": "Subscription deleted"}), 200
+   except Exception as ex:
+       if "company_exception key" in str(ex):
+            return "Invalid key", 400
+       
+       return str(ex), 500
+   finally:
+       if "cursor" in locals(): cursor.close()
+       if "db" in locals(): db.close()
+   
+
+
+##############################
 @app.post("/car")
 def create_car():
     #TODO USER_FK FROM SESSION
@@ -39,23 +281,24 @@ def create_car():
         car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
-        car_electric = x.validate_electric(request.form.get("car_electric", ""))
-        car_deleted_at = 0
+        car_electric = x.validate_01(request.form.get("car_electric", ""))
         db, cursor = x.db()
 
-        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`, `car_deleted_at`) VALUES (%s,%s,%s,%s,%s,%s)"
-        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric, car_deleted_at))
+        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES (%s,%s,%s,%s,%s)"
+        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric))
         db.commit()
 
-        return "car created", 201
+        return jsonify({"message": "Car created"}), 201
     except Exception as ex:
+        if "Duplicate entry" in str(ex):
+            return "License plate already exists", 400
         if "company_exception key" in str(ex):
             return "Invalid key", 400
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
-        if "company_exception electric" in str(ex):
+        if "company_exception 01" in str(ex):
             return "Car electric must be 0 or 1", 400
         
         return str(ex), 500
@@ -70,13 +313,30 @@ def get_car(car_pk):
     try:
         db, cursor = x.db()
         car_pk = x.validate_license_plate(car_pk)
-        q = "SELECT * FROM `cars` WHERE car_pk=%s"
+        q = """SELECT
+    cars.*,
+    subscriptions.subscription_pk,
+    subscriptions.wash_fk,
+    subscriptions.location_fk,
+    subscriptions.all_locations,
+    washes.wash_name AS wash_name,
+    locations.location_name AS location_name
+FROM cars
+LEFT JOIN subscriptions
+    ON subscriptions.car_fk = cars.car_pk
+LEFT JOIN washes
+    ON subscriptions.wash_fk = washes.wash_pk
+LEFT JOIN locations
+    ON subscriptions.location_fk = locations.location_pk
+WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
-        return car
+
+        return jsonify(car)
     except Exception as ex:
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -90,19 +350,35 @@ def get_cars(user_fk):
     try:
         db, cursor = x.db()
         user_fk = x.validate_uuid4(user_fk)
-        q = "SELECT * FROM `cars` WHERE user_fk=%s"
+        q = """SELECT
+    cars.*,
+    subscriptions.subscription_pk,
+    subscriptions.wash_fk,
+    subscriptions.location_fk,
+    washes.wash_name AS wash_name,
+    locations.location_name AS location_name
+FROM cars
+LEFT JOIN subscriptions
+    ON subscriptions.car_fk = cars.car_pk
+LEFT JOIN washes
+    ON subscriptions.wash_fk = washes.wash_pk
+LEFT JOIN locations
+    ON subscriptions.location_fk = locations.location_pk
+WHERE cars.user_fk = %s"""
         cursor.execute(q, (user_fk,))
         cars = cursor.fetchall()
 
-        return cars
+        return jsonify(cars)
     except Exception as ex:
         if "company_exception key" in str(ex):
             return "Invalid key", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+##############################
 @app.patch("/car/<car_pk>")
 def update_car(car_pk):
     try:
@@ -113,18 +389,19 @@ def update_car(car_pk):
         cursor.execute(q, (car_nickname, car_pk))
         db.commit()
 
-        return "car updated"
+        return jsonify({"message": "Car updated"}), 200
     except Exception as ex:
         if "company_exception nickname" in str(ex):
             return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
         if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
+        
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
+##############################
 @app.delete("/car/<car_pk>")
 def delete_car(car_pk):
    try: 
@@ -133,24 +410,83 @@ def delete_car(car_pk):
         q = 'DELETE FROM `cars` WHERE car_pk=%s'
         cursor.execute(q, (car_pk, ))
         db.commit()
-        return "car deleted", 200
+        
+        return jsonify({"message": "Car deleted"}), 200
    except Exception as ex:
        if "company_exception license plate" in str(ex):
             return "Invalid license plate", 400
+       
        return str(ex), 500
    finally:
        if "cursor" in locals(): cursor.close()
        if "db" in locals(): db.close()
    
-############################################################
-############################################################
-#############     USER API FUNCTIONS    ####################
-############################################################
-############################################################
-############################################################
+
+##############################
+@app.post("/login")
+def login():
+    # Email
+    # Password
+
+    email = x.validate_email(request.form.get("email", ""))
+    password = x.validate_user_password(request.form.get("password", ""))
+
+    ic(password)
+    db, cursor = x.db()
+    q = "SELECT user_name, user_password, user_last_name FROM users WHERE user_email = %s"
+    cursor.execute(q, (email,))
+    user = cursor.fetchone()
+    ic(user)
+    if not user:
+        return "Invalid credentials", 400
+    if not check_password_hash(user["user_password"], password):
+            return "Invalid credentials", 400
+
+    user_logged_in = {
+        "name" : user["user_name"],
+        "last_name" : user["user_last_name"]
+    }
+
+    access_token = create_access_token(identity=str(user_logged_in))
+
+    return jsonify(access_token=access_token)
+##############################
+@app.get("/profile")
+@jwt_required()
+def show_profile():
+    return "profile"
+
+##############################
+@app.get("/login")
+def show_login():
+    return render_template("page_login.html")
+
+##############################
+@app.get("/")
+def index():
+    return jsonify({"status":"ok", "message":"Connected"})
 
 
-######################### SIGN UP APIs AND VERIFICATION #########################
+##############################
+@app.route("/people")
+def get_people():
+    return jsonify({
+        "people": [
+            {"first_name" : "Daniel", "last_name" : "Hansen", "cpr" : "1234567890"},
+            {"first_name" : "A", "last_name" : "Aa", "cpr" : "2"},
+            {"first_name" : "Bb", "last_name" : "BBB", "cpr" : "1"},
+            ]
+    })    
+##############################
+@app.get("/signup")
+def show_signup():
+    try:
+        signup_page = render_template("page_signup.html")
+        return signup_page
+    except Exception as ex:
+        ic(ex)
+        str(ex), 500
+##############################
 @app.post("/user-signup")
 def user_signup():
     try:
@@ -187,8 +523,21 @@ def user_signup():
         html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
 
         x.send_email("Please verify your account", html, user_email)
-        # TODO: Specify return values and the structure of the json objects we should return
-        return "User created", 201
+        return {
+            "user_first_name" : user_first_name,
+            "user_last_name" : user_last_name,
+            "user_email" : user_email,
+            "user_pk" : user_pk,
+            "user_hashed_password" : user_hashed_password,
+            "user_password" : user_password,
+            "user_created_at" : user_created_at,
+            "user_verified_at" : user_verified_at,
+            "user_changed_at" : user_changed_at,
+            "user_deleted_at" : user_deleted_at,
+            "user_reset_at" : user_reset_at,
+            "user_reset_password_key" : user_reset_password_key,
+            "user_verification_key" : user_verification_key
+        }
     except Exception as ex:
         ic(ex)
         if "company_exception user_first_name" in str(ex): 
