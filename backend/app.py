@@ -423,49 +423,9 @@ def delete_car(car_pk):
    
 
 ##############################
-@app.post("/login")
-def login():
-    # Email
-    # Password
-
-    email = x.validate_email(request.form.get("email", ""))
-    password = x.validate_user_password(request.form.get("password", ""))
-
-    ic(password)
-    db, cursor = x.db()
-    q = "SELECT user_name, user_password, user_last_name FROM users WHERE user_email = %s"
-    cursor.execute(q, (email,))
-    user = cursor.fetchone()
-    ic(user)
-    if not user:
-        return "Invalid credentials", 400
-    if not check_password_hash(user["user_password"], password):
-            return "Invalid credentials", 400
-
-    user_logged_in = {
-        "name" : user["user_name"],
-        "last_name" : user["user_last_name"]
-    }
-
-    access_token = create_access_token(identity=str(user_logged_in))
-
-    return jsonify(access_token=access_token)
-##############################
-@app.get("/profile")
-@jwt_required()
-def show_profile():
-    return "profile"
-
-##############################
 @app.get("/login")
 def show_login():
     return render_template("page_login.html")
-
-##############################
-@app.get("/")
-def index():
-    return jsonify({"status":"ok", "message":"Connected"})
-
 
 ##############################
 @app.route("/people")
@@ -629,10 +589,6 @@ def login():
 def show_profile():
     return "profile"
 
-##############################
-@app.get("/login")
-def show_login():
-    return render_template("page_login.html")
 
 ##############################
 @app.get("/")
