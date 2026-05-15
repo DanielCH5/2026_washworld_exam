@@ -19,6 +19,8 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
 app.config["JWT_COOKIE_SECURE"] = True # Cookies skal være sikre for at tillade CSRF i browser
 app.config["JWT_COOKIE_SAMESITE"] = "None" # Tillader CSRF
+app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+
 jwt = JWTManager(app)
 
 # Setting up .env variables
@@ -275,6 +277,17 @@ def login():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
+@app.post("/logout")
+@jwt_required()
+def logout_user():
+    try:
+        response = jsonify({"msg": "logout successful"})
+        unset_jwt_cookies(response)
+        return response
+    except Exception as ex:
+        ic(ex)
+
+        return str(ex), 500
 @app.get("/profile")
 @jwt_required()
 def show_profile(): # This routing is gonna be handled by Nextjs no?

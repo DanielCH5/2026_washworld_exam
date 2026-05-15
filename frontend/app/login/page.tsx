@@ -14,7 +14,7 @@ export default function showLogin() {
         formData.append("user_email", email);
         formData.append("user_password", password);
 
-        const response = await fetch("http://127.0.0.1/login", {
+        const response = await fetch("http://localhost/login", {
             method: "POST",
             body: formData,
             credentials: "include"
@@ -23,13 +23,9 @@ export default function showLogin() {
         const data = await response.json()
         console.log(data)
     }
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
+
     async function jwtTest() {
-        const response = await fetch("http://127.0.0.1/profile", {
+        const response = await fetch("http://localhost/profile", {
             method: "GET",
             credentials: "include",
             headers: {
@@ -37,6 +33,17 @@ export default function showLogin() {
             },                                                         // on POST, PUT, PATCH, DELETE, but it's worth keeping for later and other uses :)
         })
 
+        const result = await response.json();
+        console.log(result)
+    }
+    async function userLogout() {
+        const response = await fetch("http://localhost/logout", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                'X-CSRF-TOKEN': Cookies.get('csrf_access_token') ?? ""
+            },
+        })
         const result = await response.json();
         console.log(result)
     }
@@ -49,6 +56,10 @@ export default function showLogin() {
             </form>
 
             <button onClick={jwtTest}>Protected with JWT</button>
+            <div>
+
+                <button onClick={userLogout}>Logout</button>
+            </div>
         </div>
     )
 }
