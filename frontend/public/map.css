@@ -24,3 +24,7 @@
     font-size: 16px!important;
 }
 
+/*so the navbar is above the map*/
+.leaflet-container {
+  z-index: 0;
+}
