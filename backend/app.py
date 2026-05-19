@@ -4,7 +4,7 @@ import time
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from flask_cors import CORS
 import requests
 
@@ -12,10 +12,15 @@ from icecream import ic
 ic.configureOutput(prefix=f"_____ | ", includeContext=True)
 
 app = Flask(__name__)
-CORS(app)  # allows everything
+CORS(app, supports_credentials=True, origins=["http://localhost:3000"])  # Change in Prod to actual domain
 
 # Secret key (change this in production!)
+app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
+app.config["JWT_COOKIE_SECURE"] = True # Cookies skal være sikre for at tillade CSRF i browser
+app.config["JWT_COOKIE_SAMESITE"] = "None" # Tillader CSRF
+app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+
 jwt = JWTManager(app)
 
 # Setting up .env variables
@@ -26,10 +31,11 @@ load_dotenv() # Loads the .env variables
 
 ##############################
 @app.post("/order")
+@jwt_required()
 def create_order():
     try:
         order_pk = uuid.uuid4().hex
-        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        user_fk = get_jwt_identity()
         wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         order_time_at = int(time.time())
         location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
@@ -66,6 +72,7 @@ def create_order():
 
 ##############################
 @app.get("/order/<order_pk>")
+@jwt_required() 
 def get_order(order_pk):
     try:
         db, cursor = x.db()
@@ -94,6 +101,7 @@ GROUP BY o.order_pk
 
 ##############################
 @app.patch("/order/status/<order_pk>")
+@jwt_required() 
 def change_order_status(order_pk):
     try:
         order_pk = x.validate_uuid4(order_pk)
@@ -138,6 +146,7 @@ def change_order_status(order_pk):
 
 ##############################
 @app.delete("/order/<order_pk>")
+@jwt_required()
 def delete_order(order_pk):
    try: 
         db, cursor = x.db()
@@ -162,6 +171,7 @@ def delete_order(order_pk):
 
 ##############################
 @app.post("/subscription")
+@jwt_required()
 def create_subscription():
     try:
         subscription_pk = uuid.uuid4().hex
@@ -195,6 +205,7 @@ def create_subscription():
         
 ##############################
 @app.patch("/subscription/<subscription_pk>")
+@jwt_required()
 def update_subscription(subscription_pk):
     try:
         parts = []
@@ -251,6 +262,7 @@ def update_subscription(subscription_pk):
 
 ##############################
 @app.delete("/subscription/<subscription_pk>")
+@jwt_required()
 def delete_subscription(subscription_pk):
    try: 
         db, cursor = x.db()
@@ -273,11 +285,10 @@ def delete_subscription(subscription_pk):
 
 ##############################
 @app.post("/car")
+@jwt_required()
 def create_car():
-    #TODO USER_FK FROM SESSION
     try:
-        #user_fk = session["user"]["user_pk"]
-        user_fk = x.validate_uuid4(request.form.get("user_pk", "",))
+        user_fk = get_jwt_identity()
         car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
@@ -309,6 +320,7 @@ def create_car():
 
 ##############################
 @app.get("/car/<car_pk>")
+@jwt_required()
 def get_car(car_pk):
     try:
         db, cursor = x.db()
@@ -348,11 +360,12 @@ WHERE cars.car_pk = %s"""
 
 
 ##############################
-@app.get("/cars/<user_fk>")
-def get_cars(user_fk):
+@app.get("/cars")
+@jwt_required() 
+def get_cars():
     try:
         db, cursor = x.db()
-        user_fk = x.validate_uuid4(user_fk)
+        user_fk = get_jwt_identity()
         q = """SELECT
     cars.*,
     subscriptions.subscription_pk,
@@ -406,6 +419,7 @@ def update_car(car_pk):
 
 ##############################
 @app.delete("/car/<car_pk>")
+@jwt_required()
 def delete_car(car_pk):
    try: 
         db, cursor = x.db()
@@ -425,21 +439,6 @@ def delete_car(car_pk):
        if "db" in locals(): db.close()
    
 
-##############################
-@app.get("/login")
-def show_login():
-    return render_template("page_login.html")
-
-##############################
-@app.route("/people")
-def get_people():
-    return jsonify({
-        "people": [
-            {"first_name" : "Daniel", "last_name" : "Hansen", "cpr" : "1234567890"},
-            {"first_name" : "A", "last_name" : "Aa", "cpr" : "2"},
-            {"first_name" : "Bb", "last_name" : "BBB", "cpr" : "1"},
-            ]
-    })    
 ##############################
 @app.get("/signup")
 def show_signup():
@@ -560,71 +559,131 @@ def login():
         user_password = x.validate_user_password(request.form.get("user_password", ""))
     
         db, cursor = x.db()
-        q = "SELECT user_first_name, user_last_name, user_hashed_password FROM users WHERE user_email = %s"
+        q = "SELECT user_pk, user_first_name, user_last_name, user_hashed_password FROM users WHERE user_email = %s"
         cursor.execute(q, (user_email,))
         user = cursor.fetchone()
-        ic(user)
+        #ic(user)
         if not user:
             return jsonify({"error": "Invalid email or password"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
             return jsonify({"error": "Invalid email or password"}), 401
         
-        user_logged_in = {
-            "name" : user["user_first_name"],
-            "last_name" : user["user_last_name"]
-        }
-    
-        access_token = create_access_token(identity=str(user_logged_in))
-    
-        return jsonify(access_token=access_token)
+        response = jsonify({"msg": "login successful"})
+        additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
+        access_token = create_access_token(identity=user["user_pk"], additional_claims=additional_claims)
+        set_access_cookies(response, access_token)
+        return response
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
-            return "Please enter a valid email", 400
+            return jsonify({"error": "Please enter a valid email"}), 400
         if "company_exception user_password" in str(ex):
-            return f"Please enter a valid password", 400
+            return jsonify({"error": "Please enter a valid password"}), 400
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
+@app.post("/logout")
+@jwt_required()
+def logout_user():
+    try:
+        response = jsonify({"msg": "logout successful"})
+        unset_jwt_cookies(response)
+        return response
+    except Exception as ex:
+        ic(ex)
+
+        return str(ex), 500
 @app.get("/profile")
 @jwt_required()
-def show_profile():
-    return "profile"
+def show_profile(): # This routing is gonna be handled by Nextjs no?
+    try:
+        claims = get_jwt()
+        ic(claims)
+        return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
 
+    except Exception as ex:
+        # JWT library kinda handles the exceptions here?
+        ic(ex)
+        return "ups", 500
+##############################
+@app.get("/login")
+def show_login():
+    return render_template("page_login.html")
 
 ##############################
 @app.get("/")
 def index():
     return jsonify({"status":"ok", "message":"Connected"})
 
+##############################
+
 @app.get("/forgot-password")
 def show_forgot_password():
     return render_template("page_forgot_password.html")
+
+##############################
+
+@app.post("/forgot-password")
+def forgot_password():
+    try:
+        user_email = x.validate_email( request.form.get("user_email", "") )
+        db, cursor = x.db()
+        q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
+        cursor.execute(q, (user_email,))
+        row = cursor.fetchone()
+        if not row: return "Email not found", 400
+
+        ic(row)
+        user_reset_password_key = row["key"]
+        user_reset_at = int(time.time())
+        key_time_stamp = user_reset_password_key + "-" + str(user_reset_at)
+        ic(key_time_stamp)
+        update_time_q = "UPDATE users SET user_reset_at = %s WHERE user_reset_password_key = %s AND user_email = %s"
+        cursor.execute(update_time_q, (user_reset_at, user_reset_password_key, user_email))
+        db.commit()
+
+        html = render_template("email_forgot_password.html", user_reset_password_key=key_time_stamp)
+
+        x.send_email("Reset your password", html, user_email)
+
+        return "Check your email"
+
+    except Exception as ex:
+        ic(ex)
+        if "company_exception email" in str(ex):
+            return "Invalid email", 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
 ##############################
 @app.get("/reset-password/<key>")
 def show_reset_password(key):
     try:
-        # TODO: Validate the key
+
+        # TODO:
         key_split = key.split("-")
-        key = x.validate_uuid4_paranoia(key_split[0]) 
-        key_time_stamp = key_split[0] + "-" + key_split[1]
-        current_time = int(time.time())
+        user_reset_password_key = x.validate_uuid4(key_split[0])
         key_time = int(key_split[1])
+        ic(key_time)
+        current_time = int(time.time())
         if current_time > (key_time + 3600):
             return "Link expired"
         # TODO: Connect to the db
         db, cursor = x.db()
-        # TODO: Update the verified_at column
-        # TODO: Update the verification_key column
 
-        q = """SELECT user_reset_password_key FROM users WHERE user_reset_password_key = %s"""
+        # Query to check that the epoch in the link and in the DB are the same, so an unwanted user can't access the link after expiry.
+        q = """SELECT user_reset_password_key FROM users WHERE user_reset_password_key = %s AND user_reset_at = %s"""
 
-        cursor.execute(q, (key,))
+        cursor.execute(q, (user_reset_password_key, key_time))
         row = cursor.fetchone()
-        if not row: return "ups...", 400
+        if not row: return "Please click the link in the email again.", 400 # User has messed with the epoch in the link sent to them (potential malicious behavior)
 
-        return render_template("page_reset_password.html", key=key_time_stamp)
+        # Change this to work with React/Nextjs
+        return render_template("page_reset_password.html", key=key)
 
 
         return f"User is verified with key {key}"
@@ -679,38 +738,6 @@ def reset_password():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-##############################
-
-@app.post("/forgot-password")
-def forgot_password():
-    try:
-        email = x.validate_email( request.form.get("email", "") )
-        db, cursor = x.db()
-        q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
-        cursor.execute(q, (email,))
-        row = cursor.fetchone()
-        ic(row)
-        paranoia_uuid4 = row["key"]
-        
-        new_key_time_stamp = paranoia_uuid4 + "-" + str(int(time.time()))
-        ic(new_key_time_stamp)
-        if not row: return "Email not found", 400
-        
-        html = render_template("email_forgot_password.html", user_reset_password_key=new_key_time_stamp)
-
-        x.send_email("Reset your password", html)
-
-        return "Check your email"
-
-    except Exception as ex:
-        ic(ex)
-        if "company_exception email" in str(ex):
-            return "Invalid email", 400
-        return str(ex), 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
-
 
 ##############################
 @app.get("/get-data")
