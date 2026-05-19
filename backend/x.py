@@ -54,7 +54,8 @@ def check_car_active_order(car_pk):
     
         for row in rows:
             order_status = row["status_fk"]
-            if order_status == "1" or order_status == "2":
+            ic(order_status)
+            if order_status == 1 or order_status == 2:
                 return True
             else:
                 return False
