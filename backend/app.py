@@ -36,9 +36,9 @@ def create_order():
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
         addon_list = [x.validate_numbers_upto_12(a) for a in request.form.getlist("addon_pk")]
         car_status = "1"
-
+        
         if x.check_car_active_order(car_fk):
-            return "This car already has an active order", 400
+            return jsonify({"message": "This car already has an active order"}), 400
         
         db, cursor = x.db()
         q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
@@ -53,11 +53,11 @@ def create_order():
         return jsonify({"message": "Order created"}), 201
     except Exception as ex:
         if "company_exception license plate" in str(ex):
-            return "Invalid license plate", 400
+            return jsonify({"message": "Invalid license plate"}), 400
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}),  400
         if "company_exception number" in str(ex):
-            return "Invalid wash type", 400
+            return jsonify({"message": "Invalid wash type"}), 400 
         
         return str(ex), 500
     finally:
@@ -85,7 +85,7 @@ GROUP BY o.order_pk
         return jsonify(order)
     except Exception as ex:
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
         
         return str(ex), 500
     finally:
@@ -129,7 +129,7 @@ def change_order_status(order_pk):
         return jsonify({"message": "Order status updated"}), 200
     except Exception as ex:
         if "company_exception key" in str(ex):
-            return f"Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
         
         return str(ex), 500
     finally:
@@ -152,7 +152,7 @@ def delete_order(order_pk):
         return jsonify({"message": "Order deleted"}), 200
    except Exception as ex:
        if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
        
        return str(ex), 500
    finally:
@@ -178,15 +178,15 @@ def create_subscription():
         return jsonify({"message": "Subscription created"}), 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
-            return "This car already has a subscription", 400
+            return jsonify({"message": "This car already has a subscription"}), 400
         if "company_exception license plate" in str(ex):
-            return "Invalid license plate", 400
+            return jsonify({"message": "Invalid license plate"}), 400
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
         if "company_exception 01" in str(ex):
-            return "All_locations must be 0 or 1", 400
+            return jsonify({"message": "All locations must be 0 or 1"}), 400
         if "company_exception number" in str(ex):
-            return f"Wash ID is incorrect", 400
+            return jsonify({"message": "Wash ID is incorrect"}), 400
         
         return str(ex), 500
     finally:
@@ -236,13 +236,13 @@ def update_subscription(subscription_pk):
     except Exception as ex:
 
         if "company_exception number" in str(ex):
-            return f"Wash_pk is invalid", 400
+            return jsonify({"message": "Wash_pk is invalid"}), 400
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
         if "company_exception 01" in str(ex):
-            return "All_locations must be 0 or 1", 400
+            return jsonify({"message": "All_locations must be 0 or 1"}), 400
         
         return str(ex), 500
     finally:
@@ -262,7 +262,7 @@ def delete_subscription(subscription_pk):
         return jsonify({"message": "Subscription deleted"}), 200
    except Exception as ex:
        if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
        
        return str(ex), 500
    finally:
@@ -291,15 +291,15 @@ def create_car():
         return jsonify({"message": "Car created"}), 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
-            return "License plate already exists", 400
+            return jsonify({"message": "License plate already exists"}), 400
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}),400
         if "company_exception license plate" in str(ex):
-            return "Invalid license plate", 400
+            return jsonify({"message": "Invalid license plate"}), 400
         if "company_exception nickname" in str(ex):
-            return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
+            return jsonify({"message": f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX} characters"}), 400
         if "company_exception 01" in str(ex):
-            return "Car electric must be 0 or 1", 400
+            return jsonify({"message": "Car electric must be 0 or 1"}), 400
         
         return str(ex), 500
     finally:
@@ -332,10 +332,13 @@ WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
 
+        if not car:
+            return jsonify({"message": "The user doesn't have a car with this license plate"}), 400
+
         return jsonify(car)
     except Exception as ex:
         if "company_exception license plate" in str(ex):
-            return "Invalid license plate", 400
+            return jsonify({"message": "Invalid license plate"}), 400
         
         return str(ex), 500
     finally:
@@ -371,7 +374,7 @@ WHERE cars.user_fk = %s"""
         return jsonify(cars)
     except Exception as ex:
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message": "Invalid key"}), 400
         
         return str(ex), 500
     finally:
@@ -392,9 +395,9 @@ def update_car(car_pk):
         return jsonify({"message": "Car updated"}), 200
     except Exception as ex:
         if "company_exception nickname" in str(ex):
-            return f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}", 400
+            return jsonify({"message": f"Nickname must be between {x.NICKNAME_MIN} to {x.NICKNAME_MAX}"}), 400
         if "company_exception license plate" in str(ex):
-            return "Invalid license plate", 400
+            return jsonify({"message": "Invalid license plate"}), 400
         
         return str(ex), 500
     finally:
@@ -414,7 +417,7 @@ def delete_car(car_pk):
         return jsonify({"message": "Car deleted"}), 200
    except Exception as ex:
        if "company_exception license plate" in str(ex):
-            return "Invalid license plate", 400
+            return jsonify({"message": "Invalid license plate"}), 400
        
        return str(ex), 500
    finally:
