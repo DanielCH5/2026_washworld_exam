@@ -585,7 +585,7 @@ def login():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
-@app.post("/logout")
+@app.post("/api/logout")
 @jwt_required()
 def logout_user():
     try:
@@ -596,18 +596,27 @@ def logout_user():
         ic(ex)
 
         return str(ex), 500
-@app.get("/profile")
+@app.get("/api/me")
 @jwt_required()
-def show_profile(): # This routing is gonna be handled by Nextjs no?
+def get_me():
     try:
-        claims = get_jwt()
-        ic(claims)
-        return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
+        user_id = get_jwt_identity()
+        q = "SELECT user_first_name, user_last_name, user_email FROM users where user_pk = %s"
+
+        db, cursor = x.db()
+
+        cursor.execute(q, (user_id,))
+        user = cursor.fetchone()
+        ic(user)
+        return jsonify(id=user_id, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"])
 
     except Exception as ex:
         # JWT library kinda handles the exceptions here?
         ic(ex)
-        return "ups", 500
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
 @app.get("/login")
 def show_login():

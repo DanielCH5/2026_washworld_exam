@@ -2,30 +2,21 @@
 'use client'
 import { useState } from "react";
 import Cookies from "js-cookie";
-
+import { useAuth } from "@/context/AuthContext"
 export default function showLogin() {
     // TODO: Frontend validation of input fields
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const { login, logout } = useAuth()
     async function loginUser(e: React.FormEvent) {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("user_email", email);
-        formData.append("user_password", password);
+        await login(email, password)
 
-        const response = await fetch("http://localhost/login", {
-            method: "POST",
-            body: formData,
-            credentials: "include"
-
-        })
-        const data = await response.json()
-        console.log(data)
     }
 
     async function jwtTest() {
-        const response = await fetch("http://localhost/profile", {
+        const response = await fetch("http://localhost/api/me", {
             method: "GET",
             credentials: "include",
             headers: {
@@ -58,7 +49,7 @@ export default function showLogin() {
             <button onClick={jwtTest}>Protected with JWT</button>
             <div>
 
-                <button onClick={userLogout}>Logout</button>
+                <button onClick={logout}>Logout</button>
             </div>
         </div>
     )
