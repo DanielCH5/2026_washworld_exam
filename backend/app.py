@@ -430,10 +430,6 @@ def delete_car(car_pk):
        if "db" in locals(): db.close()
    
 
-##############################
-@app.get("/login")
-def show_login():
-    return render_template("page_login.html")
 
 ##############################
 @app.route("/people")
