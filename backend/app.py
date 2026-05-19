@@ -292,11 +292,10 @@ def create_car():
         car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
-        car_electric = x.validate_01(request.form.get("car_electric", ""))
         db, cursor = x.db()
 
-        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES (%s,%s,%s,%s,%s)"
-        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname, car_electric))
+        q = "INSERT INTO `cars`(`car_pk`, `user_fk`, `model_fk`, `car_nickname`) VALUES (%s,%s,%s,%s)"
+        cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname))
         db.commit()
 
         return jsonify({"message": "Car created"}), 201
@@ -327,6 +326,7 @@ def get_car(car_pk):
         car_pk = x.validate_license_plate(car_pk)
         q = """SELECT
     cars.*,
+    models.car_electric,
     subscriptions.subscription_pk,
     subscriptions.wash_fk,
     subscriptions.location_fk,
@@ -334,6 +334,8 @@ def get_car(car_pk):
     washes.wash_name AS wash_name,
     locations.location_name AS location_name
 FROM cars
+LEFT JOIN models
+    ON cars.model_fk = models.model_pk
 LEFT JOIN subscriptions
     ON subscriptions.car_fk = cars.car_pk
 LEFT JOIN washes
@@ -368,12 +370,15 @@ def get_cars():
         user_fk = get_jwt_identity()
         q = """SELECT
     cars.*,
+    models.car_electric,
     subscriptions.subscription_pk,
     subscriptions.wash_fk,
     subscriptions.location_fk,
     washes.wash_name AS wash_name,
     locations.location_name AS location_name
 FROM cars
+LEFT JOIN models
+    ON cars.model_fk = models.model_pk
 LEFT JOIN subscriptions
     ON subscriptions.car_fk = cars.car_pk
 LEFT JOIN washes
