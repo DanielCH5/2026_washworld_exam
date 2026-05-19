@@ -72,6 +72,7 @@ def create_order():
 
 ##############################
 @app.get("/order/<order_pk>")
+@jwt_required() 
 def get_order(order_pk):
     try:
         db, cursor = x.db()
@@ -100,6 +101,7 @@ GROUP BY o.order_pk
 
 ##############################
 @app.patch("/order/status/<order_pk>")
+@jwt_required() 
 def change_order_status(order_pk):
     try:
         order_pk = x.validate_uuid4(order_pk)
@@ -144,6 +146,7 @@ def change_order_status(order_pk):
 
 ##############################
 @app.delete("/order/<order_pk>")
+@jwt_required()
 def delete_order(order_pk):
    try: 
         db, cursor = x.db()
@@ -168,6 +171,7 @@ def delete_order(order_pk):
 
 ##############################
 @app.post("/subscription")
+@jwt_required()
 def create_subscription():
     try:
         subscription_pk = uuid.uuid4().hex
@@ -201,6 +205,7 @@ def create_subscription():
         
 ##############################
 @app.patch("/subscription/<subscription_pk>")
+@jwt_required()
 def update_subscription(subscription_pk):
     try:
         parts = []
@@ -257,6 +262,7 @@ def update_subscription(subscription_pk):
 
 ##############################
 @app.delete("/subscription/<subscription_pk>")
+@jwt_required()
 def delete_subscription(subscription_pk):
    try: 
         db, cursor = x.db()
@@ -314,6 +320,7 @@ def create_car():
 
 ##############################
 @app.get("/car/<car_pk>")
+@jwt_required()
 def get_car(car_pk):
     try:
         db, cursor = x.db()
@@ -412,6 +419,7 @@ def update_car(car_pk):
 
 ##############################
 @app.delete("/car/<car_pk>")
+@jwt_required()
 def delete_car(car_pk):
    try: 
         db, cursor = x.db()
@@ -431,17 +439,6 @@ def delete_car(car_pk):
        if "db" in locals(): db.close()
    
 
-
-##############################
-@app.route("/people")
-def get_people():
-    return jsonify({
-        "people": [
-            {"first_name" : "Daniel", "last_name" : "Hansen", "cpr" : "1234567890"},
-            {"first_name" : "A", "last_name" : "Aa", "cpr" : "2"},
-            {"first_name" : "Bb", "last_name" : "BBB", "cpr" : "1"},
-            ]
-    })    
 ##############################
 @app.get("/signup")
 def show_signup():
