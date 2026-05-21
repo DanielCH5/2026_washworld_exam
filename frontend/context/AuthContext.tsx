@@ -2,13 +2,11 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import Cookies from "js-cookie";
-
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)  // important!
-
     useEffect(() => {
         // Re-validate token with backend on mount
         fetch('http://localhost/api/me', {
@@ -18,7 +16,10 @@ export function AuthProvider({ children }) {
             credentials: "include"
         })
             .then(r => r.ok ? r.json() : null)
-            .then(data => setUser(data))
+            .then(data => {
+                console.log(data)
+                setUser(data)
+            })
             .finally(() => setLoading(false))
     }, [])
     //TODO: Validate frontend
@@ -35,7 +36,7 @@ export function AuthProvider({ children }) {
 
         const data = await response.json()
         if (response.ok) {
-            setUser(data.user)
+            setUser(data)
             console.log(data)
         } else {
             console.error(data.error)  // handle wrong password etc.
@@ -52,7 +53,7 @@ export function AuthProvider({ children }) {
         })
         const data = await response.json()
         setUser(null)
-        console.log(data)
+        window.location.href = '/'
     }
 
     return (

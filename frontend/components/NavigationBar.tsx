@@ -7,6 +7,7 @@ export default function NavigationBar() {
   const pathname = usePathname();
   const { user, loading } = useAuth()
   if (loading) return <div className="animate-spin rounded-full h-6 w-6 border-4 border-gray-200 border-t-blue-500" />
+  if (!user) return null;
   // avoid flash of wrong content
 
   const navItems = [
