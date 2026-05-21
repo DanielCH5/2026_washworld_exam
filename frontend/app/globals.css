@@ -55,6 +55,8 @@ body {
 main{
   background: var(--solid-White);
   color: var(--solid-Black);
+  margin-top: 1.5em;
+  margin-inline: 0.5em;
 }
 
 /*----------------FONTS----------------*/

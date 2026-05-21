@@ -21,7 +21,7 @@ export default function ArrowButton({ text, onClick }: ArrowButtonProps) {
       }}
     >
       {/* ml-4 giver lidt ekstra afstand til venstre, så teksten ikke rammer den skrå kant */}
-      <span className="ml-4">{text}</span>
+      <span className="ml-4 whitespace-nowrap">{text}</span>
       
       <GoArrowRight
         className="transition-transform text-2xl stroke-[0.5px]  duration-300 group-hover:translate-x-2" 

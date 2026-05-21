@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function Header() {
   return (
-    <div className="sticky top-0 bg-[var(--solid-Black)] py-4 px-4">
+    <div className="sticky top-0 bg-[var(--solid-Black)] py-4 px-4 justify-center">
         <Link href="/">
         <Image
         src="/images/logo.png"
