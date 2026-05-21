@@ -754,6 +754,9 @@ def get_data():
     except Exception as ex:
         ic(ex)
         return "ups", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
     
 ##############################
 @app.get("/get-locations_da")
