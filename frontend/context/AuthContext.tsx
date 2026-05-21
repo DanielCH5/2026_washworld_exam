@@ -10,7 +10,6 @@ export function AuthProvider({ children }) {
     const fetchUser = async () => {
         const response = await fetch('http://localhost/api/me', {
             method: "GET",
-            headers: { 'X-CSRF-TOKEN': Cookies.get('csrf_access_token') ?? "" },
             credentials: "include"
         })
         if (response.ok) {

@@ -562,7 +562,7 @@ def login():
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
         access_token = create_access_token(identity=user["user_pk"], additional_claims=additional_claims)
         set_access_cookies(response, access_token)
-        return response
+        return response, 200
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
