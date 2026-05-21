@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import ArrowButton from "../buttons/__ArrowButton"
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
+import TextInput from "../InputForms";
 
 
 export default function CarCard() {
@@ -42,6 +43,7 @@ export default function CarCard() {
         </div>
        <ArrowButton text="Ændre medlemskab"/>
       </div>
+      <TextInput label="Kaldenavn" placeholder="Indtast kaldenavn" state="normal"/>
 
     </div>
   )
