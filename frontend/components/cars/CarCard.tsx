@@ -43,7 +43,6 @@ export default function CarCard() {
         </div>
        <ArrowButton text="Ændre medlemskab"/>
       </div>
-      <TextInput label="Kaldenavn" placeholder="Indtast kaldenavn" state="normal"/>
 
     </div>
   )
