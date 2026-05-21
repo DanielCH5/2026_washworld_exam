@@ -8,14 +8,13 @@ export default function NavigationBar() {
   const { user, loading } = useAuth()
   if (loading) return <div className="animate-spin rounded-full h-6 w-6 border-4 border-gray-200 border-t-blue-500" />
   if (!user) return null;
-  // avoid flash of wrong content
 
   const navItems = [
     { label: "Cars", href: "/cars" },
     { label: "Membership", href: "/membership" },
     { label: "Map", href: "/" },
     { label: "Help", href: "/help" },
-    user ? { label: "Profile", href: "/profile" } : { label: "login", href: "/login" },
+    { label: user.name, href: "/profile" }
   ];
 
   return (
