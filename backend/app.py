@@ -566,9 +566,9 @@ def login():
         user = cursor.fetchone()
         #ic(user)
         if not user:
-            return jsonify({"error": "Invalid email or password"}), 401
+            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
-            return jsonify({"error": "Invalid email or password"}), 401
+            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
         
         response = jsonify({"msg": "login successful"})
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
@@ -578,9 +578,9 @@ def login():
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
-            return jsonify({"error": "Please enter a valid email"}), 400
+            return jsonify({"error": "Please enter a valid email", "error_field": "email"}), 400
         if "company_exception user_password" in str(ex):
-            return jsonify({"error": "Please enter a valid password"}), 400
+            return jsonify({"error": "Please enter a valid password", "error_field": "password"}), 400
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()

@@ -37,11 +37,10 @@ export function AuthProvider({ children }) {
         const data = await response.json()
         if (response.ok) {
             setUser(data)
-            console.log(data)
+            return { success: true }
         } else {
-            console.error(data.error)  // handle wrong password etc.
+            return { success: false, error: data.error, error_field: data.error_field }
         }
-        // TODO: Add redirect to profile page or main page
     }
     const logout = async () => {
         const response = await fetch('http://localhost/api/logout', {
