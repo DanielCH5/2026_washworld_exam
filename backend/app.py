@@ -454,7 +454,7 @@ def show_signup():
         ic(ex)
         str(ex), 500
 ##############################
-@app.post("/user-signup")
+@app.post("/api/user-signup")
 def user_signup():
     try:
         # TODO: Validate user input
@@ -488,33 +488,21 @@ def user_signup():
         db.commit()
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
-
+        response = jsonify({"msg": "User created"})
+        access_token = create_access_token(identity=user_pk)
+        set_access_cookies(response, access_token)
         x.send_email("Please verify your account", html, user_email)
-        return {
-            "user_first_name" : user_first_name,
-            "user_last_name" : user_last_name,
-            "user_email" : user_email,
-            "user_pk" : user_pk,
-            "user_hashed_password" : user_hashed_password,
-            "user_password" : user_password,
-            "user_created_at" : user_created_at,
-            "user_verified_at" : user_verified_at,
-            "user_changed_at" : user_changed_at,
-            "user_deleted_at" : user_deleted_at,
-            "user_reset_at" : user_reset_at,
-            "user_reset_password_key" : user_reset_password_key,
-            "user_verification_key" : user_verification_key
-        }
+        return response, 201
     except Exception as ex:
         ic(ex)
         if "company_exception user_first_name" in str(ex): 
-            return f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", 400
-        if "company_exception user_last_name" in str(ex): 
-            return f"Last name must be between {x.NAME_MIN} and {x.NAME_MAX}", 400
+            return jsonify({"error": f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_first_name"}), 400
+        if "company_exception user_last_name" in str(ex):
+            return jsonify({"error": f"Last name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_last_name"}), 400 
         if "company_exception email" in str(ex):
-            return "Please enter a valid email", 400
+            return jsonify({"error": "Please enter a valid email", "error_field": "email"}), 400
         if "company_exception user_password" in str(ex):
-            return f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", 400
+            return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", "error_field": "password"}), 400
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -569,26 +557,26 @@ def login():
         user = cursor.fetchone()
         #ic(user)
         if not user:
-            return jsonify({"error": "Invalid email or password"}), 401
+            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
-            return jsonify({"error": "Invalid email or password"}), 401
+            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
         
         response = jsonify({"msg": "login successful"})
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
         access_token = create_access_token(identity=user["user_pk"], additional_claims=additional_claims)
         set_access_cookies(response, access_token)
-        return response
+        return response, 200
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
-            return jsonify({"error": "Please enter a valid email"}), 400
+            return jsonify({"error": "Please enter a valid email", "error_field": "email"}), 400
         if "company_exception user_password" in str(ex):
-            return jsonify({"error": "Please enter a valid password"}), 400
+            return jsonify({"error": "Please enter a valid password", "error_field": "password"}), 400
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
-@app.post("/logout")
+@app.post("/api/logout")
 @jwt_required()
 def logout_user():
     try:
@@ -599,18 +587,27 @@ def logout_user():
         ic(ex)
 
         return str(ex), 500
-@app.get("/profile")
+@app.get("/api/me")
 @jwt_required()
-def show_profile(): # This routing is gonna be handled by Nextjs no?
+def get_me():
     try:
-        claims = get_jwt()
-        ic(claims)
-        return jsonify(name=claims["user_first_name"] + " " + claims["user_last_name"])
+        user_id = get_jwt_identity()
+        q = "SELECT user_first_name, user_last_name, user_email FROM users where user_pk = %s"
+
+        db, cursor = x.db()
+
+        cursor.execute(q, (user_id,))
+        user = cursor.fetchone()
+        ic(user)
+        return jsonify(id=user_id, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"])
 
     except Exception as ex:
         # JWT library kinda handles the exceptions here?
         ic(ex)
-        return "ups", 500
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
 @app.get("/login")
 def show_login():
@@ -760,6 +757,9 @@ def get_data():
     except Exception as ex:
         ic(ex)
         return "ups", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
     
 ##############################
 @app.get("/get-locations_da")
