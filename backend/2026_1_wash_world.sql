@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: mariadb
--- Genereringstid: 19. 05 2026 kl. 11:12:23
+-- Genereringstid: 19. 05 2026 kl. 12:18:09
 -- Serverversion: 10.6.20-MariaDB-ubu2004
 -- PHP-version: 8.3.26
 
@@ -240,7 +240,21 @@ INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
 ('2aeef21cda654191a325ac0fc646ecd6', 4),
 ('2aeef21cda654191a325ac0fc646ecd6', 5),
 ('2aeef21cda654191a325ac0fc646ecd6', 6),
-('2aeef21cda654191a325ac0fc646ecd6', 7);
+('2aeef21cda654191a325ac0fc646ecd6', 7),
+('7a58b4c6058e45cc983e5379b408d799', 1),
+('7a58b4c6058e45cc983e5379b408d799', 2),
+('7a58b4c6058e45cc983e5379b408d799', 3),
+('7a58b4c6058e45cc983e5379b408d799', 4),
+('7a58b4c6058e45cc983e5379b408d799', 5),
+('7a58b4c6058e45cc983e5379b408d799', 6),
+('7a58b4c6058e45cc983e5379b408d799', 7),
+('b90d603002d14eb0bfbf41d9c2228c12', 1),
+('b90d603002d14eb0bfbf41d9c2228c12', 2),
+('b90d603002d14eb0bfbf41d9c2228c12', 3),
+('b90d603002d14eb0bfbf41d9c2228c12', 4),
+('b90d603002d14eb0bfbf41d9c2228c12', 5),
+('b90d603002d14eb0bfbf41d9c2228c12', 6),
+('b90d603002d14eb0bfbf41d9c2228c12', 7);
 
 -- --------------------------------------------------------
 
@@ -258,7 +272,55 @@ CREATE TABLE `brands` (
 --
 
 INSERT INTO `brands` (`brand_pk`, `brand_name`) VALUES
-('7bbcd63ef50c4e73afddabdc2f085cb9', 'Volkswagen');
+('02e74f10e0324f9cb8a7d6e5f4321098', 'LandRover'),
+('17e62166fc854c42976543210ffeedd6', 'Buick'),
+('182be0c5cdcd4b3aa2b19876543210ff', 'AlfaRomeo'),
+('19ca14e7ea634f189876543210ffeedd', 'McLaren'),
+('1c383cd30b7c49299876543210ffeedd', 'Bugatti'),
+('1f0e3dad9990487aa6b5c4d3e2f11234', 'Subaru'),
+('1ff1de7740054f6ba2d1e0f123456789', 'Bentley'),
+('2838023a778d45ca976543210ffeedce', 'Seat'),
+('33e75ff09dd64e8ab7c6d5e4f3219876', 'Volvo'),
+('3416a75f4cea4d64976543210ffeedd8', 'Chrysler'),
+('34173cb38f074e6ba5d4c3b2a1987654', 'Renault'),
+('37693cfc7480492fa3d2e1f123456789', 'Lamborghini'),
+('3c59dc048e884f7aa5b4c3d2e1f12345', 'Porsche'),
+('45c48cce2e2d4fb7a7d0f8a7b9e6c123', 'Ford'),
+('4e732ced34634f0ca9b8c7d6e5f43210', 'Jaguar'),
+('6364d3f0f4954c4ba3b2a19876543210', 'Fiat'),
+('642e92efb79448fd976543210ffeedd1', 'Suzuki'),
+('6512bd43d9ca4e7bb8a1c5d2e3f4a567', 'BMW'),
+('67c6a1e7ce56490e976543210ffeedd2', 'Infiniti'),
+('6c8349cc72604a20976543210ffeedd4', 'Lincoln'),
+('6ea9ab1baa0e4f7ba6c5d4e3f2198765', 'Peugeot'),
+('6f4922f455684f8ab7c6d5e4f3212345', 'Mazda'),
+('70efdf2ec9b04e0db8a7c6d5e4f32123', 'Kia'),
+('8e296a067a374f1ba1d0e123456789ab', 'RollsRoyce'),
+('8f14e45fceea467aa3f3f4fdbf6f9d91', 'Toyota'),
+('98f1370821014f6ab5c4d3e2f1123456', 'Lexus'),
+('9a1158154dfa44b9976543210ffeedcd', 'Opel'),
+('9bf31c7ff0624f3db8e9a7b6c5d4e321', 'Nissan'),
+('a1d0c6e83f024d53976543210ffeedd7', 'Cadillac'),
+('a5771bce93e24e97976543210ffeeddb', 'Mini'),
+('a5bfc9e079644f08976543210ffeeddc', 'AstonMartin'),
+('a684eceee76f4297976543210ffeedcb', 'Smart'),
+('aab3238922bc4f0c9d8e7f6a5b4c3211', 'Volkswagen'),
+('b53b3a3d6ab94f86976543210ffeedca', 'Tesla'),
+('b6d767d2f8ed4f0ba4c3d2e1f1234567', 'Ferrari'),
+('c0c7c76d30bd46db976543210ffeedcf', 'Skoda'),
+('c16a5320fa474d5ba4c3b2a198765432', 'Citroen'),
+('c20ad4d76fe94f2f9c8a7e6d5b4c3210', 'Mercedes'),
+('c51ce410c1244d5ab7e8f9a0b1c2d345', 'Audi'),
+('c74d97b01eae4c0ab9d8e7f6a5b4c322', 'Hyundai'),
+('c9f0f895fb984b2d9f4b8b3e8d6e5a11', 'Honda'),
+('d3d9446802a4429bbf4c5a6f7e8d9123', 'Chevrolet'),
+('d645920e395f4c75976543210ffeedd9', 'Dodge'),
+('d67d8ab4f4c14d86976543210ffeedda', 'Jeep'),
+('d82c8d1619ad43a8976543210ffeedcc', 'Saab'),
+('d9d4f495e875491f976543210ffeedd3', 'Acura'),
+('e369853df7664a29a19876543210ffee', 'Maserati'),
+('f457c545a9de47ec976543210ffeedd0', 'Mitsubishi'),
+('f7177163c8334b31976543210ffeedd5', 'GMC');
 
 -- --------------------------------------------------------
 
@@ -270,22 +332,16 @@ CREATE TABLE `cars` (
   `car_pk` varchar(10) NOT NULL,
   `user_fk` char(32) NOT NULL,
   `model_fk` char(32) NOT NULL,
-  `car_nickname` varchar(50) NOT NULL,
-  `car_electric` tinyint(1) NOT NULL
+  `car_nickname` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Data dump for tabellen `cars`
 --
 
-INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`, `car_electric`) VALUES
-('AAAAAAAAAA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'Bobby Mobile', 0),
-('DDDDDDDA', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0),
-('DDDDDDDB', '3bcede93719e4343b83b80dcc3084671', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0),
-('DDDDDDDM', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0),
-('DDDDDDDT', '3bcede93719e4343b83b80dcc3084671', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0),
-('DDDDDDDU', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'M', 0),
-('DDDDDDDY', '41b9383ed3b240cea9c327b01918564d', '55cbfe908f9246e4969941ddcd993542', 'MarleyMarley', 0);
+INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`) VALUES
+('DDDDDDDD', '3bcede93719e4343b83b80dcc3084671', '08b9c0d1e2f3488899aabbccddeeff05', 'MarleyMarley'),
+('DDDDDDDK', '3bcede93719e4343b83b80dcc3084671', '08b9c0d1e2f3488899aabbccddeeff01', 'MarleyMarley');
 
 -- --------------------------------------------------------
 
@@ -899,15 +955,91 @@ INSERT INTO `locations` (`location_pk`, `location_name`, `location_address`, `lo
 CREATE TABLE `models` (
   `model_pk` char(32) NOT NULL,
   `brand_fk` char(32) NOT NULL,
-  `model_name` varchar(20) NOT NULL
+  `model_name` varchar(20) NOT NULL,
+  `car_electric` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Data dump for tabellen `models`
 --
 
-INSERT INTO `models` (`model_pk`, `brand_fk`, `model_name`) VALUES
-('55cbfe908f9246e4969941ddcd993542', '7bbcd63ef50c4e73afddabdc2f085cb9', 'Golf');
+INSERT INTO `models` (`model_pk`, `brand_fk`, `model_name`, `car_electric`) VALUES
+('08b9c0d1e2f3488899aabbccddeeff01', 'aab3238922bc4f0c9d8e7f6a5b4c3211', 'Golf', 0),
+('08b9c0d1e2f3488899aabbccddeeff02', 'aab3238922bc4f0c9d8e7f6a5b4c3211', 'Passat', 0),
+('08b9c0d1e2f3488899aabbccddeeff03', 'aab3238922bc4f0c9d8e7f6a5b4c3211', 'Tiguan', 0),
+('08b9c0d1e2f3488899aabbccddeeff04', 'aab3238922bc4f0c9d8e7f6a5b4c3211', 'ID.3', 1),
+('08b9c0d1e2f3488899aabbccddeeff05', 'aab3238922bc4f0c9d8e7f6a5b4c3211', 'ID.4', 1),
+('19c0d1e2f3a4488899aabbccddeeff01', 'c74d97b01eae4c0ab9d8e7f6a5b4c322', 'i30', 0),
+('19c0d1e2f3a4488899aabbccddeeff02', 'c74d97b01eae4c0ab9d8e7f6a5b4c322', 'Tucson', 0),
+('19c0d1e2f3a4488899aabbccddeeff03', 'c74d97b01eae4c0ab9d8e7f6a5b4c322', 'Santa Fe', 0),
+('19c0d1e2f3a4488899aabbccddeeff04', 'c74d97b01eae4c0ab9d8e7f6a5b4c322', 'Ioniq 5', 1),
+('19c0d1e2f3a4488899aabbccddeeff05', 'c74d97b01eae4c0ab9d8e7f6a5b4c322', 'Kona Electric', 1),
+('2ad1e2f3a4b5488899aabbccddeeff01', '70efdf2ec9b04e0db8a7c6d5e4f32123', 'Ceed', 0),
+('2ad1e2f3a4b5488899aabbccddeeff02', '70efdf2ec9b04e0db8a7c6d5e4f32123', 'Sportage', 0),
+('2ad1e2f3a4b5488899aabbccddeeff03', '70efdf2ec9b04e0db8a7c6d5e4f32123', 'Sorento', 0),
+('2ad1e2f3a4b5488899aabbccddeeff04', '70efdf2ec9b04e0db8a7c6d5e4f32123', 'EV6', 1),
+('2ad1e2f3a4b5488899aabbccddeeff05', '70efdf2ec9b04e0db8a7c6d5e4f32123', 'EV9', 1),
+('3be2f3a4b5c6488899aabbccddeeff01', '9bf31c7ff0624f3db8e9a7b6c5d4e321', 'Micra', 0),
+('3be2f3a4b5c6488899aabbccddeeff02', '9bf31c7ff0624f3db8e9a7b6c5d4e321', 'Qashqai', 0),
+('3be2f3a4b5c6488899aabbccddeeff03', '9bf31c7ff0624f3db8e9a7b6c5d4e321', 'X-Trail', 0),
+('3be2f3a4b5c6488899aabbccddeeff04', '9bf31c7ff0624f3db8e9a7b6c5d4e321', 'Leaf', 1),
+('3be2f3a4b5c6488899aabbccddeeff05', '9bf31c7ff0624f3db8e9a7b6c5d4e321', 'Ariya', 1),
+('4cf3a4b5c6d7488899aabbccddeeff01', '3c59dc048e884f7aa5b4c3d2e1f12345', '911', 0),
+('4cf3a4b5c6d7488899aabbccddeeff02', '3c59dc048e884f7aa5b4c3d2e1f12345', 'Cayenne', 0),
+('4cf3a4b5c6d7488899aabbccddeeff03', '3c59dc048e884f7aa5b4c3d2e1f12345', 'Macan', 0),
+('4cf3a4b5c6d7488899aabbccddeeff04', '3c59dc048e884f7aa5b4c3d2e1f12345', 'Taycan', 1),
+('5da4b5c6d7e8488899aabbccddeeff01', '33e75ff09dd64e8ab7c6d5e4f3219876', 'XC40', 0),
+('5da4b5c6d7e8488899aabbccddeeff02', '33e75ff09dd64e8ab7c6d5e4f3219876', 'XC60', 0),
+('5da4b5c6d7e8488899aabbccddeeff03', '33e75ff09dd64e8ab7c6d5e4f3219876', 'XC90', 0),
+('5da4b5c6d7e8488899aabbccddeeff04', '33e75ff09dd64e8ab7c6d5e4f3219876', 'EX30', 1),
+('5da4b5c6d7e8488899aabbccddeeff05', '33e75ff09dd64e8ab7c6d5e4f3219876', 'EX90', 1),
+('6eb5c6d7e8f9488899aabbccddeeff01', 'b6d767d2f8ed4f0ba4c3d2e1f1234567', '488 GTB', 0),
+('6eb5c6d7e8f9488899aabbccddeeff02', 'b6d767d2f8ed4f0ba4c3d2e1f1234567', 'Roma', 0),
+('6eb5c6d7e8f9488899aabbccddeeff03', 'b6d767d2f8ed4f0ba4c3d2e1f1234567', 'SF90', 0),
+('6eb5c6d7e8f9488899aabbccddeeff04', 'b6d767d2f8ed4f0ba4c3d2e1f1234567', 'Purosangue', 0),
+('7fc6d7e8f9a0488899aabbccddeeff01', '37693cfc7480492fa3d2e1f123456789', 'Huracan', 0),
+('7fc6d7e8f9a0488899aabbccddeeff02', '37693cfc7480492fa3d2e1f123456789', 'Aventador', 0),
+('7fc6d7e8f9a0488899aabbccddeeff03', '37693cfc7480492fa3d2e1f123456789', 'Urus', 0),
+('80d7e8f9a0b1488899aabbccddeeff01', '6f4922f455684f8ab7c6d5e4f3212345', 'Mazda3', 0),
+('80d7e8f9a0b1488899aabbccddeeff02', '6f4922f455684f8ab7c6d5e4f3212345', 'CX-5', 0),
+('80d7e8f9a0b1488899aabbccddeeff03', '6f4922f455684f8ab7c6d5e4f3212345', 'MX-30', 1),
+('91e8f9a0b1c2488899aabbccddeeff01', '1f0e3dad9990487aa6b5c4d3e2f11234', 'Impreza', 0),
+('91e8f9a0b1c2488899aabbccddeeff02', '1f0e3dad9990487aa6b5c4d3e2f11234', 'Outback', 0),
+('91e8f9a0b1c2488899aabbccddeeff03', '1f0e3dad9990487aa6b5c4d3e2f11234', 'Solterra', 1),
+('a2b3c4d5e6f7488899aabbccddeeff01', 'c9f0f895fb984b2d9f4b8b3e8d6e5a11', 'Civic', 0),
+('a2b3c4d5e6f7488899aabbccddeeff02', 'c9f0f895fb984b2d9f4b8b3e8d6e5a11', 'Accord', 0),
+('a2b3c4d5e6f7488899aabbccddeeff03', 'c9f0f895fb984b2d9f4b8b3e8d6e5a11', 'CR-V', 0),
+('a2b3c4d5e6f7488899aabbccddeeff04', 'c9f0f895fb984b2d9f4b8b3e8d6e5a11', 'e:NS1', 1),
+('b3c4d5e6f7a8488899aabbccddeeff01', '45c48cce2e2d4fb7a7d0f8a7b9e6c123', 'Focus', 0),
+('b3c4d5e6f7a8488899aabbccddeeff02', '45c48cce2e2d4fb7a7d0f8a7b9e6c123', 'Mustang', 0),
+('b3c4d5e6f7a8488899aabbccddeeff03', '45c48cce2e2d4fb7a7d0f8a7b9e6c123', 'Explorer', 0),
+('b3c4d5e6f7a8488899aabbccddeeff04', '45c48cce2e2d4fb7a7d0f8a7b9e6c123', 'Mach-E', 1),
+('b3c4d5e6f7a8488899aabbccddeeff05', '45c48cce2e2d4fb7a7d0f8a7b9e6c123', 'F-150 Lightning', 1),
+('c4d5e6f7a8b9488899aabbccddeeff01', '6512bd43d9ca4e7bb8a1c5d2e3f4a567', '320i', 0),
+('c4d5e6f7a8b9488899aabbccddeeff02', '6512bd43d9ca4e7bb8a1c5d2e3f4a567', 'X5', 0),
+('c4d5e6f7a8b9488899aabbccddeeff03', '6512bd43d9ca4e7bb8a1c5d2e3f4a567', 'i4', 1),
+('c4d5e6f7a8b9488899aabbccddeeff04', '6512bd43d9ca4e7bb8a1c5d2e3f4a567', 'iX', 1),
+('c4d5e6f7a8b9488899aabbccddeeff05', '6512bd43d9ca4e7bb8a1c5d2e3f4a567', 'M3', 0),
+('d5e6f7a8b9c0488899aabbccddeeff01', 'c20ad4d76fe94f2f9c8a7e6d5b4c3210', 'C-Class', 0),
+('d5e6f7a8b9c0488899aabbccddeeff02', 'c20ad4d76fe94f2f9c8a7e6d5b4c3210', 'E-Class', 0),
+('d5e6f7a8b9c0488899aabbccddeeff03', 'c20ad4d76fe94f2f9c8a7e6d5b4c3210', 'GLE', 0),
+('d5e6f7a8b9c0488899aabbccddeeff04', 'c20ad4d76fe94f2f9c8a7e6d5b4c3210', 'EQS', 1),
+('d5e6f7a8b9c0488899aabbccddeeff05', 'c20ad4d76fe94f2f9c8a7e6d5b4c3210', 'EQA', 1),
+('e6f7a8b9c0d1488899aabbccddeeff01', 'c51ce410c1244d5ab7e8f9a0b1c2d345', 'A3', 0),
+('e6f7a8b9c0d1488899aabbccddeeff02', 'c51ce410c1244d5ab7e8f9a0b1c2d345', 'A4', 0),
+('e6f7a8b9c0d1488899aabbccddeeff03', 'c51ce410c1244d5ab7e8f9a0b1c2d345', 'Q5', 0),
+('e6f7a8b9c0d1488899aabbccddeeff04', 'c51ce410c1244d5ab7e8f9a0b1c2d345', 'e-tron', 1),
+('e6f7a8b9c0d1488899aabbccddeeff05', 'c51ce410c1244d5ab7e8f9a0b1c2d345', 'Q8 e-tron', 1),
+('f1a2b3c4d5e6478899aabbccddeeff01', '8f14e45fceea467aa3f3f4fdbf6f9d91', 'Corolla', 0),
+('f1a2b3c4d5e6478899aabbccddeeff02', '8f14e45fceea467aa3f3f4fdbf6f9d91', 'Camry', 0),
+('f1a2b3c4d5e6478899aabbccddeeff03', '8f14e45fceea467aa3f3f4fdbf6f9d91', 'RAV4', 0),
+('f1a2b3c4d5e6478899aabbccddeeff04', '8f14e45fceea467aa3f3f4fdbf6f9d91', 'bZ4X', 1),
+('f1a2b3c4d5e6478899aabbccddeeff05', '8f14e45fceea467aa3f3f4fdbf6f9d91', 'Prius', 0),
+('f7a8b9c0d1e2488899aabbccddeeff01', 'b53b3a3d6ab94f86976543210ffeedca', 'Model S', 1),
+('f7a8b9c0d1e2488899aabbccddeeff02', 'b53b3a3d6ab94f86976543210ffeedca', 'Model 3', 1),
+('f7a8b9c0d1e2488899aabbccddeeff03', 'b53b3a3d6ab94f86976543210ffeedca', 'Model X', 1),
+('f7a8b9c0d1e2488899aabbccddeeff04', 'b53b3a3d6ab94f86976543210ffeedca', 'Model Y', 1),
+('f7a8b9c0d1e2488899aabbccddeeff05', 'b53b3a3d6ab94f86976543210ffeedca', 'Cybertruck', 1);
 
 -- --------------------------------------------------------
 
@@ -930,8 +1062,7 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_pk`, `user_fk`, `wash_fk`, `order_time_at`, `location_fk`, `car_fk`, `status_fk`) VALUES
-('80c77257f6e247e1b483c8c93f5caa52', '41b9383ed3b240cea9c327b01918564d', 1, 1779183345, '368b014378854b58844d888f98b261f3', 'AAAAAAAAAA', 3),
-('d636ecb6dc6443a1acc210858abe2cbf', '41b9383ed3b240cea9c327b01918564d', 1, 1778750867, '368b014378854b58844d888f98b261f3', 'AAAAAAAAAA', 3);
+('b90d603002d14eb0bfbf41d9c2228c12', '3bcede93719e4343b83b80dcc3084671', 1, 1779193073, '368b014378854b58844d888f98b261f3', 'DDDDDDDD', 1);
 
 -- --------------------------------------------------------
 
@@ -986,13 +1117,6 @@ CREATE TABLE `subscriptions` (
   `all_locations` tinyint(1) DEFAULT NULL,
   `car_fk` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Data dump for tabellen `subscriptions`
---
-
-INSERT INTO `subscriptions` (`subscription_pk`, `wash_fk`, `location_fk`, `all_locations`, `car_fk`) VALUES
-('4dcc3cb3f42748f4a69c77cd79462320', 2, '052fb920997248898e5b26533fd68195', 1, 'AAAAAAAAAA');
 
 -- --------------------------------------------------------
 
