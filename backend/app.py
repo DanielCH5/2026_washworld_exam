@@ -28,6 +28,26 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+##############################
+@app.get("/location-status/<location_pk>")
+def get_location_status(location_pk):
+    try: 
+        location_pk = x.validate_uuid4(location_pk)
+        db, cursor = x.db()
+        q = "SELECT location_status_message FROM `locations` WHERE location_pk = %s"
+        cursor.execute(q, (location_pk,))
+        location_status = cursor.fetchone()
+        return jsonify(location_status), 200
+    except Exception as ex:
+        if "company_exception key" in str(ex):
+            return jsonify({"message": "Invalid key"}),  400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
 
 ##############################
 @app.post("/order")
@@ -785,6 +805,8 @@ def get_locations_da():
             location_mat_cleaner = location["service_units"]["mat_cleaner"]["total_count"]
             location_vacuum = location["service_units"]["vacuum"]["total_count"]
             location_pre_wash = location["service_units"]["pre_wash"]["total_count"]
+            location_status_message = location["message"]
+           
 
             # Washworld inserted decimals with a ",", split strings apart and insert comma for db
 
@@ -816,10 +838,10 @@ def get_locations_da():
                 case "Fyn":
                     region_fk = "3"
 
-            q = "INSERT INTO locations VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            q = "INSERT INTO locations VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             cursor.execute(q, (location_pk, location_name, location_address, location_lat, location_lon,
             location_open_hours, location_wash_halls, location_empty_wash_halls, location_self_wash, location_mat_cleaner, location_vacuum,
-            location_pre_wash, location_max_meters, location_max_mirror_width_meters, region_fk, location_end_url, location_image_end_url))
+            location_pre_wash, location_max_meters, location_max_mirror_width_meters, region_fk, location_end_url, location_image_end_url, location_status_message))
             db.commit()
 
 
