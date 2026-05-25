@@ -1,6 +1,7 @@
 // MapComponent.jsx
 "use client"
 import { useEffect, useState } from "react";
+import { FaExclamationTriangle } from "react-icons/fa";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../public/map.css";
@@ -41,7 +42,9 @@ export default function Map() {
                     adress: location.location_address,
                     opening: location.location_open_hours,
                     washHalls: location.location_wash_halls,
+                    emptyWashHalls: location.location_empty_wash_halls,
                     selfWash: location.location_self_wash,
+                    statusMessage: location.location_status_message
                 }))
             ))
             .catch((err) => console.error("Failed to fetch markers:", err));
@@ -91,12 +94,19 @@ export default function Map() {
               </div>
             </div>
 
-            {/* Status */}
-            <div className="flex items-center gap-2 whitespace-nowrap">
-            <span className="h-3 w-3 rounded-full bg-green-500"></span>
-            <p className="font-bold text-green-500">Ledig</p>
+              {/* Status */}
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                {marker.statusMessage ?(
+                  <FaExclamationTriangle className="text-red-500 text-3xl"/>
+                ):(
+                  <>
+              <span className={`h-3 w-3 rounded-full ${marker.emptyWashHalls === 0? "bg-red-500" : "bg-green-500"}`}></span>
+              <p className={`font-bold ${marker.emptyWashHalls === 0? "text-red-500" : "text-green-500"}`}>
+              {marker.emptyWashHalls === 0? "Optaget" : "Ledig"}</p>
+              </>
+              )}
+              </div>
             </div>
-          </div>
 
           {/* åbningstider */}
           <div className="flex items-center gap-2">
@@ -115,6 +125,11 @@ export default function Map() {
 
           {/* Info */}
           <div className="space-y-4 text-l">
+            <p>
+              <span className="font-bold text-red-500">
+                {marker.statusMessage}
+              </span>
+            </p>
             <p>
               Vaskehaller{" "}
               <span className="font-bold">
