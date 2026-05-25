@@ -1,6 +1,7 @@
 // MapComponent.jsx
 "use client"
 import { useEffect, useState } from "react";
+import { FaExclamationTriangle } from "react-icons/fa";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../public/map.css";
@@ -95,9 +96,15 @@ export default function Map() {
 
               {/* Status */}
               <div className="flex items-center gap-2 whitespace-nowrap">
+                {marker.statusMessage ?(
+                  <FaExclamationTriangle className="text-red-500 text-2xl"/>
+                ):(
+                  <>
               <span className={`h-3 w-3 rounded-full ${marker.emptyWashHalls === 0? "bg-red-500" : "bg-green-500"}`}></span>
               <p className={`font-bold ${marker.emptyWashHalls === 0? "text-red-500" : "text-green-500"}`}>
               {marker.emptyWashHalls === 0? "Optaget" : "Ledig"}</p>
+              </>
+              )}
               </div>
             </div>
 
