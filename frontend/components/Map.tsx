@@ -42,6 +42,7 @@ export default function Map() {
                     opening: location.location_open_hours,
                     washHalls: location.location_wash_halls,
                     selfWash: location.location_self_wash,
+                    statusMessage: location.location_status_message
                 }))
             ))
             .catch((err) => console.error("Failed to fetch markers:", err));
@@ -115,6 +116,11 @@ export default function Map() {
 
           {/* Info */}
           <div className="space-y-4 text-l">
+            <p>
+              <span className="font-bold text-red-500">
+                {marker.statusMessage}
+              </span>
+            </p>
             <p>
               Vaskehaller{" "}
               <span className="font-bold">
