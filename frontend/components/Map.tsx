@@ -41,6 +41,7 @@ export default function Map() {
                     adress: location.location_address,
                     opening: location.location_open_hours,
                     washHalls: location.location_wash_halls,
+                    emptyWashHalls: location.location_empty_wash_halls,
                     selfWash: location.location_self_wash,
                     statusMessage: location.location_status_message
                 }))
@@ -92,12 +93,13 @@ export default function Map() {
               </div>
             </div>
 
-            {/* Status */}
-            <div className="flex items-center gap-2 whitespace-nowrap">
-            <span className="h-3 w-3 rounded-full bg-green-500"></span>
-            <p className="font-bold text-green-500">Ledig</p>
+              {/* Status */}
+              <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className={`h-3 w-3 rounded-full ${marker.emptyWashHalls === 0? "bg-red-500" : "bg-green-500"}`}></span>
+              <p className={`font-bold ${marker.emptyWashHalls === 0? "text-red-500" : "text-green-500"}`}>
+              {marker.emptyWashHalls === 0? "Optaget" : "Ledig"}</p>
+              </div>
             </div>
-          </div>
 
           {/* åbningstider */}
           <div className="flex items-center gap-2">
