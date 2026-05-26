@@ -36,7 +36,7 @@
   --box-Bottom-Green-Line: 0px 4px 0px 0px var(--darker-Green-Details);
 
   /*box shadow for subtly raising white boxes*/
-  --box-Shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.377);
+  --box-Shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.137);
 
   /*box shadow for free wash hall*/
   --box-Shadow-Hall-Free: 0px 0px 10px 1px rgba(54, 157, 43, 0.917);
@@ -65,8 +65,8 @@ h2 {font-family: 'GilroyBold'; font-size: 24px;}
 h3 {font-family: 'GilroyBold'; font-size: 20px;}
 h4 {font-family: 'GilroyBold'; font-size: 16px;}
   
-h5 {font-family: 'GilroyMedium'; font-size: 14px;}
-p {font-family: 'GilroyMedium'; font-size: 12px;}
+h5 {font-family: 'GilroyMedium'; font-size: 16px;}
+p {font-family: 'GilroyMedium'; font-size: 14px;}
   
 a {
   font-family: 'GilroyBold';  
