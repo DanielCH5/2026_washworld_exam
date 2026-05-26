@@ -30,7 +30,7 @@ export default function HelpPage() {
               clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", // Skrå kant med clip-path
             }}
           >
-            <FaPhone className="text-2xl" />
+            <FaPhone className="text-xl" />
             {/* ml-4 giver lidt ekstra afstand til venstre, så teksten ikke rammer den skrå kant */}
             <p>99 99 99 99</p>
           </button></div>
