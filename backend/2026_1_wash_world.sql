@@ -1057,13 +1057,6 @@ CREATE TABLE `orders` (
   `status_fk` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Data dump for tabellen `orders`
---
-
-INSERT INTO `orders` (`order_pk`, `user_fk`, `wash_fk`, `order_time_at`, `location_fk`, `car_fk`, `status_fk`) VALUES
-('b90d603002d14eb0bfbf41d9c2228c12', '3bcede93719e4343b83b80dcc3084671', 1, 1779193073, '368b014378854b58844d888f98b261f3', 'DDDDDDDD', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -1146,6 +1139,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_pk`, `user_first_name`, `user_last_name`, `user_email`, `user_hashed_password`, `user_created_at`, `user_verified_at`, `user_changed_at`, `user_deleted_at`, `user_reset_at`, `user_reset_password_key`, `user_verification_key`) VALUES
 ('3bcede93719e4343b83b80dcc3084671', 'John22', 'Johnson22', 'john22@john.com', 'scrypt:32768:8:1$OVyZXpEyukeyhG0q$884c9a7e535a321268b11437270a88bd7e90f5da10d0f9429676e16891ddd42ea7b2be09d7ca0fb19a2df54727c3b11dd8446ffc30e1e4459704c45e229d986b', 1778695388, 1778695440, 0, 0, 0, '317cd5f0c289409d8589923068d3e841', '0'),
 ('41b9383ed3b240cea9c327b01918564d', 'Bob', 'Marley', 'bob@marley.com', '12345', 1778057276, NULL, NULL, NULL, NULL, NULL, NULL),
+('a7c88c4b5b284350aebe54293508fea6', 'Bob', 'Bobby', 'masi0001@stud.ek.dk', 'scrypt:32768:8:1$iVcli7IfFHs19Tuw$dbc9c1c393813d812a3bd7471d092bb4bf6b602a69eceee3d3489bb5e7ab93ebbacf500706000f3b36c4a61cb0e383207f50403c0510984c1b571840e8d1479e', 1779480334, 0, 0, 0, 0, '891a28bd7f4c4b2899be04513c78b6bb', 'd7490910febb459bbe1a8cc7d07c75e9'),
 ('c633870018c741b1a09e299a732c0c85', 'John1', 'Johnson1', 'john1@john.com', 'scrypt:32768:8:1$GqXDLzWCfqNUHGqj$696446430630f185ba518bac298dc87623ed34dee82d4e405664d0fb8c4246a3bf7e0cc297802f5e0c4a16cef7b7d0a80b2973d95c92c4ad207e86cbd98e36ab', 1778089426, 0, 0, 0, 0, '4bf90a46e09c406f810418ae29aae888', '627d0ad37acb4d3dab0d3fa483f7142f'),
 ('d3af55b485564244924390234cd16a71', 'John2', 'Johnson2', 'john2@john.com', 'scrypt:32768:8:1$7Ga7EpiUsD16UWKy$3265d86a5f56907c3d1a32b43b07b00dce9caaf92eaf9ae976e871fe4e63e82204fcd1356f2f3b0c7f2f407a7809d2770e1a0e9d494f1b9870278217fdbe1d20', 1778159905, 0, 0, 0, 0, '05d4c7f958e84a6dbef29510ce10c894', '2439f2abac9b4d0a8e256ee0684b8be2'),
 ('e5967722bf2f47c48597b5085c49b8c5', 'John', 'Johnson', 'john@john.com', 'scrypt:32768:8:1$jFdezWG5Dy1qhdje$9489f0889ed727995c546a0e9706da1a5c906c30e0b4ff20b59f68ce694ca2c96cf8cfed257e3834fda6e27d60d73aa47a437b596fe703ba09a0423fe8afbe4f', 1778089271, 0, 0, 0, 0, 'f9464edd40a44e90895be9abb0bf119e', '5db11f4264c24ade9ca21ed0c51a7a55');

@@ -55,7 +55,7 @@ def get_location_status(location_pk):
 def create_order():
     try:
         order_pk = uuid.uuid4().hex
-        user_fk = get_jwt_identity()
+        user_fk = x.validate_uuid4(get_jwt_identity())
         wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         order_time_at = int(time.time())
         location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
@@ -308,7 +308,7 @@ def delete_subscription(subscription_pk):
 @jwt_required()
 def create_car():
     try:
-        user_fk = get_jwt_identity()
+        user_fk = x.validate_uuid4(get_jwt_identity())
         car_pk = x.validate_license_plate(request.form.get("car_pk", "",))
         model_fk = x.validate_uuid4(request.form.get("model_pk", "",))
         car_nickname = x.validate_nickname(request.form.get("car_nickname", ""))
@@ -387,7 +387,7 @@ WHERE cars.car_pk = %s"""
 def get_cars():
     try:
         db, cursor = x.db()
-        user_fk = get_jwt_identity()
+        user_fk = x.validate_uuid4(get_jwt_identity())
         q = """SELECT
     cars.*,
     models.car_electric,
@@ -611,7 +611,7 @@ def logout_user():
 @jwt_required()
 def get_me():
     try:
-        user_id = get_jwt_identity()
+        user_id = x.validate_uuid4(get_jwt_identity())
         q = "SELECT user_first_name, user_last_name, user_email FROM users where user_pk = %s"
 
         db, cursor = x.db()
