@@ -2,6 +2,8 @@
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import SquareButton from "@/components/buttons/__SquareButton";
 import { useState } from "react";
+import { IoMdCheckmarkCircle } from "react-icons/io";
+import { IoIosCloseCircle } from "react-icons/io";
 
 export default function MembershipPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,30 +24,25 @@ export default function MembershipPage() {
           {isOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}
           </div>
           {isOpen && (
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 pt-4 px-2 text-sm">
-            {/* included - green checkmark */}
-            {["Skumforvask", "Aktiv shampoo", "Hjulvask", "Højtryksvask", "Børstevask", "Voks", "Tørring"].map(item => (
-              <div key={item} className="flex items-center gap-2">
-                <span className="text-green-500">✅</span>
-               <p>{item}</p>
-             </div>
-                 ))}
-            {/* included right column */}
-            {["Højsglans", "Undervognsvask*"].map(item => (
-              <div key={item} className="flex items-center gap-2">
-                <span className="text-green-500">✅</span>
-                <p>{item}</p>
-             </div>
-           ))}
-            {/* not included - grey minus */}
-           {["Skumvask", "Affedtning", "Sæsonrens"].map(item => (
-              <div key={item} className="flex items-center gap-2">
-               <span className="text-gray-400">➖</span>
-               <p className="text-gray-400">{item}</p>
-             </div>
-           ))}
-          </div>
-        )}
+            <div className="flex flex-row pt-4 gap-16 justify-center">
+              <div className="flex flex-col gap-2 items-start">
+              <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Skumforvask</p>
+              <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Aktiv shampoo</p>
+              <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Hjulvask</p>
+              <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Højtryksvask</p>
+              <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Børstevask</p>
+              <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Voks</p>
+               <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Tørring</p>
+              </div>
+              <div className="flex flex-col gap-2 items-start">
+               <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Højsglans</p>
+               <p className="flex items-center gap-1"><IoMdCheckmarkCircle className="text-green-500"/> Undervognsvask*</p>
+               <p className="flex items-center gap-1 text-gray-400"><IoIosCloseCircle /> Skumvask</p>
+               <p className="flex items-center gap-1 text-gray-400"><IoIosCloseCircle /> Affedtning</p>
+               <p className="flex items-center gap-1 text-gray-400"><IoIosCloseCircle /> Sæsonrens</p>
+              </div>
+           </div>
+          )}
 
         </div>
       </div>
