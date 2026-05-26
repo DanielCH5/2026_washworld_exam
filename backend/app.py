@@ -28,6 +28,28 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+
+##############################
+@app.get("/addons/<wash_pk>")
+def get_addons_for_wash(wash_pk):
+    try:
+        wash_pk = x.validate_one_number(wash_pk)
+        db, cursor = x.db()
+        q = """SELECT a.addon_pk, a.addon_name FROM washes_addons wa
+    JOIN addons a ON wa.addon_fk = a.addon_pk WHERE wa.wash_fk = %s;"""
+        cursor.execute(q, (wash_pk,))
+        addons = cursor.fetchall()
+        ic(addons)
+
+        return jsonify(addons), 200
+
+    except Exception as ex:
+        if "company_exception number" in str(ex):
+            return jsonify({"message": "Invalid wash type"}),  400
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
 @app.get("/location-status/<location_pk>")
 def get_location_status(location_pk):
