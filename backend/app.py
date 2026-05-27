@@ -601,9 +601,9 @@ def login():
         user = cursor.fetchone()
         #ic(user)
         if not user:
-            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
+            return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
-            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
+            return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         
         response = jsonify({"msg": "login successful"})
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}

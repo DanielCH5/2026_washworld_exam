@@ -12,8 +12,10 @@ import { FaLock } from "react-icons/fa";
 // locked:  default grey border, lock icon on left, no focus reaction
 
 type InputState = "normal" | "error" | "locked";
+type InputType = "text" | "password" | "email";
 
 interface TextInputProps {
+  type: InputType;
   label: string;                          
   placeholder?: string;                   
   value?: string;                         
@@ -25,6 +27,7 @@ interface TextInputProps {
 // TEXT INPUT
 
 export function TextInput({
+  type = "text",
   label,
   placeholder = "",
   value: externalValue,
@@ -96,7 +99,7 @@ export function TextInput({
         )}
 
         <input
-          type="text"
+          type={type}
           placeholder={placeholder}
           value={value}
           disabled={isLocked}
