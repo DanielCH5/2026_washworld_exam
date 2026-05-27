@@ -38,7 +38,7 @@ export default function SearchBar({
     <div className="relative w-full max-w-md">
       <input
         type="text"
-        placeholder="Search car wash..."
+        placeholder="Søg efter vaskehal..."
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
