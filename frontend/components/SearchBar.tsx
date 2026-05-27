@@ -48,7 +48,7 @@ export default function SearchBar({
       />
 
       {open && filteredMarkers.length > 0 && (
-        <div className="absolute z-[1000] mt-2 w-full rounded-lg border bg-white shadow-lg">
+        <div className="absolute z-[1000] mt-2 w-full rounded-lg border bg-white shadow-lg"> {/* bg-white to make abckground white*/ }
           {filteredMarkers.map((marker) => (
             <button
               key={`${marker.lat}-${marker.lng}`}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import { FaExclamationTriangle } from "react-icons/fa";
+import { ZoomControl } from "react-leaflet"; //REMOVE THE ZOOM BUTTONS
 import {
   MapContainer,
   TileLayer,
@@ -80,7 +81,12 @@ export default function Map() {
 
     return (
       <>
-       <SearchBar
+     {/* <div className="relative h-screen w-full"> 
+     
+      <div className="absolute left-1/2 top-4 z-[1000] w-full max-w-md -translate-x-1/2 px-4"> 
+      --PUT THE SEARCHBAR ON TOP OF THE MAP*/}
+
+      <SearchBar
         markers={markers}
         onSelect={(marker) => {
           setSelectedPosition([
@@ -88,12 +94,13 @@ export default function Map() {
             marker.lng,
           ]);
         }}
-      />
+      />{/*</div> -- PUT THE SEARCHBAR ON TOP OF THE MAP */}
       
         <MapContainer
             center={[55.6182310, 12.4239500]} // Default center — adjust as needed
             zoom={12}
             style={{ height: "100dvh", width: "100%" }}
+            //zoomControl={false} //REMOVE THE ZOOM BUTTONS +-
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -201,6 +208,7 @@ export default function Map() {
   </Marker>
 ))}
         </MapContainer>
-        </>
+        </> // -- CHANGE TO </div> TO PUT SEARCHBAR ON TOP OF MAP
+         
     );
 }
