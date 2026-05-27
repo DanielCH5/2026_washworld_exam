@@ -1,8 +1,16 @@
 // MapComponent.jsx
 "use client"
 import { useEffect, useState } from "react";
+import SearchBar from "@/components/SearchBar";
 import { FaExclamationTriangle } from "react-icons/fa";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { ZoomControl } from "react-leaflet"; //REMOVE THE ZOOM BUTTONS
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../public/map.css";
 import L from "leaflet";
@@ -27,8 +35,29 @@ L.Icon.Default.mergeOptions({
     iconSize: [38, 47]
 });
 
+function FlyToLocation({
+  position,
+}: {
+  position: [number, number];
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.flyTo(position, 15, {
+      duration: 1.5,
+    });
+  }, [position, map]);
+
+  return null;
+}
+
 export default function Map() {
     const [markers, setMarkers] = useState([]);
+    const [selectedPosition, setSelectedPosition] =
+    useState<[number, number]>([
+        55.6182310,
+        12.4239500
+    ]);
 
     useEffect(() => {
         // Replace this URL with your actual API endpoint
@@ -51,14 +80,32 @@ export default function Map() {
     }, []);
 
     return (
+      <>
+     {/* <div className="relative h-screen w-full"> 
+     
+      <div className="absolute left-1/2 top-4 z-[1000] w-full max-w-md -translate-x-1/2 px-4"> 
+      --PUT THE SEARCHBAR ON TOP OF THE MAP*/}
+
+      <SearchBar
+        markers={markers}
+        onSelect={(marker) => {
+          setSelectedPosition([
+            marker.lat,
+            marker.lng,
+          ]);
+        }}
+      />{/*</div> -- PUT THE SEARCHBAR ON TOP OF THE MAP */}
+      
         <MapContainer
             center={[55.6182310, 12.4239500]} // Default center — adjust as needed
             zoom={12}
             style={{ height: "100dvh", width: "100%" }}
+            //zoomControl={false} //REMOVE THE ZOOM BUTTONS +-
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <FlyToLocation position={selectedPosition} />
 
             {markers.map((marker, index) => (
   <Marker key={index} position={[marker.lat, marker.lng]}>
@@ -161,5 +208,7 @@ export default function Map() {
   </Marker>
 ))}
         </MapContainer>
+        </> // -- CHANGE TO </div> TO PUT SEARCHBAR ON TOP OF MAP
+         
     );
 }
