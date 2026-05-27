@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useState } from "react";
 import ArrowButton from './buttons/__ArrowButton';
 import TextInput from './InputForms';
-
+import Link from 'next/link';
 export default function LoginForm() {
     const { login } = useAuth();
     const [email, setEmail] = useState('')
@@ -54,17 +54,17 @@ export default function LoginForm() {
                 )}
 
                 <div className="flex justify-end pt-1">
-                    <p className="font-bold text-[var(--green-White-BG)]">Glemt adgangskode?</p>
+                    <Link href="/forgot-password" className="font-bold text-[var(--green-White-BG)]">Glemt adgangskode?</Link>
                 </div>
 
                 <div className="flex justify-center py-4">
                     <ArrowButton text="Log ind" type="submit" />
                 </div>
 
-            </form>
+            </form >
 
 
-        </div>
+        </div >
     )
 
 

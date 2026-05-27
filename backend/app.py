@@ -530,7 +530,7 @@ def user_signup():
         db.commit()
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
-        response = jsonify({"msg": "User created"})
+        response = jsonify({"message": "User created"})
         access_token = create_access_token(identity=user_pk)
         set_access_cookies(response, access_token)
         x.send_email("Please verify your account", html, user_email)
@@ -605,7 +605,7 @@ def login():
         if not check_password_hash(user["user_hashed_password"], user_password):
             return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         
-        response = jsonify({"msg": "login successful"})
+        response = jsonify({"message": "login successful"})
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
         access_token = create_access_token(identity=user["user_pk"], additional_claims=additional_claims)
         set_access_cookies(response, access_token)
@@ -624,7 +624,7 @@ def login():
 @jwt_required()
 def logout_user():
     try:
-        response = jsonify({"msg": "logout successful"})
+        response = jsonify({"message": "logout successful"})
         unset_jwt_cookies(response)
         return response
     except Exception as ex:
@@ -670,7 +670,7 @@ def show_forgot_password():
 
 ##############################
 
-@app.post("/forgot-password")
+@app.post("/api/forgot-password")
 def forgot_password():
     try:
         user_email = x.validate_email( request.form.get("user_email", "") )
@@ -678,7 +678,7 @@ def forgot_password():
         q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
         cursor.execute(q, (user_email,))
         row = cursor.fetchone()
-        if not row: return "Email not found", 400
+        if not row: return jsonify ({"message": "ok"}), 200 # Still sends a 200, as to not leak potential emails in DB
 
         ic(row)
         user_reset_password_key = row["key"]
@@ -693,13 +693,13 @@ def forgot_password():
 
         x.send_email("Reset your password", html, user_email)
 
-        return "Check your email"
+        return jsonify ({"message": "ok"}), 200
 
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
-            return "Invalid email", 400
-        return str(ex), 500
+            return jsonify ({"error": "Invalid email", "error_field": "email"}), 400
+        return jsonify ({"error": "Something went wrong", "error_field": "form"}), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()

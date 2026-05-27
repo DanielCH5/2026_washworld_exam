@@ -16,12 +16,12 @@ type InputType = "text" | "password" | "email";
 
 interface TextInputProps {
   type: InputType;
-  label: string;                          
-  placeholder?: string;                   
-  value?: string;                         
-  state?: InputState;                     
-  errorMessage?: string;                  
-  onChange?: (val: string) => void;       
+  label: string;
+  placeholder?: string;
+  value?: string;
+  state?: InputState;
+  errorMessage?: string;
+  onChange?: (val: string) => void;
 }
 
 // TEXT INPUT
@@ -45,7 +45,7 @@ export function TextInput({
   const value = externalValue !== undefined ? externalValue : internalValue;
 
   const isLocked = state === "locked";
-  const isError  = state === "error";
+  const isError = state === "error";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isLocked) return;
@@ -54,16 +54,16 @@ export function TextInput({
   };
 
 
-  
- 
+
+
   // normal:  bottom border only, grey
   // active:  full green border on all sides
   // error:   full red border on all sides
   // locked:  bottom border only, grey (same as normal, no focus reaction)
 
   const wrapperBorder = () => {
-    if (isError)               return "border-2 border-[var(--warning-Red)]";
-    if (focused && !isLocked)  return "border-2 border-b-4 border border-[var(--green-White-BG)]";
+    if (isError) return "border-2 border-[var(--warning-Red)]";
+    if (focused && !isLocked) return "border-2 border-b-4 border border-[var(--green-White-BG)]";
     return "border-b-3 border-gray-300";  // normal + locked
   };
 
@@ -71,7 +71,7 @@ export function TextInput({
 
   const inputPadding = () => {
     if (isLocked) return "pl-10 pr-3"; // room for lock icon on left
-    if (isError)  return "pl-3 pr-10"; // room for warning icon on right
+    if (isError) return "pl-3 pr-10"; // room for warning icon on right
     return "px-3";
   };
 
@@ -129,7 +129,6 @@ export function TextInput({
       {isError && errorMessage && (
         <p className="mt-1 text-xs text-red-600">{errorMessage}</p>
       )}
-
     </div>
   );
 }
