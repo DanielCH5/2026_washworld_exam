@@ -537,6 +537,8 @@ def user_signup():
         return response, 201
     except Exception as ex:
         ic(ex)
+        if "Duplicate entry" in str(ex):
+            return jsonify({"error": f"User already exists", "error_field": "email"}), 400
         if "company_exception user_first_name" in str(ex): 
             return jsonify({"error": f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_first_name"}), 400
         if "company_exception user_last_name" in str(ex):
