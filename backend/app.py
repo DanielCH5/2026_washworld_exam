@@ -894,6 +894,43 @@ def get_locations_da():
  
 
 ##############################
+@app.get("/memberships")
+def get_memberships():
+    try:
+        db, cursor = x.db()
+        q = """
+            SELECT 
+                w.wash_pk,
+                w.wash_name,
+                GROUP_CONCAT(a.addon_pk ORDER BY a.addon_pk) AS addon_ids,
+                GROUP_CONCAT(a.addon_name ORDER BY a.addon_pk SEPARATOR '|') AS addon_names
+            FROM washes w
+            LEFT JOIN washes_addons wa ON w.wash_pk = wa.wash_fk
+            LEFT JOIN addons a ON wa.addon_fk = a.addon_pk
+            GROUP BY w.wash_pk, w.wash_name
+            ORDER BY w.wash_pk DESC
+        """
+        cursor.execute(q)
+        rows = cursor.fetchall()
+
+        memberships = []
+        for row in rows:
+            addon_ids = [int(i) for i in row["addon_ids"].split(",")] if row["addon_ids"] else []
+            addon_names = row["addon_names"].split("|") if row["addon_names"] else []
+            wash_programs = [{"addon_pk": pk, "addon_name": name} for pk, name in zip(addon_ids, addon_names)]
+            memberships.append({
+                "membership_pk": row["wash_pk"],
+                "membership_name": row["wash_name"],
+                "wash_programs": wash_programs
+            })
+
+        return jsonify(memberships), 200
+
+    except Exception as ex:
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
  
 
