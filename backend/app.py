@@ -537,6 +537,8 @@ def user_signup():
         return response, 201
     except Exception as ex:
         ic(ex)
+        if "Duplicate entry" in str(ex):
+            return jsonify({"error": f"User already exists", "error_field": "email"}), 400
         if "company_exception user_first_name" in str(ex): 
             return jsonify({"error": f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_first_name"}), 400
         if "company_exception user_last_name" in str(ex):
@@ -599,9 +601,9 @@ def login():
         user = cursor.fetchone()
         #ic(user)
         if not user:
-            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
+            return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
-            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
+            return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         
         response = jsonify({"msg": "login successful"})
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
