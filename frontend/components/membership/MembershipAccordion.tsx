@@ -4,7 +4,7 @@
 
 export default function MembershipAccordion() {
   return (
-    <div className="bg-[var(--grey-5)] pt-2 pb-15">
+    <div className="bg-[var(--grey-5)] pb-15 p-4">
         <h4 className="text-[var(--green-White-BG)] mb-[-4px]">MEDLEMSKAB</h4>
         <h2>Ubegrænset bilvask</h2>
         <p>Få ubegrænset bilvask til fast lav pris hos Wash World
