@@ -27,11 +27,17 @@ import { FaRegClock } from "react-icons/fa6";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
+const greenPin = new L.Icon({
   iconUrl: "/ww-pin-green.png",
   iconRetinaUrl: "/ww-pin-green.png",
-  shadowUrl: markerShadow,
+  shadowUrl: markerShadow.src,
+  iconSize: [38, 47]
+});
+
+const redPin = new L.Icon({
+  iconUrl: "/ww-pin-red.png",
+  iconRetinaUrl: "/ww-pin-red.png",
+  shadowUrl: markerShadow.src,
   iconSize: [38, 47]
 });
 
@@ -123,7 +129,8 @@ export default function Map() {
         <FlyToLocation position={selectedPosition} />
 
         {markers.map((marker, index) => (
-          <Marker key={index} position={[marker.lat, marker.lng]}>
+          <Marker key={index} position={[marker.lat, marker.lng]}
+          icon={marker.statusMessage || marker.emptyWashHalls === 0 ? redPin : greenPin}>
             <Popup className="custom-popup">
               <div className="relative overflow-visible w-[400px] bg-white ">
 
