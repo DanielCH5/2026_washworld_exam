@@ -787,6 +787,7 @@ def reset_password():
 
 ##############################
 @app.get("/get-data")
+@jwt_required()
 def get_data():
     try:
         db, cursor = x.db()

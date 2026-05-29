@@ -29,10 +29,10 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconUrl: "/ww-pin-green.png",
-    iconRetinaUrl: "/ww-pin-green.png",
-    shadowUrl: markerShadow,
-    iconSize: [38, 47]
+  iconUrl: "/ww-pin-green.png",
+  iconRetinaUrl: "/ww-pin-green.png",
+  shadowUrl: markerShadow,
+  iconSize: [38, 47]
 });
 
 function FlyToLocation({
@@ -52,36 +52,51 @@ function FlyToLocation({
 }
 
 export default function Map() {
-    const [markers, setMarkers] = useState([]);
-    const [selectedPosition, setSelectedPosition] =
+  const [markers, setMarkers] = useState([]);
+  const [selectedPosition, setSelectedPosition] =
     useState<[number, number]>([
-        55.6182310,
-        12.4239500
+      55.6182310,
+      12.4239500
     ]);
 
-    useEffect(() => {
-        // Replace this URL with your actual API endpoint
-        fetch("http://127.0.0.1:80/get-data")
-            .then((res) => res.json())
-            .then((data) => setMarkers(
-                data.map((location) => ({
-                    lat: location.location_lat,
-                    lng: location.location_lon,
-                    label: location.location_name,
-                    adress: location.location_address,
-                    opening: location.location_open_hours,
-                    washHalls: location.location_wash_halls,
-                    emptyWashHalls: location.location_empty_wash_halls,
-                    selfWash: location.location_self_wash,
-                    statusMessage: location.location_status_message
-                }))
-            ))
-            .catch((err) => console.error("Failed to fetch markers:", err));
-    }, []);
+  useEffect(() => {
+    // Replace this URL with your actual API endpoint
+    const fetchMarkers = async () => {
+      try {
+        const res = await fetch("http://localhost/get-data", {
+          method: "GET",
+          credentials: "include",
 
-    return (
-      <>
-     {/* <div className="relative h-screen w-full"> 
+        })
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+
+        const data = await res.json()
+
+        setMarkers(
+          data.map((location) => ({
+            lat: location.location_lat,
+            lng: location.location_lon,
+            label: location.location_name,
+            adress: location.location_address,
+            opening: location.location_open_hours,
+            washHalls: location.location_wash_halls,
+            emptyWashHalls: location.location_empty_wash_halls,
+            selfWash: location.location_self_wash,
+            statusMessage: location.location_status_message
+          }))
+        );
+      } catch (err) {
+        console.error("Failed to fetch markers:", err);
+      }
+    };
+    
+    fetchMarkers();
+  }, []);
+
+  return (
+    <>
+      {/* <div className="relative h-screen w-full"> 
      
       <div className="absolute left-1/2 top-4 z-[1000] w-full max-w-md -translate-x-1/2 px-4"> 
       --PUT THE SEARCHBAR ON TOP OF THE MAP*/}
@@ -95,120 +110,120 @@ export default function Map() {
           ]);
         }}
       />{/*</div> -- PUT THE SEARCHBAR ON TOP OF THE MAP */}
-      
-        <MapContainer
-            center={[55.6182310, 12.4239500]} // Default center — adjust as needed
-            zoom={12}
-            style={{ height: "100dvh", width: "100%" }}
-            //zoomControl={false} //REMOVE THE ZOOM BUTTONS +-
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <FlyToLocation position={selectedPosition} />
 
-            {markers.map((marker, index) => (
-  <Marker key={index} position={[marker.lat, marker.lng]}>
-    <Popup className="custom-popup">
-      <div className="relative overflow-visible w-[400px] bg-white ">
+      <MapContainer
+        center={[55.6182310, 12.4239500]} // Default center — adjust as needed
+        zoom={12}
+        style={{ height: "100dvh", width: "100%" }}
+      //zoomControl={false} //REMOVE THE ZOOM BUTTONS +-
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <FlyToLocation position={selectedPosition} />
 
-        {/* den grønne boks uden for card der har cut */}
-        <div className="absolute -bottom-3 left-0 h-[13px] w-45.5 bg-green-500" 
-             style={{
-              clipPath: "polygon(0% 0, 100% 0, 96% 100%, 0 100%)",
-              }}>
-        </div>
+        {markers.map((marker, index) => (
+          <Marker key={index} position={[marker.lat, marker.lng]}>
+            <Popup className="custom-popup">
+              <div className="relative overflow-visible w-[400px] bg-white ">
 
-        {/* alt indhold i marker*/}
-        <div className="p-6 pb-20">
+                {/* den grønne boks uden for card der har cut */}
+                <div className="absolute -bottom-3 left-0 h-[13px] w-45.5 bg-green-500"
+                  style={{
+                    clipPath: "polygon(0% 0, 100% 0, 96% 100%, 0 100%)",
+                  }}>
+                </div>
 
-          {/* Header */}
-          <div className="flex items-start justify-between gap-6">
-            <div>
+                {/* alt indhold i marker*/}
+                <div className="p-6 pb-20">
 
-              <h2 className="leading-tight">
-                {marker.label ?? `Marker ${index + 1}`}
-              </h2>
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-6">
+                    <div>
 
-              <div className="flex items-start gap-3">
-                <p className="font-bold text-green-500 whitespace-nowrap">
-                  1,2 km
-                </p>
+                      <h2 className="leading-tight">
+                        {marker.label ?? `Marker ${index + 1}`}
+                      </h2>
 
-                <p className="text-gray-600">
-                  {marker.adress}
-                </p>
+                      <div className="flex items-start gap-3">
+                        <p className="font-bold text-green-500 whitespace-nowrap">
+                          1,2 km
+                        </p>
+
+                        <p className="text-gray-600">
+                          {marker.adress}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      {marker.statusMessage ? (
+                        <FaExclamationTriangle className="text-red-500 text-3xl" />
+                      ) : (
+                        <>
+                          <span className={`h-3 w-3 rounded-full ${marker.emptyWashHalls === 0 ? "bg-red-500" : "bg-green-500"}`}></span>
+                          <p className={`font-bold ${marker.emptyWashHalls === 0 ? "text-red-500" : "text-green-500"}`}>
+                            {marker.emptyWashHalls === 0 ? "Optaget" : "Ledig"}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* åbningstider */}
+                  <div className="flex items-center gap-2">
+                    <FaRegClock className="text-[17px]"></FaRegClock>
+
+                    <p>
+                      Åbningstid:{" "}
+                      <span className="font-bold text-green-500">
+                        {marker.opening}
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-2 h-[1px] w-full bg-gray-300"></div>
+
+                  {/* Info */}
+                  <div className="space-y-4 text-l">
+                    <p>
+                      <span className="font-bold text-red-500">
+                        {marker.statusMessage}
+                      </span>
+                    </p>
+                    <p>
+                      Vaskehaller{" "}
+                      <span className="font-bold">
+                        {marker.washHalls}
+                      </span>
+                    </p>
+
+                    <p>
+                      Vask Selv{" "}
+                      <span className="font-bold">
+                        {marker.selfWash}
+                      </span>
+                    </p>
+                  </div>
+                  {/*Tilføjer linking til single page for se det virker :D lort */}
+                  <div>
+                    <a href="" className="hover:underline">Læs Mere</a>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-0 right-0">
+
+                  {/* Your micro component */}
+                  <ArrowButton text="Vis vej" />
+
+                </div>
               </div>
-            </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </> // -- CHANGE TO </div> TO PUT SEARCHBAR ON TOP OF MAP
 
-              {/* Status */}
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                {marker.statusMessage ?(
-                  <FaExclamationTriangle className="text-red-500 text-3xl"/>
-                ):(
-                  <>
-              <span className={`h-3 w-3 rounded-full ${marker.emptyWashHalls === 0? "bg-red-500" : "bg-green-500"}`}></span>
-              <p className={`font-bold ${marker.emptyWashHalls === 0? "text-red-500" : "text-green-500"}`}>
-              {marker.emptyWashHalls === 0? "Optaget" : "Ledig"}</p>
-              </>
-              )}
-              </div>
-            </div>
-
-          {/* åbningstider */}
-          <div className="flex items-center gap-2">
-           <FaRegClock className="text-[17px]"></FaRegClock>
-
-            <p>
-              Åbningstid:{" "}
-              <span className="font-bold text-green-500">
-                {marker.opening}
-              </span>
-            </p>
-          </div>
-
-          {/* Divider */}
-          <div className="my-2 h-[1px] w-full bg-gray-300"></div>
-
-          {/* Info */}
-          <div className="space-y-4 text-l">
-            <p>
-              <span className="font-bold text-red-500">
-                {marker.statusMessage}
-              </span>
-            </p>
-            <p>
-              Vaskehaller{" "}
-              <span className="font-bold">
-                {marker.washHalls}
-              </span>
-            </p>
-
-            <p>
-              Vask Selv{" "}
-              <span className="font-bold">
-                {marker.selfWash}
-              </span>
-            </p>
-          </div>
-         {/*Tilføjer linking til single page for se det virker :D lort */}
-         <div>
-            <a href="" className="hover:underline">Læs Mere</a>
-         </div>
-        </div>
-
-        <div className="absolute bottom-0 right-0">
-          
-            {/* Your micro component */}
-            <ArrowButton text="Vis vej" />
-          
-        </div>
-      </div>
-    </Popup>
-  </Marker>
-))}
-        </MapContainer>
-        </> // -- CHANGE TO </div> TO PUT SEARCHBAR ON TOP OF MAP
-         
-    );
+  );
 }
