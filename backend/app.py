@@ -29,6 +29,25 @@ from dotenv import load_dotenv
 load_dotenv() # Loads the .env variables
 
 
+
+##############################
+@app.get("/addons")
+def get_adddons():
+    try:
+        db, cursor = x.db()
+        q = "SELECT * from addons"
+        cursor.execute(q, ())
+        addons = cursor.fetchall()
+        ic(addons)
+
+        return jsonify(addons), 200
+
+    except Exception as ex:
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 ##############################
 @app.get("/addons/<wash_pk>")
 def get_addons_for_wash(wash_pk):
