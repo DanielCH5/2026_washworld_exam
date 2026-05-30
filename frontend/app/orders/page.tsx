@@ -1,28 +1,17 @@
 "use client"
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from 'next/navigation';
+import { useCar } from "../hooks/useCar";
+import { useAddons } from "../hooks/useAddons";
 import ArrowButton from "@/components/buttons/__ArrowButton";
 
 
 export default function OrdersPage() {
-const [addons, setAddons] = useState<any[]>([]);
 const [selectedAddons, setSelectedAddons] = useState<number[]>([]);
 const [showOrderPopup, setShowOrderPopup] = useState(false);
 const searchParams = useSearchParams();
 
-useEffect(() => {
-  const fetchAddons = async () => {
-    const res = await fetch("http://localhost/addons", {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setAddons(data);
-  };
-
-  fetchAddons();
-}, []);
 
 const toggleAddon = (addonId: number) => {
   setSelectedAddons((prev) => {
@@ -44,7 +33,7 @@ const createOrder = async () => {
 
   formData.append("wash_pk", "1");
   formData.append("location_pk", locationPk!);
-  formData.append("car_pk", "AB12345");
+  formData.append("car_pk", carPk!);
 
   selectedAddons.forEach((addonId) => {
     formData.append("addon_pk", addonId.toString());
@@ -68,6 +57,25 @@ const createOrder = async () => {
   console.log(data);
 };
 
+  const { car, error } = useCar(carPk);
+ const { addons: washAddons } = useAddons(car?.wash_fk);
+
+ const { addons: allAddons } = useAddons();
+ useEffect(() => {
+  if (!washAddons?.length) return;
+  if (!car?.wash_fk) {
+    setSelectedAddons([]); // ✅ nothing checked
+    return;
+  }
+
+  setSelectedAddons(
+    washAddons.map((a) => a.addon_pk)
+  );
+}, [washAddons]);
+
+
+
+
   return (
     <>
     <div>
@@ -78,7 +86,7 @@ const createOrder = async () => {
     <div className="space-y-2">
   <h2 className="font-bold">Tilvalg</h2>
 
-  {addons.map((addon) => (
+  {allAddons.map((addon) => (
     <label key={addon.addon_pk} className="flex items-center gap-2">
       <input
         type="checkbox"
@@ -89,6 +97,11 @@ const createOrder = async () => {
     </label>
   ))}
 </div>
+{car && (
+  <p>
+    {car.wash_fk}
+  </p>
+)}
 <ArrowButton text="Gå videre" onClick={() => {  setShowOrderPopup(true);
   createOrder()}} />
 
@@ -96,7 +109,6 @@ const createOrder = async () => {
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
     <div className="rounded bg-white p-6">
       <p>Hello</p>
-
       <button
         className="mt-4 border px-4 py-2"
         onClick={() => setShowOrderPopup(false)}
