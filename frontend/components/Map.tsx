@@ -1,6 +1,7 @@
 // MapComponent.jsx
 "use client"
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import Link from "next/link";
 import {FaList} from "react-icons/fa";
@@ -14,7 +15,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../public/map.css";
-import L from "leaflet";
+import L, { marker } from "leaflet";
 import ArrowButton from "./buttons/__ArrowButton";
 import { FaRegClock } from "react-icons/fa6";
 import LocationCard from "./locations/LocationCard";
@@ -28,6 +29,9 @@ import LocationCard from "./locations/LocationCard";
 
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
+// THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
+const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
+//const car_pk = "DD99001" // John Belvedere's car without subscription
 
 const greenPin = new L.Icon({
   iconUrl: "/ww-pin-green.png",
@@ -60,6 +64,10 @@ function FlyToLocation({
 }
 
 export default function Map() {
+  const router = useRouter();
+  const [showDirectionsPopup, setShowDirectionsPopup] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<any>(null);
+
   const [markers, setMarkers] = useState([]);
   const [selectedPosition, setSelectedPosition] =
     useState<[number, number]>([
@@ -147,6 +155,39 @@ export default function Map() {
             </Popup>
           </Marker>
         ))}
+
+        {showDirectionsPopup && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+    <div className="w-[350px] rounded-lg bg-white p-6 shadow-xl">
+      <h2 className="mb-4 text-xl font-bold">
+        Vis vej
+      </h2>
+
+      <p className="mb-6">
+        Dit køretøj er registreret foran </p>
+
+        <p className="font-bold text-green-500">
+        {selectedMarker.label}
+        </p>
+      
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowDirectionsPopup(false)}
+          className=" px-4 py-2"
+        >
+          Annuller
+        </button>
+
+          <ArrowButton text="ACCEPTER" onClick={() => {
+            setShowDirectionsPopup(false);
+            router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
+          }} />
+
+      </div>
+    </div>
+  </div>
+)}
       </MapContainer>
     </> // -- CHANGE TO </div> TO PUT SEARCHBAR ON TOP OF MAP
 

@@ -1,11 +1,21 @@
 "use client"
-//location card, the same we show in map when a marker is clicked. 
+//location card, the same we show in map when a marker is clicked.
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; 
 import { FaExclamationTriangle } from "react-icons/fa"
 import { FaRegClock } from "react-icons/fa6"
 import ArrowButton from "../buttons/__ArrowButton"
 import "../../public/map.css"
 
+// THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
+const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
+//const car_pk = "DD99001" // John Belvedere's car without subscription
+
 export default function LocationCard({ marker, index }) {
+  const router = useRouter();
+  const [showDirectionsPopup, setShowDirectionsPopup] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<any>(null);
+
   return (
     <div className="relative overflow-visible w-[400px] bg-white">
 
@@ -63,8 +73,40 @@ export default function LocationCard({ marker, index }) {
       </div>
 
       <div className="absolute bottom-0 right-0">
-        <ArrowButton text="Vis vej" />
+        <ArrowButton text="Vis vej" onClick={() => { setSelectedMarker(marker); setShowDirectionsPopup(true);}}/>
       </div>
+      {showDirectionsPopup && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+    <div className="w-[350px] rounded-lg bg-white p-6 shadow-xl">
+      <h2 className="mb-4 text-xl font-bold">
+        Vis vej
+      </h2>
+
+      <p className="mb-6">
+        Dit køretøj er registreret foran </p>
+
+        <p className="font-bold text-green-500">
+        {selectedMarker.label}
+        </p>
+      
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowDirectionsPopup(false)}
+          className=" px-4 py-2"
+        >
+          Annuller
+        </button>
+
+          <ArrowButton text="ACCEPTER" onClick={() => {
+            setShowDirectionsPopup(false);
+            router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
+          }} />
+
+      </div>
+    </div>
+  </div>
+)}
     </div>
   )
 }
