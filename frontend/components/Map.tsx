@@ -263,15 +263,9 @@ export default function Map() {
         <button
           onClick={() => {
             setShowDirectionsPopup(false);
-
-            // Navigate to another page
             router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
 
-            // OR Google Maps:
-            // window.open(
-            //   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedMarker.adress)}`,
-            //   "_blank"
-            // );
+        
           }}
           className="rounded bg-green-500 px-4 py-2 text-white"
         >

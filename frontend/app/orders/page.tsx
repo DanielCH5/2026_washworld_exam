@@ -5,12 +5,21 @@ import { useSearchParams } from 'next/navigation';
 import { useCar } from "../hooks/useCar";
 import { useAddons } from "../hooks/useAddons";
 import ArrowButton from "@/components/buttons/__ArrowButton";
+import { useRouter } from "next/navigation";
+
 
 
 export default function OrdersPage() {
+const router = useRouter();
 const [selectedAddons, setSelectedAddons] = useState<number[]>([]);
-const [showOrderPopup, setShowOrderPopup] = useState(false);
+const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+const [showInformationPopup, setShowInformationPopup] = useState(false);
+const [showStartWashPopup, setShowStartWashPopup] = useState(false);
+const [showWashProcessPopup, setShowWashProcessPopup] = useState(false);
+const [showEndWashPopup, setShowEndWashPopup] = useState(false);
+
 const searchParams = useSearchParams();
+
 
 
 const toggleAddon = (addonId: number) => {
@@ -25,7 +34,34 @@ const toggleAddon = (addonId: number) => {
   const locationPk = searchParams.get('location_pk');
   const carPk = searchParams.get('car_pk');
 
-  console.log(locationPk);
+ 
+async function updateStatus(carPk: string) {
+  const res = await fetch(`http://localhost/order/status/${carPk}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: {
+      "X-CSRF-TOKEN": Cookies.get("csrf_access_token") ?? "",
+    },
+  });
+
+  return res.json();
+}
+
+useEffect(() => {
+  if (!showWashProcessPopup || !carPk) return;
+
+  updateStatus(carPk)
+    .then(console.log)
+    .catch(console.error);
+}, [showWashProcessPopup, carPk]);
+
+useEffect(() => {
+  if (!showEndWashPopup || !carPk) return;
+
+  updateStatus(carPk)
+    .then(console.log)
+    .catch(console.error);
+}, [showEndWashPopup, carPk]);
 
   
 const createOrder = async () => {
@@ -53,36 +89,48 @@ const createOrder = async () => {
   if (!response.ok) {
     throw new Error(data.message);
   }
-
-  console.log(data);
 };
 
   const { car, error } = useCar(carPk);
  const { addons: washAddons } = useAddons(car?.wash_fk);
 
  const { addons: allAddons } = useAddons();
- useEffect(() => {
-  if (!washAddons?.length) return;
+
+useEffect(() => {
+   if (!showWashProcessPopup) return;
+  const timer = setTimeout(() => {
+    setShowWashProcessPopup(false);
+    setShowEndWashPopup(true);
+  }, 1 * 5 * 1000); // 15 * 60 * 1000 = 15 minutes
+
+  return () => clearTimeout(timer);
+}, [showWashProcessPopup]);
+
+
+useEffect(() => {
+ if (!showEndWashPopup) return;
+  const timer = setTimeout(() => {
+    setShowEndWashPopup(false);
+    router.push(`/`)
+  }, 1 * 5 * 1000); // 1 * 10 = seconds
+
+  return () => clearTimeout(timer);
+}, [showEndWashPopup]);
+
+useEffect(() => {
   if (!car?.wash_fk) {
-    setSelectedAddons([]); // ✅ nothing checked
+    setSelectedAddons([]);
     return;
   }
 
   setSelectedAddons(
-    washAddons.map((a) => a.addon_pk)
+    washAddons?.map((a) => a.addon_pk) ?? []
   );
-}, [washAddons]);
-
-
+}, [washAddons, car?.wash_fk]);
 
 
   return (
     <>
-    <div>
-      Location: {locationPk}
-      Car: {carPk}
-      
-    </div>
     <div className="space-y-2">
   <h2 className="font-bold">Tilvalg</h2>
 
@@ -97,25 +145,83 @@ const createOrder = async () => {
     </label>
   ))}
 </div>
-{car && (
-  <p>
-    {car.wash_fk}
-  </p>
-)}
-<ArrowButton text="Gå videre" onClick={() => {  setShowOrderPopup(true);
-  createOrder()}} />
+<ArrowButton text="Gå videre" onClick={() => {  setShowPaymentPopup(true);}} />
 
-{showOrderPopup && (
+{showPaymentPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
     <div className="rounded bg-white p-6">
-      <p>Hello</p>
-      <button
-        className="mt-4 border px-4 py-2"
-        onClick={() => setShowOrderPopup(false)}
-      >
-        Luk
-      </button>
+      <b>Betal for valg vask</b>
+      <p>VIS TILMELD BETALINGSTYPER HER!!!!!</p>
+    <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowPaymentPopup(false)}
+          className="px-4 py-2"
+        >
+          ANNULLER
+        </button>
+        
+        <ArrowButton text="ACCEPTER" onClick={() => {  setShowPaymentPopup(false); setShowInformationPopup(true);
+  createOrder()}} />
     </div>
+  </div>
+  </div>
+)}
+
+{showInformationPopup && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+    <div className="rounded bg-white p-6">
+      <b>Kør ind i vaskehal</b>
+      <p>OBS!: Husk at fjerne din antenne inden du starer vasken</p>
+    <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowInformationPopup(false)}
+          className="px-4 py-2"
+        >
+          ANNULLER
+        </button>
+        
+        <ArrowButton text="ACCEPTER" onClick={() => {  setShowInformationPopup(false); setShowStartWashPopup(true);}} />
+    </div>
+  </div>
+  </div>
+)}
+
+{showStartWashPopup && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+    <div className="rounded bg-white p-6">
+      <b>Start din vask</b>
+      <p>Har du husket at fjerne antennen?</p>
+    <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowStartWashPopup(false)}
+          className="px-4 py-2"
+        >
+          ANNULLER
+        </button>
+        
+        <ArrowButton text="START VASK" onClick={() => {  setShowStartWashPopup(false);  setShowWashProcessPopup(true);}} />
+    </div>
+  </div>
+  </div>
+)}
+
+{showWashProcessPopup && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+    <div className="rounded bg-white p-6">
+      <b>Følg din vaskeprocess her</b>
+      <p>VASKE IKON HER!!!!!!!!!</p>
+      <p>Din vask er i gang</p>
+      <p>TIMER HER HER!!!!!!!!!</p>
+  </div>
+  </div>
+)}
+{showEndWashPopup && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+    <div className="rounded bg-white p-6">
+      <b>Vask færdig</b>
+      <p>GRØN CIRKEL IKON HER!!!!!!!!!</p>
+      <p>Din vask er færdig og du kan nu køre ud af vaskehallen</p>
+  </div>
   </div>
 )}
     </>

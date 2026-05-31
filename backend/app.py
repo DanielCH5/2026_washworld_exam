@@ -161,16 +161,20 @@ GROUP BY o.order_pk
         if "db" in locals(): db.close()
 
 ##############################
-@app.patch("/order/status/<order_pk>")
+@app.patch("/order/status/<car_pk>")
 @jwt_required() 
-def change_order_status(order_pk):
+def change_order_status(car_pk):
     try:
-        order_pk = x.validate_uuid4(order_pk)
+        car_pk = x.validate_license_plate(car_pk)
 
         db, cursor = x.db()
-        q = "SELECT `location_fk`, `status_fk` FROM `orders` WHERE order_pk=%s"
-        cursor.execute(q, (order_pk,))
+        q = "SELECT * FROM `orders` WHERE car_fk = %s AND NOT status_fk = %s LIMIT 1"
+        cursor.execute(q, (car_pk, "3"))
         order = cursor.fetchone()
+        if not order:
+           return jsonify({"message": "This car does not have an active order"}), 400
+
+        order_pk = order["order_pk"]
         order_status = order["status_fk"]
         location_fk = order["location_fk"]
     
@@ -179,14 +183,14 @@ def change_order_status(order_pk):
         location = cursor.fetchone()
         location_empty_wash_halls = location["location_empty_wash_halls"]
 
+        
+
         if order_status == 1:
             order_status = 2
             location_empty_wash_halls = location_empty_wash_halls-1
-        elif order_status == 2:
+        else:
             order_status = 3
             location_empty_wash_halls = location_empty_wash_halls+1
-        else:
-            return jsonify({"message": "This order is already done"}), 400
 
         q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
         cursor.execute(q, (order_status, order_pk))
@@ -197,8 +201,8 @@ def change_order_status(order_pk):
 
         return jsonify({"message": "Order status updated"}), 200
     except Exception as ex:
-        if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}), 400
+        if "company_exception license plate" in str(ex):
+            return jsonify({"message": "Invalid license plate"}), 400
         
         return str(ex), 500
     finally:
