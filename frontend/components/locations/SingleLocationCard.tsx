@@ -1,0 +1,1 @@
+//card in top of single page. its like the location card but with less info

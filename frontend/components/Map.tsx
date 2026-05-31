@@ -215,7 +215,7 @@ export default function Map() {
                   </div>
                   {/*Tilføjer linking til single page for se det virker :D lort */}
                   <div>
-                    <a href="" className="hover:underline">Læs Mere</a>
+                    <a href="/locations/{id}" className="hover:underline">Læs Mere</a>
                   </div>
                 </div>
 
