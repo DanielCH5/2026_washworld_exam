@@ -911,6 +911,24 @@ def get_locations_da():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+#############################
+@app.get("/get-data/<location_pk>")
+@jwt_required()
+def get_single_location(location_pk):
+    try:
+        location_pk = x.validate_uuid4(location_pk)
+        db, cursor = x.db()
+        q = "SELECT * FROM locations WHERE location_pk = %s"
+        cursor.execute(q, (location_pk,))
+        location = cursor.fetchone()
+        return jsonify(location), 200
+
+    except Exception as ex:
+        return str(ex), 500
+        
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
  
 
