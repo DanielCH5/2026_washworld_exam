@@ -97,7 +97,6 @@ def create_order():
     try:
         order_pk = uuid.uuid4().hex
         user_fk = x.validate_uuid4(get_jwt_identity())
-        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         order_time_at = int(time.time())
         location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
@@ -108,8 +107,8 @@ def create_order():
             return jsonify({"message": "This car already has an active order"}), 400
         
         db, cursor = x.db()
-        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(q, (order_pk, user_fk, wash_fk, order_time_at, location_fk, car_fk, car_status ))
+        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (order_pk, user_fk, order_time_at, location_fk, car_fk, car_status ))
         db.commit()
         
         q = "Insert into `addons_orders` VALUES(%s, %s)"

@@ -5,8 +5,6 @@ export function useCar(carPk: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!carPk) return;
-
     const fetchCar = async () => {
       try {
         setError(null);
@@ -18,9 +16,6 @@ export function useCar(carPk: string | null) {
         if (!res.ok) throw new Error("Failed to fetch car");
 
         const data = await res.json();
-
-        console.log("CAR RESPONSE:", data);
-
         setCar(data);
       } catch (err: any) {
         setError(err.message);

@@ -27,7 +27,9 @@ import { FaRegClock } from "react-icons/fa6";
 
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-const car_pk = "AB12345" // THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
+// THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
+const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
+//const car_pk = "DD99001" // John Belvedere's car without subscription
 
 const greenPin = new L.Icon({
   iconUrl: "/ww-pin-green.png",
@@ -255,22 +257,16 @@ export default function Map() {
       <div className="flex justify-end gap-3">
         <button
           onClick={() => setShowDirectionsPopup(false)}
-          className="rounded border px-4 py-2"
+          className=" px-4 py-2"
         >
           Annuller
         </button>
 
-        <button
-          onClick={() => {
+          <ArrowButton text="ACCEPTER" onClick={() => {
             setShowDirectionsPopup(false);
             router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
+          }} />
 
-        
-          }}
-          className="rounded bg-green-500 px-4 py-2 text-white"
-        >
-          Accepter
-        </button>
       </div>
     </div>
   </div>
