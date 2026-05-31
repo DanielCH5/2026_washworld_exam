@@ -2,7 +2,8 @@
 "use client"
 import { useEffect, useState } from "react";
 import SearchBar from "@/components/SearchBar";
-import { FaExclamationTriangle } from "react-icons/fa";
+import Link from "next/link";
+import {FaList} from "react-icons/fa";
 import { ZoomControl } from "react-leaflet"; //REMOVE THE ZOOM BUTTONS
 import {
   MapContainer,
@@ -118,6 +119,14 @@ export default function Map() {
           ]);
         }}
       />{/*</div> -- PUT THE SEARCHBAR ON TOP OF THE MAP */}
+
+      {/*The button for going to list view here */}
+      <Link
+        href="/locations"
+        className="flex items-center gap-3 bg-[var(--solid-Black)] !text-[var(--solid-White)] font-medium px-6 py-3 w-full justify-center hover:bg-neutral-800 transition-colors duration-300"
+        >
+        Se liste af lokationer <FaList className="text-l" />
+      </Link>
 
       <MapContainer
         center={[55.6182310, 12.4239500]} // Default center — adjust as needed

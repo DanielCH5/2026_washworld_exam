@@ -1,4 +1,4 @@
-// Importér ikonet fra react-icons biblioteket (du skal have installeret react-icons for at bruge det)
+// fre react ikons
 import { GoArrowRight } from "react-icons/go";
 
 // Definér hvilke "props" (variable) komponenten modtage udefrA
