@@ -5,7 +5,11 @@ import PlusButton from "@/components/buttons/__PlusButton";
 import { useCars } from "../hooks/useCars";
 
 export default function CarsPage() {
-const {cars, error} = useCars()
+const {cars, error, setCars} = useCars()
+
+const handleDelete = (carPk: string) => {
+  setCars(prev => prev.filter(car => car.car_pk !== carPk));
+};
   return (
     <main>
       
@@ -26,6 +30,7 @@ const {cars, error} = useCars()
           <CarCard
             key={car.car_pk}
             car={car}
+            onDelete={handleDelete}
           />
         ))}
       </div>

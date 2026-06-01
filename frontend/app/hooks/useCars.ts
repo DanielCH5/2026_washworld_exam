@@ -28,5 +28,5 @@ export function useCars() {
     fetchCars();
   }, []);
 
-  return { cars, error };
+  return { cars, error, setCars };
 }

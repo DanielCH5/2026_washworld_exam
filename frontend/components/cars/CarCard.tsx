@@ -5,9 +5,12 @@ import ArrowButton from "../buttons/__ArrowButton"
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
 import TextInput from "../InputForms";
+import { useDeleteCar } from "../../app/hooks/useDeleteCar";
+
 
   type CarCardProps = {
   car: Car;
+  onDelete: (carPk: string) => void;
 };
 
 
@@ -24,7 +27,9 @@ const getNewestOrder = async (carPk: string) => {
 };
 
 
-export default function CarCard({car} : CarCardProps) {
+export default function CarCard({car, onDelete} : CarCardProps,) {
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const { deleteCar } = useDeleteCar();
   const [newestOrder, setNewestOrder] = useState<any>(null);
 
   useEffect(() => {
@@ -48,7 +53,7 @@ const getDaysAgo = (epochSeconds: number) => {
   const diffMs = now - epochMs;
   return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 };
-
+//<button aria-label="Slet" onClick={() => deleteCar(car.car_pk)}><FaRegTrashAlt/></button>
   
   return (
     <div className="bg-[var(--grey-5)] mb-4 mt-4">
@@ -59,7 +64,7 @@ const getDaysAgo = (epochSeconds: number) => {
           <h3 className="text-xl font-medium m-0">{car.car_nickname}</h3>
           <div className="flex gap-3 pt-1">
             <button aria-label="Rediger"><FiEdit3/></button>
-            <button aria-label="Slet"><FaRegTrashAlt/></button>
+            <button aria-label="Slet" onClick={() => setShowDeletePopup(true)}><FaRegTrashAlt/></button>
           </div>
         </div>
 
@@ -97,6 +102,27 @@ const getDaysAgo = (epochSeconds: number) => {
         </div>
        <ArrowButton text="Ændre medlemskab"/>
       </div>
+
+      {showDeletePopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+          <div className=" bg-[var(--solid-White)] p-3">
+            <h3>Vil du slette?</h3>
+            <p>Er du sikker på at du vil slette dit køretøj <b>{car.car_nickname}</b></p>
+          <div className="flex items-center justify-between gap-3 mt-5 -mx-3 -my-3">
+              <button
+                onClick={() => setShowDeletePopup(false)}
+                className="px-4 py-2 flex-1 flex underline text-[var(--grey-60)] justify-center"
+              >
+                ANNULLER
+              </button>
+              
+              <ArrowButton text="Slet køretøj" onClick={() => { deleteCar(car.car_pk) ; onDelete(car.car_pk); setShowDeletePopup(false)} } />
+          </div>
+        </div>
+        </div>
+      )}
+
+
 
     </div>
   )
