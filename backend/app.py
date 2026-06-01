@@ -436,14 +436,19 @@ def get_cars():
         q = """SELECT
     cars.*,
     models.car_electric,
+    models.model_name,
+    brands.brand_name,
     subscriptions.subscription_pk,
     subscriptions.wash_fk,
     subscriptions.location_fk,
+    subscriptions.all_locations,
     washes.wash_name AS wash_name,
     locations.location_name AS location_name
 FROM cars
 LEFT JOIN models
     ON cars.model_fk = models.model_pk
+LEFT JOIN brands
+    ON models.brand_fk = brands.brand_pk
 LEFT JOIN subscriptions
     ON subscriptions.car_fk = cars.car_pk
 LEFT JOIN washes
