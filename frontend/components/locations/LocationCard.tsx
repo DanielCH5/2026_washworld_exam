@@ -17,6 +17,7 @@ export default function LocationCard({ marker, index }) {
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
 
   return (
+    <>
     <div className="relative overflow-visible w-[400px] bg-white">
 
       {/* grøn boks */}
@@ -75,38 +76,35 @@ export default function LocationCard({ marker, index }) {
       <div className="absolute bottom-0 right-0">
         <ArrowButton text="Vis vej" onClick={() => { setSelectedMarker(marker); setShowDirectionsPopup(true);}}/>
       </div>
+    </div>
+
       {showDirectionsPopup && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
-    <div className="w-[350px] rounded-lg bg-white p-6 shadow-xl">
-      <h2 className="mb-4 text-xl font-bold">
-        Vis vej
-      </h2>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-[350px] bg-white overflow-hidden">
+            <div className="p-6 pb-10">
+              <h4 className="mb-2">Dit køretøj er registreret foran</h4>
+              <p className="font-bold text-[var(--green-White-BG)] text-lg">
+                {selectedMarker.label}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex-1 flex justify-center">
+                <button
+                  onClick={() => setShowDirectionsPopup(false)}
+                  className="px-4 py-2 font-bold"
+                >
+                  Annuller
+                </button>
+              </div>
+              <ArrowButton text="ACCEPTER" onClick={() => {
+                setShowDirectionsPopup(false);
+                router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
 
-      <p className="mb-6">
-        Dit køretøj er registreret foran </p>
-
-        <p className="font-bold text-green-500">
-        {selectedMarker.label}
-        </p>
-      
-
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowDirectionsPopup(false)}
-          className=" px-4 py-2"
-        >
-          Annuller
-        </button>
-
-          <ArrowButton text="ACCEPTER" onClick={() => {
-            setShowDirectionsPopup(false);
-            router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
-          }} />
-
-      </div>
-    </div>
-  </div>
-)}
-    </div>
   )
 }

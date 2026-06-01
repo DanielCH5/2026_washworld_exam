@@ -156,8 +156,13 @@ useEffect(() => {
   return (
     <>
     <div className="space-y-2">
-  <h2 className="font-bold">Tilvalg</h2>
-
+      <div className="mx-3">
+         <p className="text-[var(--green-White-BG)] font-bold mb-0 pt-5">STEP 1: PROGRAM</p>
+  <h2 className="font-bold my-[-2px] ">Tilvalg</h2>
+  <p>Tilvælg* og fravælg programmer i din vask.</p>
+  <p className="!text-xs text-[var(--green-White-BG)]">*Ved medlemskab kan tilvalg koste ekstra ved næste månedtligt beløb</p>
+</div>
+     
   
 {allAddons.map((addon) => (
   <div key={addon.addon_pk} className="flex items-center gap-2 w-full">
@@ -172,8 +177,8 @@ useEffect(() => {
   </div>
 ))}
 </div>
-<div className="flex items-center gap-4">
-<button onClick={() => router.push(`/`)} className="px-4 py-2"> ANNULLER </button>
+<div className="flex items-center justify-between gap-4 mt-5 -mx-4 ">
+<button onClick={() => router.push(`/`)} className="px-4 py-2 justify-center flex-1 flex text-[var(--grey-60)] underline cursor-pointer"> ANNULLER </button>
 <ArrowButton text="Gå videre" onClick={() => {  if (car?.wash_fk) {
       setShowInformationPopup(true);
     } else {

@@ -155,41 +155,7 @@ export default function Map() {
             </Popup>
           </Marker>
         ))}
-
-        {showDirectionsPopup && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
-    <div className="w-[350px] rounded-lg bg-white p-6 shadow-xl">
-      <h2 className="mb-4 text-xl font-bold">
-        Vis vej
-      </h2>
-
-      <p className="mb-6">
-        Dit køretøj er registreret foran </p>
-
-        <p className="font-bold text-green-500">
-        {selectedMarker.label}
-        </p>
-      
-
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowDirectionsPopup(false)}
-          className=" px-4 py-2"
-        >
-          Annuller
-        </button>
-
-          <ArrowButton text="ACCEPTER" onClick={() => {
-            setShowDirectionsPopup(false);
-            router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
-          }} />
-
-      </div>
-    </div>
-  </div>
-)}
-      </MapContainer>
-    </> // -- CHANGE TO </div> TO PUT SEARCHBAR ON TOP OF MAP
-
+        </MapContainer>
+    </>
   );
 }
