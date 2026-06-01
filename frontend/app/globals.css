@@ -44,6 +44,11 @@
   /*box shadow for occupied wash hall*/
   --box-Shadow-Hall-Occupied: 0px 0px 10px 0px var(--warning-Red);
 
+
+  input[type="checkbox"] {
+  accent-color: #00843d;
+  border-radius: 0px!important;
+}
 }
 
 body {
@@ -72,6 +77,7 @@ a {
   font-size: 14px;
   color: var(--green-White-BG)
 }
+
 
 /*------------------LAYOUT SO LOOKS LIKE APP-----------------*/
 .app-shell {

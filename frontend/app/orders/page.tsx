@@ -6,6 +6,7 @@ import { useCar } from "../hooks/useCar";
 import { useAddons } from "../hooks/useAddons";
 import ArrowButton from "@/components/buttons/__ArrowButton";
 import { useRouter } from "next/navigation";
+import Checkbox from "@/components/buttons/__CheckBox";
 
 
 
@@ -32,18 +33,18 @@ const { car } = useCar(carPk);
  const { addons: washAddons } = useAddons(car?.wash_fk ?? 1)
  //const { addons: allAddons } = useAddons();
  const allAddons = [
-  { addon_pk: 1, addon_name: "Foam pre-wash" },
-  { addon_pk: 2, addon_name: "Active shampoo" },
-  { addon_pk: 3, addon_name: "Wheel wash" },
-  { addon_pk: 4, addon_name: "High-pressured wash" },
-  { addon_pk: 5, addon_name: "Brush wash" },
-  { addon_pk: 6, addon_name: "Wax" },
-  { addon_pk: 7, addon_name: "Drying" },
-  { addon_pk: 8, addon_name: "High gloss" },
-  { addon_pk: 9, addon_name: "Underbody wash" },
-  { addon_pk: 10, addon_name: "Foam wash" },
-  { addon_pk: 11, addon_name: "Degreasing" },
-  { addon_pk: 12, addon_name: "Seasonal cleaning" },
+  { addon_pk: 1, addon_name: "Foam Splash", description: "skumforvask"},
+  { addon_pk: 2, addon_name: "Shampoo", description: "Hos Wash World anvender vi produkter af højeste kvalitet, så vi sikrer det bedste resultat af din bilvask" },
+  { addon_pk: 3, addon_name: "Hjulvask", description: "Hjulvask fjerner snavs fra din bils hjul" },
+  { addon_pk: 4, addon_name: "Højtryksskyl", description: "Højtryksskyl fjerner genstridigt snavs, som din bil kan have været udsat for" },
+  { addon_pk: 5, addon_name: "Børstevask", description: "De bløde lakskånede skumbørster skåner din bil, men fjerner samtidig genstridigt snavs" },
+  { addon_pk: 6, addon_name: "Skyllevoks", description: "Skyllevoks får vandet til at glide let af din bil og giver et ekstra beskyttende lag" },
+  { addon_pk: 7, addon_name: "Tørring", description: "Der afsluttes med en udmærket tørring, der forebygger kalkpletter på din bil efter vask" },
+  { addon_pk: 8, addon_name: "Polering", description: "Polering frisker lakken op og giver et blankt resultat" },
+  { addon_pk: 9, addon_name: "Undervognsskyl", description: "Vores undervognsskyl fjerner snavs, salt og fedt fra din bils undervogn" },
+  { addon_pk: 10, addon_name: "Insektrens", description: "Insektrens løsner skidt og insekter fra din bil, hvilket er en særlig god ide om sommeren" },
+  { addon_pk: 11, addon_name: "Affedtning", description: "Affedtning fjerner snavs fra bilen" },
+  { addon_pk: 12, addon_name: "Sæsonskyl", description: "Ekstra skyl til fjernelse af sæsonsnavs" },
 ];
 
 //-------------------------------------- UPDATE ORDER STATUS ----------------------------------------------------
@@ -157,16 +158,19 @@ useEffect(() => {
     <div className="space-y-2">
   <h2 className="font-bold">Tilvalg</h2>
 
-  {allAddons.map((addon) => (
-    <label key={addon.addon_pk} className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        checked={selectedAddons.includes(addon.addon_pk)}
-        onChange={() => toggleAddon(addon.addon_pk)}
-      />
-      <span>{addon.addon_name}</span>
-    </label>
-  ))}
+  
+{allAddons.map((addon) => (
+  <div key={addon.addon_pk} className="flex items-center gap-2 w-full">
+    <Checkbox
+      checked={selectedAddons.includes(addon.addon_pk)}
+      onChange={() => toggleAddon(addon.addon_pk)}
+    />
+    <div className="bg-[var(--grey-5)] p-3 flex-1">
+      <h4>{addon.addon_name}</h4>
+      <p className="text-sm text-gray-500">{addon.description}</p>
+    </div>
+  </div>
+))}
 </div>
 <div className="flex items-center gap-4">
 <button onClick={() => router.push(`/`)} className="px-4 py-2"> ANNULLER </button>
