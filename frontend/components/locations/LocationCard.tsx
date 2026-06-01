@@ -8,8 +8,8 @@ import ArrowButton from "../buttons/__ArrowButton"
 import "../../public/map.css"
 
 // THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
-const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
-//const car_pk = "DD99001" // John Belvedere's car without subscription
+//const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
+const car_pk = "DD99001" // John Belvedere's car without subscription
 
 export default function LocationCard({ marker, index }) {
   const router = useRouter();
@@ -98,7 +98,7 @@ export default function LocationCard({ marker, index }) {
               </div>
               <ArrowButton text="ACCEPTER" onClick={() => {
                 setShowDirectionsPopup(false);
-                router.push(`/orders?location_pk=${selectedMarker.location_pk}&car_pk=${car_pk}`);
+                router.push(`/orders?location_pk=${selectedMarker.id}&car_pk=${car_pk}`);
               }} />
             </div>
           </div>
