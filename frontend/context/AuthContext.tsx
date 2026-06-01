@@ -116,10 +116,10 @@ export function AuthProvider({ children }) {
         setLoading(true)
         try {
             const formData = new FormData();
-            formData.append("password", password)
+            formData.append("user_password", password)
             formData.append("confirm-password", confirmPassword)
             const response = await fetch('http://localhost/api/reset-password', {
-                method: "POST",
+                method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${resetKey}`,
                 },
@@ -137,10 +137,30 @@ export function AuthProvider({ children }) {
             setLoading(false)
         }
     }
+    const deleteUser = async (password: string) => {
+        const formData = new FormData();
+        formData.append("user_password", password)
+        const response = await fetch('http://localhost/api/delete-user', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': Cookies.get('csrf_access_token') ?? ""
+            },
+            body: formData,
+            credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Kunne ikke slette brugeren');
+        }
+
+        setUser(null)
+    };
 
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, login, logout, signup, forgotPassword, resetPassword }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout, signup, forgotPassword, resetPassword, deleteUser }}>
             {children}
         </AuthContext.Provider>
     )

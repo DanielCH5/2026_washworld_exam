@@ -808,13 +808,13 @@ def show_reset_password(key):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
-@app.post("/api/reset-password")
+@app.patch("/api/reset-password")
 @jwt_required()
 def reset_password():
     try:
         key = x.validate_uuid4(get_jwt_identity())
         ic(key)
-        password = x.validate_user_password( request.form.get("password", "") ).strip()
+        password = x.validate_user_password( request.form.get("user_password", "") ).strip()
         ic(password)
         confirm_password = x.validate_user_password( request.form.get("confirm-password","") ).strip()
         new_password = generate_password_hash(confirm_password)
