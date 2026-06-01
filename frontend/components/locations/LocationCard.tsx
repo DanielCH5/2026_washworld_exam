@@ -9,8 +9,7 @@ import "../../public/map.css"
 
 // THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
 //const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
-//const car_pk = "DD99001" // John Belvedere's car without subscription
-const car_pk ="DDDDDDDA"
+const car_pk = "DD99001" // John Belvedere's car without subscription
 
 export default function LocationCard({ marker, index }) {
   const router = useRouter();
