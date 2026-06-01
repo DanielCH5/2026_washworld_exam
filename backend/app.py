@@ -737,6 +737,8 @@ def delete_user():
             return jsonify({"error": "Invalid password", "error_field": "password"}), 400
         if "company_exception key" in str(ex):
             return jsonify({"error":"Please login again"}), 400
+        if "CONSTRAINT `fk_cars_user`" in str(ex):
+            return jsonify({"error": "Du har stadig aktive biler, slet dem venligst først"}), 400
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
