@@ -1,9 +1,11 @@
 "use client"
 import { useEffect, useState } from "react"
 import LocationCard from "@/components/locations/LocationCard"
+import SearchBar from "@/components/SearchBar";
 
 export default function LocationListPage() {
   const [locations, setLocations] = useState([])
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
   useEffect(() => {
     fetch("http://localhost/get-data", {
@@ -29,10 +31,22 @@ export default function LocationListPage() {
 
   return (
     <main>
+      <SearchBar
+        markers={locations}
+        onSelect={(marker) => {
+          setSelectedLocation(marker);
+        }}
+      />
+
       <h1>Liste af Lokationer</h1>
-      {locations.map((loc, i) => (
-        <LocationCard key={loc.id} marker={loc} index={i} />
-      ))}
+      
+      {selectedLocation ? (
+        <LocationCard marker={selectedLocation} index={0} />
+      ) : (
+        locations.map((loc, i) => (
+          <LocationCard key={loc.id} marker={loc} index={i} />
+        ))
+      )}
     </main>
   )
 }
