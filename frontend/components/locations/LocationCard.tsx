@@ -15,6 +15,7 @@ export default function LocationCard({ marker, index }) {
   const router = useRouter();
   const [showDirectionsPopup, setShowDirectionsPopup] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  
 
   return (
     <>
