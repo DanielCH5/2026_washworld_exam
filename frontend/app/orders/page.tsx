@@ -177,7 +177,7 @@ useEffect(() => {
   </div>
 ))}
 </div>
-<div className="flex items-center justify-between gap-4 mt-5 -mx-4 ">
+<div className="flex items-center justify-between gap-4 mt-5 -mx-4 mb-16">
 <button onClick={() => router.push(`/`)} className="px-4 py-2 justify-center flex-1 flex text-[var(--grey-60)] underline cursor-pointer"> ANNULLER </button>
 <ArrowButton text="Gå videre" onClick={() => {  if (car?.wash_fk) {
       setShowInformationPopup(true);
@@ -188,13 +188,13 @@ useEffect(() => {
 </div>
 {showPaymentPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className="rounded bg-white p-6">
-      <b>Betal for valg vask</b>
+    <div className=" bg-[var(--solid-White)] p-3">
+      <h3>Betal for valgt vask</h3>
       <p>VIS TILMELD BETALINGSTYPER HER!!!!!</p>
-    <div className="flex justify-end gap-3">
+    <div className="flex items-center justify-between gap-3 mt-5 -mx-3 -my-3">
         <button
           onClick={() => setShowPaymentPopup(false)}
-          className="px-4 py-2"
+          className="px-4 py-2 flex-1 flex underline text-[var(--grey-60)] justify-center"
         >
           ANNULLER
         </button>
