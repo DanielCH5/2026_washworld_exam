@@ -113,10 +113,35 @@ export function AuthProvider({ children }) {
         }
     }
 
+    const resetPassword = async (password: string, confirmPassword: string, resetKey: string) => {
+        setLoading(true)
+        try {
+            const formData = new FormData();
+            formData.append("password", password)
+            formData.append("confirm-password", confirmPassword)
+            console.log(Object.fromEntries(formData));
+            const response = await fetch('http://localhost/api/reset-password', {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${resetKey}`,
+                },
+                body: formData,
+                credentials: "include"
+            })
+            const data = await response.json()
+            if (response.ok) {
+                return { ok: true, message: data.message }
+            } else {
+                return { ok: false, error: data.error, error_field: data.error_field }
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
 
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, login, logout, signup, forgotPassword }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout, signup, forgotPassword, resetPassword }}>
             {children}
         </AuthContext.Provider>
     )

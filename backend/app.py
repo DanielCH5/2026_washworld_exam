@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import uuid
 import time
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
@@ -706,7 +707,7 @@ def forgot_password():
 
 
 ##############################
-@app.get("/reset-password/<key>")
+@app.get("/api/reset-password/<key>")
 def show_reset_password(key):
     try:
 
@@ -717,7 +718,7 @@ def show_reset_password(key):
         ic(key_time)
         current_time = int(time.time())
         if current_time > (key_time + 3600):
-            return "Link expired"
+            return jsonify({"error" : "link_expired", "message": "Link expired, please request a new one"}), 410
         # TODO: Connect to the db
         db, cursor = x.db()
 
@@ -726,20 +727,23 @@ def show_reset_password(key):
 
         cursor.execute(q, (user_reset_password_key, key_time))
         row = cursor.fetchone()
-        if not row: return "Please click the link in the email again.", 400 # User has messed with the epoch in the link sent to them (potential malicious behavior)
+        # User has messed with the epoch in the link sent to them (potential malicious behavior)
+        if not row: return jsonify({"error": "link_manipulated", "message": "Please click the link in the email again."}), 400 
+
+        # short-lived JWT, e.g. 15 minutes
+        token = create_access_token(identity=user_reset_password_key, expires_delta=timedelta(minutes=15))
+
+        
 
         # Change this to work with React/Nextjs
-        return render_template("page_reset_password.html", key=key)
+        return jsonify({"token": token})
 
 
-        return f"User is verified with key {key}"
     except Exception as ex:
         ic(ex)
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message":"Invalid key"}), 400
 
-        if "company_exception no_user" in str(ex):
-            return "Ups", 400
         
         return str(ex), 500
 
@@ -747,36 +751,37 @@ def show_reset_password(key):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
-@app.post("/reset-password")
+@app.post("/api/reset-password")
+@jwt_required()
 def reset_password():
     try:
-        key_split = request.form.get("key", "").split("-")
-        ic(key_split)
-        key = x.validate_uuid4_paranoia( key_split[0] )
+        key = x.validate_uuid4(get_jwt_identity())
+        ic(key)
         password = x.validate_user_password( request.form.get("password", "") ).strip()
         ic(password)
         confirm_password = x.validate_user_password( request.form.get("confirm-password","") ).strip()
         new_password = generate_password_hash(confirm_password)
         if password != confirm_password:
-            return "Passwords do not match", 400
+            return jsonify({"error":"Passwords do not match", "error_field": "form"}), 400
 
-        new_key = uuid.uuid4().hex + uuid.uuid4().hex 
-        # Check if key is in DB
+        new_key = uuid.uuid4().hex 
+        #Check if key is in DB
         db, cursor = x.db()
 
-        q = "UPDATE users SET user_password = %s, user_reset_password_key = %s WHERE user_reset_password_key = %s "
+        q = "UPDATE users SET user_hashed_password = %s, user_reset_password_key = %s WHERE user_reset_password_key = %s "
         cursor.execute(q, (new_password, new_key, key))
 
         if cursor.rowcount == 0:
             return "Ups...", 400
         db.commit()
-        return "Password changed, please login"
+        return jsonify ({"message": "ok"}), 200
 
     except Exception as ex:
         ic(ex)
 
         if "company_exception user_password" in str(ex):
-            return f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", 400
+            return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}",
+                            "error_field": "password"}), 400
 
         if "company_exception paranoia" in str(ex):
             return "Invalid key", 400
