@@ -740,7 +740,7 @@ def show_reset_password(key):
         ic(key_time)
         current_time = int(time.time())
         if current_time > (key_time + 3600):
-            return jsonify({"error" : "link_expired", "message": "Link expired, please request a new one"}), 410
+            return jsonify({"error" : "link_expired", "error_message": "Link expired, please request a new one"}), 410
         # TODO: Connect to the db
         db, cursor = x.db()
 
@@ -750,15 +750,15 @@ def show_reset_password(key):
         cursor.execute(q, (user_reset_password_key, key_time))
         row = cursor.fetchone()
         # User has messed with the epoch in the link sent to them (potential malicious behavior)
-        if not row: return jsonify({"error": "link_manipulated", "message": "Please click the link in the email again."}), 400 
+        if not row: return jsonify({"error": "link_manipulated", "error_message": "Please click the link in the email again."}), 400 
 
         # short-lived JWT, e.g. 15 minutes
         token = create_access_token(identity=user_reset_password_key, expires_delta=timedelta(minutes=15))
 
         
 
-        # Change this to work with React/Nextjs
-        return jsonify({"token": token})
+        # Return token needed for the protected route
+        return jsonify({"token": token}), 200
 
 
     except Exception as ex:

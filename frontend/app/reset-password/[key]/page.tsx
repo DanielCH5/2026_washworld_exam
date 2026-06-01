@@ -8,8 +8,7 @@ export default async function ShowResetPassword({ params }: Props) {
     const { key } = await params;
     const checkKey = await fetch(`http://localhost/api/reset-password/${key}`)
     const res = await checkKey.json()
-    const valid = checkKey.ok;
-    if (!valid) return <p>Link expired, please request again.</p>
+    if (!checkKey.ok) return <p>{res.error_message}</p>
     return (
         <>
             <ResetPasswordForm resetKey={res.token} />

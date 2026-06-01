@@ -2,7 +2,6 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import Cookies from "js-cookie";
-import { ok } from 'assert';
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -119,7 +118,6 @@ export function AuthProvider({ children }) {
             const formData = new FormData();
             formData.append("password", password)
             formData.append("confirm-password", confirmPassword)
-            console.log(Object.fromEntries(formData));
             const response = await fetch('http://localhost/api/reset-password', {
                 method: "POST",
                 headers: {
@@ -129,6 +127,7 @@ export function AuthProvider({ children }) {
                 credentials: "include"
             })
             const data = await response.json()
+            console.log(data)
             if (response.ok) {
                 return { ok: true, message: data.message }
             } else {
