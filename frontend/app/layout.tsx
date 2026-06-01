@@ -33,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
         <body className="min-h-full">
-          <div className="app-shell flex flex-col min-h-screen">
+          <div className="app-shell flex flex-col ">
             <Header />
             <main className="flex-1">{children}</main>
             <NavigationBar />

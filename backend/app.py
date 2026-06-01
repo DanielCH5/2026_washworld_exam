@@ -30,6 +30,25 @@ from dotenv import load_dotenv
 load_dotenv() # Loads the .env variables
 
 
+
+##############################
+@app.get("/addons")
+def get_adddons():
+    try:
+        db, cursor = x.db()
+        q = "SELECT * from addons"
+        cursor.execute(q, ())
+        addons = cursor.fetchall()
+        ic(addons)
+
+        return jsonify(addons), 200
+
+    except Exception as ex:
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 ##############################
 @app.get("/addons/<wash_pk>")
 def get_addons_for_wash(wash_pk):
@@ -79,7 +98,6 @@ def create_order():
     try:
         order_pk = uuid.uuid4().hex
         user_fk = x.validate_uuid4(get_jwt_identity())
-        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         order_time_at = int(time.time())
         location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
@@ -90,8 +108,8 @@ def create_order():
             return jsonify({"message": "This car already has an active order"}), 400
         
         db, cursor = x.db()
-        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(q, (order_pk, user_fk, wash_fk, order_time_at, location_fk, car_fk, car_status ))
+        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (order_pk, user_fk, order_time_at, location_fk, car_fk, car_status ))
         db.commit()
         
         q = "Insert into `addons_orders` VALUES(%s, %s)"
@@ -143,16 +161,20 @@ GROUP BY o.order_pk
         if "db" in locals(): db.close()
 
 ##############################
-@app.patch("/order/status/<order_pk>")
+@app.patch("/order/status/<car_pk>")
 @jwt_required() 
-def change_order_status(order_pk):
+def change_order_status(car_pk):
     try:
-        order_pk = x.validate_uuid4(order_pk)
+        car_pk = x.validate_license_plate(car_pk)
 
         db, cursor = x.db()
-        q = "SELECT `location_fk`, `status_fk` FROM `orders` WHERE order_pk=%s"
-        cursor.execute(q, (order_pk,))
+        q = "SELECT * FROM `orders` WHERE car_fk = %s AND NOT status_fk = %s LIMIT 1"
+        cursor.execute(q, (car_pk, "3"))
         order = cursor.fetchone()
+        if not order:
+           return jsonify({"message": "This car does not have an active order"}), 400
+
+        order_pk = order["order_pk"]
         order_status = order["status_fk"]
         location_fk = order["location_fk"]
     
@@ -161,14 +183,14 @@ def change_order_status(order_pk):
         location = cursor.fetchone()
         location_empty_wash_halls = location["location_empty_wash_halls"]
 
+        
+
         if order_status == 1:
             order_status = 2
             location_empty_wash_halls = location_empty_wash_halls-1
-        elif order_status == 2:
+        else:
             order_status = 3
             location_empty_wash_halls = location_empty_wash_halls+1
-        else:
-            return jsonify({"message": "This order is already done"}), 400
 
         q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
         cursor.execute(q, (order_status, order_pk))
@@ -179,8 +201,8 @@ def change_order_status(order_pk):
 
         return jsonify({"message": "Order status updated"}), 200
     except Exception as ex:
-        if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}), 400
+        if "company_exception license plate" in str(ex):
+            return jsonify({"message": "Invalid license plate"}), 400
         
         return str(ex), 500
     finally:
@@ -894,6 +916,24 @@ def get_locations_da():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+#############################
+@app.get("/get-data/<location_pk>")
+@jwt_required()
+def get_single_location(location_pk):
+    try:
+        location_pk = x.validate_uuid4(location_pk)
+        db, cursor = x.db()
+        q = "SELECT * FROM locations WHERE location_pk = %s"
+        cursor.execute(q, (location_pk,))
+        location = cursor.fetchone()
+        return jsonify(location), 200
+
+    except Exception as ex:
+        return str(ex), 500
+        
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
  
 

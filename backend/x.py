@@ -57,8 +57,7 @@ def check_car_active_order(car_pk):
             ic(order_status)
             if order_status == 1 or order_status == 2:
                 return True
-            else:
-                return False
+        return False
         
     except Exception as ex:
         return str(ex), 500
