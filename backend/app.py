@@ -803,7 +803,7 @@ def reset_password():
 
         if "company_exception user_password" in str(ex):
             return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}",
-                            "error_field": "password"}), 400
+                            "error_field": "form"}), 400
 
         if "company_exception paranoia" in str(ex):
             return "Invalid key", 400
