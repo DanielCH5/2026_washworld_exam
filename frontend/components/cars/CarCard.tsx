@@ -11,7 +11,43 @@ import TextInput from "../InputForms";
 };
 
 
+const getNewestOrder = async (carPk: string) => {
+  const res = await fetch(`http://localhost/order/new/${carPk}`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch order");
+  }
+
+  return res.json();
+};
+
+
 export default function CarCard({car} : CarCardProps) {
+  const [newestOrder, setNewestOrder] = useState<any>(null);
+
+  useEffect(() => {
+  const fetchOrder = async () => {
+    try {
+      const data = await getNewestOrder(car.car_pk);
+      setNewestOrder(data || null);
+    } catch (err) {
+      console.error(err);
+  
+    }
+  };
+
+  fetchOrder();
+}, [car.car_pk]);
+
+const getDaysAgo = (epochSeconds: number) => {
+  const now = Date.now();
+  const epochMs = epochSeconds * 1000;
+
+  const diffMs = now - epochMs;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+};
 
   
   return (
@@ -51,7 +87,7 @@ export default function CarCard({car} : CarCardProps) {
         </div>
 
         <p className="mt-1 text-[var(--grey-60)]">
-          Sidst besøg – 8 dage
+          Sidst besøg –  {newestOrder ? `${getDaysAgo(Number(newestOrder.order_time_at))} dage siden` : "Ingen ordre"}
         </p>
       </div>
 

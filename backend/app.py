@@ -161,6 +161,33 @@ GROUP BY o.order_pk
         if "db" in locals(): db.close()
 
 ##############################
+@app.get("/order/new/<car_pk>")
+@jwt_required() 
+def get_newest_order(car_pk):
+    try:
+        db, cursor = x.db()
+        car_pk = x.validate_license_plate(car_pk)
+        q = """SELECT *
+        FROM orders
+        WHERE car_fk = %s
+        ORDER BY order_time_at DESC
+        LIMIT 1;
+        """
+        cursor.execute(q, (car_pk,))
+        order = cursor.fetchone()
+
+        return jsonify(order)
+    except Exception as ex:
+        if "company_exception license plate" in str(ex):
+            return jsonify({"message": "Invalid license plate"}), 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+##############################
 @app.patch("/order/status/<car_pk>")
 @jwt_required() 
 def change_order_status(car_pk):

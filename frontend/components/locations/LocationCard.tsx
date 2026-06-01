@@ -11,10 +11,12 @@ import "../../public/map.css"
 //const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
 const car_pk = "DD99001" // John Belvedere's car without subscription
 
+
 export default function LocationCard({ marker, index }) {
   const router = useRouter();
   const [showDirectionsPopup, setShowDirectionsPopup] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  
 
   return (
     <>
