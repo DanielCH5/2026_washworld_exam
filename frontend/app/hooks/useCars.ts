@@ -1,30 +1,32 @@
 import { useEffect, useState } from "react";
 import { Car } from "@/types/car";
 
-export function useCar(carPk: string | null) {
-  const [car, setCar] = useState<Car>();
+
+export function useCars() {
+
+  const [cars, setCars] = useState<Car[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCar = async () => {
+    const fetchCars = async () => {
       try {
         setError(null);
 
-        const res = await fetch(`http://localhost/car/${carPk}`, {
+        const res = await fetch(`http://localhost/cars`, {
           credentials: "include",
         });
 
         if (!res.ok) throw new Error("Failed to fetch car");
 
         const data = await res.json();
-        setCar(data);
+        setCars(data);
       } catch (err: any) {
         setError(err.message);
       }
     };
 
-    fetchCar();
-  }, [carPk]);
+    fetchCars();
+  }, []);
 
-  return { car, error };
+  return { cars, error, setCars };
 }

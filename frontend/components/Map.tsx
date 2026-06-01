@@ -29,10 +29,6 @@ import LocationCard from "./locations/LocationCard";
 
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-// THE LICENSE PLATE OF THE CAR THAT IS BEING WASHED
-const car_pk = "AB12345" // John Belvedere's car with subscription washtype 1
-//const car_pk = "DD99001" // John Belvedere's car without subscription
-
 const greenPin = new L.Icon({
   iconUrl: "/ww-pin-green.png",
   iconRetinaUrl: "/ww-pin-green.png",

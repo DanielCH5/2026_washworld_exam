@@ -88,7 +88,7 @@ def validate_one_number(number):
     return number
 
 ##############################
-REGEX_LICENSE_PLATE = "^[A-Z0-9]{1,10}$"
+REGEX_LICENSE_PLATE = "^[A-Za-z0-9]{1,10}$"
 def validate_license_plate(key):
     key = key.strip()
     if not re.match(REGEX_LICENSE_PLATE, key):
