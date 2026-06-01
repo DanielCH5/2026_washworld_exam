@@ -654,19 +654,22 @@ def logout_user():
         ic(ex)
 
         return str(ex), 500
+
+##############################
+
 @app.get("/api/me")
 @jwt_required()
 def get_me():
     try:
-        user_id = x.validate_uuid4(get_jwt_identity())
+        user_pk = x.validate_uuid4(get_jwt_identity())
         q = "SELECT user_first_name, user_last_name, user_email FROM users where user_pk = %s"
 
         db, cursor = x.db()
 
-        cursor.execute(q, (user_id,))
+        cursor.execute(q, (user_pk,))
         user = cursor.fetchone()
         ic(user)
-        return jsonify(id=user_id, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"])
+        return jsonify(id=user_pk, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"])
 
     except Exception as ex:
         # JWT library kinda handles the exceptions here?
@@ -676,6 +679,38 @@ def get_me():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 ##############################
+@app.delete("/api/delete-user")
+@jwt_required()
+def delete_user():
+    try:
+        user_pk = x.validate_uuid4(get_jwt_identity())
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+        
+        db, cursor = x.db()
+        q = "SELECT user_hashed_password FROM users WHERE user_pk = %s"
+        cursor.execute(q, (user_pk,))
+        user = cursor.fetchone()
+        if not check_password_hash(user["user_hashed_password"], user_password):
+            return jsonify({"error": "Forkert adgangskode", "error_field": "password"}), 401
+        
+        delete_q = "DELETE FROM `users` WHERE user_pk = %s"
+        cursor.execute(delete_q, (user_pk,))
+        db.commit()
+        response = jsonify({"message": "User deleted"})
+        unset_jwt_cookies(response)
+        return response, 200
+    except Exception as ex:
+        ic(ex)
+        if "company_exception user_password" in str(ex):
+            return jsonify({"error": "Invalid password", "error_field": "password"}), 400
+        if "company_exception key" in str(ex):
+            return jsonify({"error":"Please login again"}), 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+##############################
+
 @app.get("/login")
 def show_login():
     return render_template("page_login.html")
