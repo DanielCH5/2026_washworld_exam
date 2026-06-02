@@ -7,7 +7,10 @@ import { useAddons } from "../hooks/useAddons";
 import ArrowButton from "@/components/buttons/__ArrowButton";
 import { useRouter } from "next/navigation";
 import Checkbox from "@/components/buttons/__CheckBox";
-
+import { FaApple, FaCcVisa, FaCcMastercard } from "react-icons/fa";
+import { FaCreditCard } from "react-icons/fa6";
+import { FcGoogle } from "react-icons/fc";
+import { IoMdCheckmark } from "react-icons/io";
 
 
 export default function OrdersPage() {
@@ -145,7 +148,7 @@ useEffect(() => {
   const timer = setTimeout(() => {
     setShowEndWashPopup(false);
     router.push(`/`)
-  }, 1 * 5 * 1000); // 1 * 10 = seconds
+  }, 1 * 60 * 1000); // 1 * 10 = seconds
 
   return () => clearTimeout(timer);
 }, [showEndWashPopup]);
@@ -157,8 +160,7 @@ useEffect(() => {
     <>
     <div className="space-y-2">
       <div className="mx-3">
-         <p className="text-[var(--green-White-BG)] font-bold mb-0 pt-5">STEP 1: PROGRAM</p>
-  <h2 className="font-bold my-[-2px] ">Tilvalg</h2>
+  <h2 className="font-bold my-[-2px] mt-4">Tilvalg</h2>
   <p>Tilvælg* og fravælg programmer i din vask.</p>
   <p className="!text-xs text-[var(--green-White-BG)]">*Ved medlemskab kan tilvalg koste ekstra ved næste månedtligt beløb</p>
 </div>
@@ -188,13 +190,35 @@ useEffect(() => {
 </div>
 {showPaymentPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className=" bg-[var(--solid-White)] p-3">
+    <div className=" bg-[var(--solid-White)] p-5 w-[370px]">
       <h3>Betal for valgt vask</h3>
-      <p>VIS TILMELD BETALINGSTYPER HER!!!!!</p>
-    <div className="flex items-center justify-between gap-3 mt-5 -mx-3 -my-3">
+      <p>Tilføj din betalingstype her</p>
+      <div className="flex flex-row gap-2"><p className="font-bold">Enkeltvask Pris</p><p className="text-[var(--green-White-BG)]">99 kr.</p></div>
+      <div className="flex flex-row gap-2 mt-3">
+        <div className="border-[1.5px] border-[var(--grey-60)] rounded flex flex-row items-center gap-1 p-1"><FaApple/><p>Pay</p></div>
+        <p>Apple Pay</p>
+        </div>
+        <button className="bg-[var(--solid-Black)] text-white flex flex-row rounded items-center gap-1 px-3 py-2 mt-2 w-full justify-center cursor-pointer hover:bg-[var(--grey-80)]">
+          <FaApple/><p>Pay</p>
+        </button>
+        <div className="flex flex-row gap-2 mt-2 items-center">
+          <FaCreditCard/>
+          <p>Cards</p>
+          <div className="text-red-700"><FaCcMastercard/></div>
+          <div className="text-blue-600"><FaCcVisa/></div>
+
+        </div>
+        <div className="flex flex-row gap-2 mt-5 items-center">
+          <div className="flex flex-row gap-1 border-[1.5px] border-[var(--grey-60)] rounded-2xl items-center p-1">
+            <FcGoogle/><p>Pay</p>
+          </div>
+          <p className="!text-l">Google Pay</p>
+        </div>
+        
+    <div className="flex items-center justify-between gap-3 mt-5 -mx-5 -my-5">
         <button
           onClick={() => setShowPaymentPopup(false)}
-          className="px-4 py-2 flex-1 flex underline text-[var(--grey-60)] justify-center"
+          className="px-4 py-2 flex underline text-[var(--grey-60)]  !text-sm"
         >
           ANNULLER
         </button>
@@ -207,11 +231,11 @@ useEffect(() => {
 )}
 
 {showInformationPopup && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className="rounded bg-white p-6">
-      <b>Kør ind i vaskehal</b>
+  <div className="fixed inset-0 flex items-center justify-center bg-blurred bg-black/50">
+    <div className="bg-[var(--solid-White)] p-5 w-[370px]">
+      <h3>Kør ind i vaskehal</h3>
       <p>OBS!: Husk at fjerne din antenne inden du starer vasken</p>
-    <div className="flex justify-end gap-3">
+    <div className="flex justify-end gap-3 -mx-5 -mb-5 mt-3">
         <ArrowButton text="ACCEPTER" onClick={() => {  setShowInformationPopup(false);  setShowStartWashPopup(true);}} />
     </div>
   </div>
@@ -220,10 +244,10 @@ useEffect(() => {
 
 {showStartWashPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className="rounded bg-white p-6">
-      <b>Start din vask</b>
+    <div className="bg-white p-5 w-[370px]">
+      <h3>Start din vask</h3>
       <p>Har du husket at fjerne antennen?</p>
-    <div className="flex justify-end gap-3">
+    <div className="flex justify-end gap-3 -mb-5 -mr-5 mt-3 ml-5">
         <ArrowButton text="START VASK" onClick={() => {  setShowStartWashPopup(false);  setShowWashProcessPopup(true);}} />
     </div>
   </div>
@@ -232,7 +256,7 @@ useEffect(() => {
 
 {showWashProcessPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className="rounded bg-white p-6">
+    <div className=" bg-white p-6">
       <b>Følg din vaskeprocess her</b>
       <p>VASKE IKON HER!!!!!!!!!</p>
       <p>Din vask er i gang</p>
@@ -240,11 +264,17 @@ useEffect(() => {
   </div>
   </div>
 )}
+
 {showEndWashPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className="rounded bg-white p-6">
-      <b>Vask færdig</b>
-      <p>GRØN CIRKEL IKON HER!!!!!!!!!</p>
+    <div className="bg-white p-6">
+      <h3>Vask færdig</h3>
+      <div className="rounded-[100%] border-5 border-[var(--green-White-BG)] flex justify-center items-center m-5">
+        <div className="text-[130px] text-[var(--green-White-BG)] justify-center items-center flex py-20 px-10">
+        <IoMdCheckmark/>
+        </div>
+
+      </div>
       <p>Din vask er færdig og du kan nu køre ud af vaskehallen</p>
   </div>
   </div>
