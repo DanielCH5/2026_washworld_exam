@@ -29,7 +29,30 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+##############################
+@app.get("/models")
+def get_models():
+    try:
+        db, cursor = x.db()
+        q = q = """
+    SELECT
+        models.*,
+        brands.brand_name
+    FROM models
+    LEFT JOIN brands
+        ON models.brand_fk = brands.brand_pk
+    """
+        cursor.execute(q, ())
+        models = cursor.fetchall()
+        ic(models)
 
+        return jsonify(models), 200
+
+    except Exception as ex:
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 ##############################
 @app.get("/addons")
@@ -390,7 +413,30 @@ def create_car():
         cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname))
         db.commit()
 
-        return jsonify({"message": "Car created"}), 201
+        q = """SELECT
+    cars.*,
+    models.car_electric,
+    subscriptions.subscription_pk,
+    subscriptions.wash_fk,
+    subscriptions.location_fk,
+    subscriptions.all_locations,
+    washes.wash_name AS wash_name,
+    locations.location_name AS location_name
+FROM cars
+LEFT JOIN models
+    ON cars.model_fk = models.model_pk
+LEFT JOIN subscriptions
+    ON subscriptions.car_fk = cars.car_pk
+LEFT JOIN washes
+    ON subscriptions.wash_fk = washes.wash_pk
+LEFT JOIN locations
+    ON subscriptions.location_fk = locations.location_pk
+WHERE cars.car_pk = %s"""
+        cursor.execute(q, (car_pk, ))
+
+        new_car = cursor.fetchone()
+
+        return jsonify(new_car), 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
             return jsonify({"message": "License plate already exists"}), 400
