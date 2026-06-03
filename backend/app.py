@@ -44,7 +44,6 @@ def get_models():
     """
         cursor.execute(q, ())
         models = cursor.fetchall()
-        ic(models)
 
         return jsonify(models), 200
 

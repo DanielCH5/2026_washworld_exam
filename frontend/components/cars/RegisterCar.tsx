@@ -127,7 +127,7 @@ const filteredModels = models.filter((model) =>
             className="w-full border rounded px-3 py-2"
           />
         </div>
-
+        <div className="flex justify-between items-center mt-5">
         <button
           onClick={onClose} 
           className="px-4 py-2 flex underline text-[var(--grey-60)]  !text-sm"
@@ -150,6 +150,7 @@ const filteredModels = models.filter((model) =>
             />
                   </div>
       </div>
+    </div>
     </div>
   </div>
 )}
