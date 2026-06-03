@@ -6,11 +6,13 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
 import TextInput from "../InputForms";
 import { useDeleteCar } from "../../app/hooks/useDeleteCar";
+import { useUpdateCar } from "../../app/hooks/useUpdateCar";
 
 
   type CarCardProps = {
   car: Car;
   onDelete: (carPk: string) => void;
+  onUpdate: (carPk: string, nickname: string) => void;
 };
 
 
@@ -27,10 +29,13 @@ const getNewestOrder = async (carPk: string) => {
 };
 
 
-export default function CarCard({car, onDelete} : CarCardProps,) {
+export default function CarCard({car, onDelete, onUpdate} : CarCardProps,) {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const { deleteCar } = useDeleteCar();
+  const { updateCar, loading, error } = useUpdateCar();
   const [newestOrder, setNewestOrder] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedNickname, setEditedNickname] = useState(car.car_nickname);
 
   useEffect(() => {
   const fetchOrder = async () => {
@@ -61,13 +66,44 @@ const getDaysAgo = (epochSeconds: number) => {
       <div className="px-5 pt-4 pb-3">
 
         <div className="flex justify-between items-start mb-1">
+          {isEditing ? (
+          <input value={editedNickname} onChange={(e) => setEditedNickname(e.target.value)}
+          className="text-xl font-medium m-0 border px-2 py-1 rounded" />
+          
+          ) : (
           <h3 className="text-xl font-medium m-0">{car.car_nickname}</h3>
+          )}
           <div className="flex gap-3 pt-1">
-            <button aria-label="Rediger"><FiEdit3/></button>
+            <button aria-label="Rediger" onClick={() => setIsEditing(true)}><FiEdit3/></button>
             <button aria-label="Slet" onClick={() => setShowDeletePopup(true)}><FaRegTrashAlt/></button>
           </div>
         </div>
+{isEditing && (
+  <div className="flex gap-2 ml-2">
+    <button
+      onClick={() => {
+        setEditedNickname(car.car_nickname);
+        setIsEditing(false);
+      }}
+    >
+      Annuller
+    </button>
 
+    <button
+      onClick={async () => {
+  await updateCar({
+    car_pk: car.car_pk,
+    car_nickname: editedNickname,
+  });
+onUpdate(car.car_pk, editedNickname)
+       // optimistic UI (optional)
+        setIsEditing(false);
+      }}
+    >
+      Gem
+    </button>
+  </div>
+)}
         <div className="flex items-center gap-2 text-[15px] mb-4">
           {car?.car_electric == 1 && (
           <span className="w-[18px] h-[18px] rounded-full bg-blue-600 text-white text-[11px] font-large flex items-center justify-center">

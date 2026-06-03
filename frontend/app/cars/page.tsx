@@ -38,6 +38,15 @@ const filteredModels = models.filter((model) =>
     .includes(modelQuery.toLowerCase())
 );
 
+const handleUpdateCar = (carPk: string, nickname: string) => {
+  setCars((prev) =>
+    prev.map((car) =>
+      car.car_pk === carPk
+        ? { ...car, car_nickname: nickname }
+        : car
+    )
+  );
+};
 
 const handleDelete = (carPk: string) => {
   setCars(prev => prev.filter(car => car.car_pk !== carPk));
@@ -61,10 +70,12 @@ const handleDelete = (carPk: string) => {
       <h5>Se og rediger i dine køretøjer og deres medlemskaber</h5>
       <div>
         {cars.map((car) => (
+          
           <CarCard
             key={car.car_pk ?? crypto.randomUUID()}
             car={car}
             onDelete={handleDelete}
+            onUpdate={handleUpdateCar}
           />
         ))}
       </div>
