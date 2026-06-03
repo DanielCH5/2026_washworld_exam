@@ -48,19 +48,16 @@
   input[type="checkbox"] {
   accent-color: #00843d;
   border-radius: 0px!important;
-}
+  }
+
+  
+
 }
 
 body {
   background: var(--grey-10);
   margin: 0;
   padding: 0;
-}
-
-main{
-  background: var(--solid-White);
-  color: var(--solid-Black);
-  padding:10px;
 }
 
 /*----------------FONTS----------------*/

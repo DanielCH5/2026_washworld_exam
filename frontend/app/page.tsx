@@ -13,7 +13,7 @@ export default function Home() {
   const [form, setForm] = useState('')
   const { user } = useAuth();
   return (
-    <div className="flex-1">
+    <div className="flex-1 -mx-5 -my-5">
       {user && <Map />}
 
       {!user && !form && <LoginForm />}

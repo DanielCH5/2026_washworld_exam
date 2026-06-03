@@ -59,9 +59,9 @@ const handleDelete = (carPk: string) => {
       <Image 
         src="/images/carimage.jpg"
         alt="Picture of car driving into wash"
-        width={400}
-        height={20}
-        className="pb-4"
+        width={430}
+        height={200}
+        className="w-full h-48 object-cover"
         ></Image>
       <div className="flex justify-between items-center mb-4">
       <div><h1>Dine Køretøjer</h1></div>

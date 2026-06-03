@@ -35,7 +35,7 @@ export default function RootLayout({
         <body className="min-h-full">
           <div className="app-shell flex flex-col ">
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 p-5">{children}</main>
             <NavigationBar />
           </div>
         </body>
