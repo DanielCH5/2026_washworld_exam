@@ -75,6 +75,11 @@ a {
   color: var(--green-White-BG)
 }
 
+label{
+  font-family: 'GilroyBold';
+  font-size: 14px;
+}
+
 
 /*------------------LAYOUT SO LOOKS LIKE APP-----------------*/
 .app-shell {

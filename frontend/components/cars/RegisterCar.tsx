@@ -73,7 +73,7 @@ const filteredModels = models.filter((model) =>
             placeholder="Køretøjets navn"
             value={carNickName}
             onChange={(e) => setCarNickName(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full bg-[var(--grey-5)] border-b-2 border-gray-300 focus:border-b-[3px] focus:border-[var(--green-White-BG)] outline-none px-3 py-3 text-sm"
           />
         </div>
 
@@ -90,7 +90,7 @@ const filteredModels = models.filter((model) =>
       setModelQuery(e.target.value);
       setShowModels(true);
     }}
-    className="w-full border rounded px-3 py-2"
+    className="w-full bg-[var(--grey-5)] border-b-2 border-gray-300 focus:border-b-[3px] focus:border-[var(--green-White-BG)] outline-none px-3 py-3 text-sm"
   />
 
   {showModels && filteredModels.length > 0 && (
@@ -116,15 +116,16 @@ const filteredModels = models.filter((model) =>
 </div>
 
         <div>
-          <label className="block mb-1">
-            Køretøjets nummerplade
+          <label className="mb-1 flex flex-col">            
+            <span>Køretøjets nummerplade</span>
+            <span className="text-sm text-[var(--green-White-BG)]">*Skriv din nummerplade uden mellemrum</span>
           </label>
           <input
             type="text"
             placeholder="Nummerplade"
             value={licensePlate}
             onChange={(e) => setLicensePlate(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full bg-[var(--grey-5)] border-b-2 border-gray-300 focus:border-b-[3px] focus:border-[var(--green-White-BG)] outline-none px-3 py-3 text-sm"
           />
         </div>
         <div className="flex justify-between items-center mt-5">
@@ -135,7 +136,7 @@ const filteredModels = models.filter((model) =>
           ANNULLER
         </button>
 
-        <div className="flex justify-end gap-3 mt-3">
+        <div className="flex justify-end gap-3 mt-3 !h-18">
         <ArrowButton
               text="Registrer køretøj"
               onClick={async () => {
