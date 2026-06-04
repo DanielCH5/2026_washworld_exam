@@ -7,6 +7,8 @@ import { FiEdit3 } from "react-icons/fi";
 import TextInput from "../InputForms";
 import { useDeleteCar } from "../../app/hooks/useDeleteCar";
 import { useUpdateCar } from "../../app/hooks/useUpdateCar";
+import { MdClose } from "react-icons/md";
+import { IoMdCheckmark } from "react-icons/io";
 
 
   type CarCardProps = {
@@ -66,44 +68,27 @@ const getDaysAgo = (epochSeconds: number) => {
       <div className="px-5 pt-4 pb-3">
 
         <div className="flex justify-between items-start mb-1">
-          {isEditing ? (
-          <input value={editedNickname} onChange={(e) => setEditedNickname(e.target.value)}
-          className="text-xl font-medium m-0 border px-2 py-1 rounded" />
-          
-          ) : (
-          <h3 className="text-xl font-medium m-0">{car.car_nickname}</h3>
-          )}
-          <div className="flex gap-3 pt-1">
-            <button aria-label="Rediger" onClick={() => setIsEditing(true)}><FiEdit3/></button>
-            <button aria-label="Slet" onClick={() => setShowDeletePopup(true)}><FaRegTrashAlt/></button>
-          </div>
-        </div>
-{isEditing && (
-  <div className="flex gap-2 ml-2">
-    <button
-      onClick={() => {
-        setEditedNickname(car.car_nickname);
-        setIsEditing(false);
-      }}
-    >
-      Annuller
-    </button>
-
-    <button
-      onClick={async () => {
-  await updateCar({
-    car_pk: car.car_pk,
-    car_nickname: editedNickname,
-  });
-onUpdate(car.car_pk, editedNickname)
-       // optimistic UI (optional)
-        setIsEditing(false);
-      }}
-    >
-      Gem
-    </button>
-  </div>
-)}
+  {isEditing ? (
+    <div className="flex items-center gap-2">
+      <input value={editedNickname} onChange={(e) => setEditedNickname(e.target.value)}
+      className="text-xl font-medium bg-[var(--grey-5)] border-b-4 border-2 border-gray-300 border-b-gray-400 focus:border-b-4 focus:border-[var(--green-White-BG)] outline-none px-3 py-2 w-40 bg-white" />
+      <button onClick={() => { setEditedNickname(car.car_nickname); setIsEditing(false); }}>
+        <MdClose size={20} className="text-[var(--warning-Red)]"/>
+      </button>
+      <button onClick={async () => { await updateCar({ car_pk: car.car_pk, car_nickname: editedNickname }); onUpdate(car.car_pk, editedNickname); setIsEditing(false); }}>
+        <IoMdCheckmark size={20} className="text-[var(--green-White-BG)]"/>
+      </button>
+    </div>
+  ) : (
+    <h3 className="text-xl font-medium m-0 capitalize">{car.car_nickname}</h3>
+  )}
+  {!isEditing && (
+    <div className="flex gap-3 pt-1">
+      <button aria-label="Rediger" onClick={() => setIsEditing(true)}><FiEdit3/></button>
+      <button aria-label="Slet" onClick={() => setShowDeletePopup(true)}><FaRegTrashAlt/></button>
+    </div>
+  )}
+</div>
         <div className="flex items-center gap-2 text-[15px] mb-4">
           {car?.car_electric == 1 && (
           <span className="w-[18px] h-[18px] rounded-full bg-blue-600 text-white text-[11px] font-large flex items-center justify-center">
@@ -131,10 +116,23 @@ onUpdate(car.car_pk, editedNickname)
           Sidst besøg –  {newestOrder ? `${getDaysAgo(Number(newestOrder.order_time_at))} dage siden` : "Ingen ordre"}
         </p>
       </div>
-
-      <div className="flex overflow-hidden">
-        <div className="flex-1 px-5 py-3 flex items-center">
-          <h4 className="tracking-wide whitespace-nowrap">{car.car_pk}</h4>
+      {/*license plate needs some stlyin to look right */}
+        <div className="flex overflow-hidden">
+          <div className="flex-1 px-5 py-3 flex items-center">
+            <div className="flex items-center gap-1 px-2 py-1 font-[Gilroy] font-bold  text-xl  ">
+        {(() => {
+          const p = car.car_pk.toUpperCase().replace(/\s/g, "");
+         return (
+            <>
+              <span>{p.slice(0, 2)}</span>
+              <span> </span>
+              <span>{p.slice(2, 4)}</span>
+             <span> </span>
+             <span>{p.slice(4, 7)}</span>
+           </>
+          );
+       })()}
+    </div>  
         </div>
        <ArrowButton text="Ændre medlemskab"/>
       </div>
