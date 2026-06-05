@@ -2,7 +2,7 @@
 
 import { FaCheck } from "react-icons/fa6";
 
-export default function ArrowButton({ text, onClick }: ArrowButtonProps) {
+export default function CheckButton({ text, onClick }: ArrowButtonProps) {
   return (
     <button
       onClick={onClick}

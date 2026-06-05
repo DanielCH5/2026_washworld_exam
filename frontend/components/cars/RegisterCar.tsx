@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import PlusButton from "@/components/buttons/__PlusButton";
 import { useCars } from "../hooks/useCars";
 import { useCreateCar } from "../hooks/useCreateCar";
-import ArrowButton from "@/components/buttons/__CheckButton";
+import CheckButton from "@/components/buttons/__CheckButton";
 
 type Model = {
   model_pk: string;
@@ -137,7 +137,7 @@ const filteredModels = models.filter((model) =>
         </button>
 
         <div className="flex justify-end gap-3 mt-3 !h-18">
-        <ArrowButton
+        <CheckButton
               text="Registrer køretøj"
               onClick={async () => {
                 await onCreateCar({
