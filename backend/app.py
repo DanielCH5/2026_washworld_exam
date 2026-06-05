@@ -30,11 +30,29 @@ from dotenv import load_dotenv
 load_dotenv() # Loads the .env variables
 
 ##############################
+@app.get("/washes")
+def get_Washes():
+    try:
+        db, cursor = x.db()
+        q = "SELECT * FROM `washes`"
+        cursor.execute(q, ())
+        models = cursor.fetchall()
+
+        return jsonify(models), 200
+
+    except Exception as ex:
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+##############################
 @app.get("/models")
 def get_models():
     try:
         db, cursor = x.db()
-        q = q = """
+        q = """
     SELECT
         models.*,
         brands.brand_name
@@ -293,10 +311,11 @@ def create_subscription():
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
         all_locations = x.validate_01(request.form.get("all_locations", ""))
         location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+        marketing_accepted = x.validate_01(request.form.get("marketing_accepted", ""))
 
         db, cursor = x.db()
-        q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk ))
+        q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk, marketing_accepted ))
         db.commit(),
 
         return jsonify({"message": "Subscription created"}), 201
@@ -308,7 +327,7 @@ def create_subscription():
         if "company_exception key" in str(ex):
             return jsonify({"message": "Invalid key"}), 400
         if "company_exception 01" in str(ex):
-            return jsonify({"message": "All locations must be 0 or 1"}), 400
+            return jsonify({"message": "All locations and marketing accepted must be either 0 or 1"}), 400
         if "company_exception number" in str(ex):
             return jsonify({"message": "Wash ID is incorrect"}), 400
         

@@ -7,6 +7,7 @@ import { FiEdit3 } from "react-icons/fi";
 import TextInput from "../InputForms";
 import { useDeleteCar } from "../../app/hooks/useDeleteCar";
 import { useUpdateCar } from "../../app/hooks/useUpdateCar";
+import CreateMembership from "@/components/membership/CreateMembership";
 import { MdClose } from "react-icons/md";
 import { IoMdCheckmark } from "react-icons/io";
 
@@ -32,6 +33,7 @@ const getNewestOrder = async (carPk: string) => {
 
 
 export default function CarCard({car, onDelete, onUpdate} : CarCardProps,) {
+  const [showCreateMembershipModal, setShowCreateMembershipModal] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const { deleteCar } = useDeleteCar();
   const { updateCar, loading, error } = useUpdateCar();
@@ -134,8 +136,34 @@ const getDaysAgo = (epochSeconds: number) => {
        })()}
     </div>  
         </div>
-       <ArrowButton text="Ændre medlemskab"/>
-      </div>
+        {!car.subscription_pk ? (
+  <ArrowButton
+    text="Tilføj medlemskab"
+    onClick={() => setShowCreateMembershipModal(true)}
+  />
+) : (
+  <ArrowButton
+    text="Ændre medlemskab"
+  />
+)}
+  
+  {/* FOR EDITING MEMBERSHIP
+  <ArrowButton
+    text="Ændre medlemskab"
+    onClick={() => setShowEditMembershipModal(true)}
+  />
+  )*/}
+       <CreateMembership
+        car={car}
+        isOpen={showCreateMembershipModal}
+        onClose={() => setShowCreateMembershipModal(false)}
+      />
+     {/*  FOR EDITING MEMBERSHIP
+      <EditMembership
+  car={car}
+  isOpen={showEditMembershipModal}
+  onClose={() => setShowEditMembershipModal(false)}
+/>*/} 
 
       {showDeletePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
@@ -158,6 +186,7 @@ const getDaysAgo = (epochSeconds: number) => {
 
 
 
+    </div>
     </div>
   )
 }
