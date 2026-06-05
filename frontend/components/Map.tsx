@@ -114,29 +114,27 @@ export default function Map() {
       <div className="absolute left-1/2 top-4 z-[1000] w-full max-w-md -translate-x-1/2 px-4"> 
       --PUT THE SEARCHBAR ON TOP OF THE MAP*/}
 
-      <SearchBar
-        markers={markers}
-        onSelect={(marker) => {
-          setSelectedPosition([
-            marker.lat,
-            marker.lng,
-          ]);
-        }}
-      />{/*</div> -- PUT THE SEARCHBAR ON TOP OF THE MAP */}
-
-      {/*The button for going to list view here */}
-      <Link
-        href="/locations"
-        className="flex items-center gap-3 bg-[var(--solid-Black)] !text-[var(--solid-White)] font-medium px-6 py-3 w-full justify-center hover:bg-neutral-800 transition-colors duration-300"
-        >
-        Se liste af lokationer <FaList className="text-l" />
-      </Link>
+      <div className="relative">
+  <div className="absolute top-0 left-0 right-0 z-[1000] flex flex-col m-4 gap-2">
+    <SearchBar
+      markers={markers}
+      onSelect={(marker) => {
+        setSelectedPosition([marker.lat, marker.lng]);
+      }}
+    />
+    <Link
+      href="/locations"
+      className="flex items-center gap-3 bg-[var(--solid-Black)] !text-[var(--solid-White)] font-medium px-6 py-3 justify-center hover:bg-neutral-800 transition-colors duration-300"
+    >
+      Se liste af lokationer <FaList className="text-l" />
+    </Link>
+  </div>
 
       <MapContainer
         center={[55.6182310, 12.4239500]} // Default center — adjust as needed
         zoom={12}
         style={{ height: "100dvh", width: "100%" }}
-       //zoomControl={false} //REMOVE THE ZOOM BUTTONS +-
+       zoomControl={false} 
        >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -152,6 +150,7 @@ export default function Map() {
           </Marker>
         ))}
         </MapContainer>
+        </div>
     </>
   );
 }
