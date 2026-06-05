@@ -725,6 +725,9 @@ def login():
 def logout_user():
     try:
         response = jsonify({"message": "logout successful"})
+
+        # In reality, we should keep the token in a diff db to "revoke it"
+
         unset_jwt_cookies(response)
         return response
     except Exception as ex:
@@ -774,6 +777,7 @@ def delete_user():
         cursor.execute(delete_q, (user_pk,))
         db.commit()
         response = jsonify({"message": "User deleted"})
+        # In reality, we should keep the token in a diff db to "revoke it"
         unset_jwt_cookies(response)
         return response, 200
     except Exception as ex:
@@ -919,13 +923,75 @@ def reset_password():
             return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}",
                             "error_field": "form"}), 400
 
-        if "company_exception paranoia" in str(ex):
+        if "company_exception key" in str(ex):
             return "Invalid key", 400
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+##############################
+@app.patch("/api/update-user")
+@jwt_required()
+def update_user():
+    try:
+        # Validation of password first
+        user_pk = x.validate_uuid4(get_jwt_identity())
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+        db, cursor = x.db()
+        q = "SELECT user_hashed_password FROM users WHERE user_pk = %s"
+        cursor.execute(q, (user_pk,))
+        user = cursor.fetchone()
+
+        if not check_password_hash(user["user_hashed_password"], user_password):
+            return jsonify({"error": "Forkert adgangskode", "error_field": "form"}), 401
+        
+
+
+        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name").capitalize()
+        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name").capitalize()
+        user_email = x.validate_email(request.form.get("user_email", ""))
+        partial_q = "user_first_name = %s, user_last_name = %s, user_email = %s"
+
+        values = [user_first_name, user_last_name, user_email]
+
+        user_new_password = request.form.get("user_new_password", "")
+        user_new_confirmed_password = request.form.get("user_new_confirmed_password", "")
+        if user_new_password and user_new_confirmed_password:
+            user_new_password = x.validate_user_password(user_new_password)
+            user_new_confirmed_password = x.validate_user_password(user_new_confirmed_password)
+            if user_new_password != user_new_confirmed_password:
+                return jsonify({"error":"Passwords do not match", "error_field": "form"}), 400
+            
+            user_hashed_password = generate_password_hash(user_new_password)
+            partial_q = partial_q + ", user_hashed_password = %s"
+            values.append(user_hashed_password)
+        
+        values.append(user_pk)
+        new_q = f"UPDATE users SET {partial_q} WHERE users.user_pk = %s;"
+        cursor.execute(new_q, values)
+
+        db.commit()
+        response = jsonify({"message": "User updated, please login again"})
+        # In reality, we should keep the token in a diff db to "revoke it"
+        unset_jwt_cookies(response)
+
+        return response, 200
+
+    except Exception as ex:
+        ic(ex)
+        if "company_exception user_first_name" in str(ex): 
+            return jsonify({"error": f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_first_name"}), 400
+        if "company_exception user_last_name" in str(ex):
+            return jsonify({"error": f"Last name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_last_name"}), 400 
+        if "company_exception email" in str(ex):
+            return jsonify({"error": "Please enter a valid email", "error_field": "email"}), 400
+        if "company_exception user_password" in str(ex):
+            return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", "error_field": "password"}), 400
+        return jsonify({"error": "Something went wrong"}), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
 @app.get("/get-data")
 @jwt_required()
@@ -1094,18 +1160,5 @@ def get_memberships():
 
  
 
-"""
-##############################
-@app.route("/forgot-password", methods=["GET", "POST"])
-def show_forgot_password():
-    if request.method == "GET":
-        return render_template("page_forgot_password.html")
-    
-    if request.method == "POST":
-        try:
-        
-        except Exception as ex:
-            
-        finally:
-"""
+
 
