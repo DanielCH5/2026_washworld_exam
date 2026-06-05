@@ -1,13 +1,25 @@
 "use client"
 import DeleteAccountModal from '@/components/popups/DeleteAccountModal';
 import { useAuth } from '@/context/AuthContext'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FiEdit3 } from "react-icons/fi";
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [profile, setProfile] = useState<{ name: string; email: string; created_at: number } | null>(null);
+
+  useEffect(() => {
+    fetch ("http://localhost/api/me", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => setProfile(data));
+  }, []);
+
+  const formatDate = (epoch: number) => {
+    return new Date(epoch * 1000).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" });
+  }
 
   //HArdcoded the challenges since this page is mostly decor and not what we focused on. 
   const challenges = [
@@ -28,15 +40,22 @@ export default function ProfilePage() {
 
   return (
     <main>
-      <div className="bg-[var(--solid-Black)] text-white p-6 flex flex-row items-center gap-6 justify-center -mx-5 -mt-5 mb-4">
-        <div>w logo cirkel</div>
+      <div className="bg-[var(--solid-Black)] text-white p-6
+      pb-10 flex flex-row items-center gap-6 justify-center -mx-5 -mt-5 mb-4">
+        <div> <Image 
+                src="/images/profileimage.svg"
+                alt="profile image logo"
+                width={40}
+                height={20}
+                className="w-full"
+                ></Image></div>
         <div>
-          <h1>Navn her</h1>
-          <h5>Mail her</h5>
-          <p>Oprettet bruger d. <span>dato</span></p>
-          <button className="flex flex-row items-center gap-1">
+          <h1>{profile?.name ?? "..."}</h1>
+          <h5 className="text-[var(--green-White-BG)]">{profile?.email ?? "..."}</h5>
+          <p>Oprettet bruger d. <span>{profile ? formatDate(profile.created_at) : "..."}</span></p>
+          <button className="flex flex-row items-center gap-1 bg-[var(--grey-60)] px-3 py-1 mt-2 hover:bg-neutral-600 ">
             <FiEdit3 />
-            <p>Rediger</p>
+            <p className="!text-xs">Rediger</p>
           </button>
         </div>
       </div>
@@ -44,7 +63,7 @@ export default function ProfilePage() {
       {/*Still need to add the car subscription */}
       <div>
         <h3>Dit medlemskab</h3>
-        <p>bil med abonnement her.</p>
+        <div>her skal carcards MED medlemskab være</div>
       </div>
 
       {/*hardcoded the processline for now. its a nice to have not need to have */}

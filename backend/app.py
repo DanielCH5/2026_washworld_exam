@@ -739,14 +739,14 @@ def logout_user():
 def get_me():
     try:
         user_pk = x.validate_uuid4(get_jwt_identity())
-        q = "SELECT user_first_name, user_last_name, user_email FROM users where user_pk = %s"
+        q = "SELECT user_first_name, user_last_name, user_email, user_created_at FROM users where user_pk = %s"
 
         db, cursor = x.db()
 
         cursor.execute(q, (user_pk,))
         user = cursor.fetchone()
         ic(user)
-        return jsonify(id=user_pk, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"])
+        return jsonify(id=user_pk, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"], created_at=user["user_created_at"]), 200
 
     except Exception as ex:
         # JWT library kinda handles the exceptions here?
@@ -808,7 +808,7 @@ def show_forgot_password():
 ##############################
 
 @app.post("/api/forgot-password")
-def forgot_password():
+def forgot_password(): 
     try:
         user_email = x.validate_email( request.form.get("user_email", "") )
         db, cursor = x.db()
