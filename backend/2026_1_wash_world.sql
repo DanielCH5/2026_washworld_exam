@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: mariadb
--- Genereringstid: 31. 05 2026 kl. 18:04:20
+-- Genereringstid: 05. 06 2026 kl. 23:02:43
 -- Serverversion: 10.6.20-MariaDB-ubu2004
 -- PHP-version: 8.3.26
 
@@ -603,21 +603,22 @@ CREATE TABLE `subscriptions` (
   `wash_fk` int(11) NOT NULL,
   `location_fk` char(32) DEFAULT NULL,
   `all_locations` tinyint(1) DEFAULT NULL,
-  `car_fk` varchar(10) NOT NULL
+  `car_fk` varchar(10) NOT NULL,
+  `marketing_accepted` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Data dump for tabellen `subscriptions`
 --
 
-INSERT INTO `subscriptions` (`subscription_pk`, `wash_fk`, `location_fk`, `all_locations`, `car_fk`) VALUES
-('19432dbbda61461786e95ac0fcf02481', 1, '75c0914b93084f3da9d701b7139466db', 0, 'WX48576'),
-('2a3bbaa9e62c4ad1abc61b5c0d3986d5', 2, '384580490ced4037a145b8ccc193c6ee', 0, 'IJ77889'),
-('2e14288ba132442188c1e6995ac055dc', 1, '549057003bf540d4b11a509fd38d9c68', 0, 'AB12345'),
-('2fa26ead78454920a6a5053874c3a0c8', 1, '847109b0b60c4b5bbee1a4b34cd1dbde', 0, 'GH44556'),
-('494a2c6d04e0404caa66dcb4f65ea2ed', 3, NULL, 1, 'CD67890'),
-('562e2d3c11884661ae0995d7f03944d9', 3, NULL, 1, 'AA66778'),
-('a71b07cf8b00431f91ea9b3b4bb2c5ae', 2, '549057003bf540d4b11a509fd38d9c68', 0, 'YZ57684');
+INSERT INTO `subscriptions` (`subscription_pk`, `wash_fk`, `location_fk`, `all_locations`, `car_fk`, `marketing_accepted`) VALUES
+('19432dbbda61461786e95ac0fcf02481', 1, '75c0914b93084f3da9d701b7139466db', 0, 'WX48576', 0),
+('2a3bbaa9e62c4ad1abc61b5c0d3986d5', 2, '384580490ced4037a145b8ccc193c6ee', 0, 'IJ77889', 0),
+('2e14288ba132442188c1e6995ac055dc', 1, '549057003bf540d4b11a509fd38d9c68', 0, 'AB12345', 0),
+('2fa26ead78454920a6a5053874c3a0c8', 1, '847109b0b60c4b5bbee1a4b34cd1dbde', 0, 'GH44556', 0),
+('494a2c6d04e0404caa66dcb4f65ea2ed', 3, NULL, 1, 'CD67890', 0),
+('562e2d3c11884661ae0995d7f03944d9', 3, NULL, 1, 'AA66778', 0),
+('a71b07cf8b00431f91ea9b3b4bb2c5ae', 2, '549057003bf540d4b11a509fd38d9c68', 0, 'YZ57684', 0);
 
 -- --------------------------------------------------------
 
@@ -658,17 +659,18 @@ INSERT INTO `users` (`user_pk`, `user_first_name`, `user_last_name`, `user_email
 
 CREATE TABLE `washes` (
   `wash_pk` int(11) NOT NULL,
-  `wash_name` varchar(20) NOT NULL
+  `wash_name` varchar(20) NOT NULL,
+  `wash_price_per_month` int(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Data dump for tabellen `washes`
 --
 
-INSERT INTO `washes` (`wash_pk`, `wash_name`) VALUES
-(1, 'Guld'),
-(2, 'Premium'),
-(3, 'Brilliant');
+INSERT INTO `washes` (`wash_pk`, `wash_name`, `wash_price_per_month`) VALUES
+(1, 'Guld', 139),
+(2, 'Premium', 169),
+(3, 'Brilliant', 199);
 
 -- --------------------------------------------------------
 
