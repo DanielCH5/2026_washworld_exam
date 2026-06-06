@@ -1,4 +1,3 @@
-
 import Cookies from "js-cookie";
 
 type UpdateSubscriptionData = {

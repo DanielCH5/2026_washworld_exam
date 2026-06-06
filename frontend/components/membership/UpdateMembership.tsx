@@ -13,7 +13,7 @@ import { FaCreditCard } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 
-type UpdateMembershipModalProps = {
+type UpdateMembershipProps = {
   car: Car;
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +26,7 @@ export default function UpdateMembership({
   car,
   isOpen,
   onClose,
-}: UpdateMembershipModalProps) {
+}: UpdateMembershipProps) {
     const {washes, error, setWashes} = useWashes()
     const router = useRouter();
     const [locations, setLocations] = useState([]);
@@ -62,7 +62,7 @@ useEffect(() => {
     (l) => String(l.location_pk) === String(selectedLocationPk)
   );
 
-  if (location) {
+  if (location) { 
     setLocationQuery(
       `${location.location_name} - ${location.location_address}`
     );
@@ -266,7 +266,7 @@ const checkValidation = () => {
   text="Betal"
   onClick={() => {
     if (checkValidation()) {
-      setShowPaymentPopup(true);
+      handleSubmit(); setShowFinalPopup(true);
     }
   }}
   disabled={!isValid}
@@ -274,48 +274,7 @@ const checkValidation = () => {
                       </div>
           </div>
           </div>
-          {showPaymentPopup && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-              <div className=" bg-[var(--solid-White)] p-5 w-[370px]">
-                <h3>Betal for valgt vask</h3>
-                <p>Tilføj din betalingstype her</p>
-                <div className="flex flex-row gap-2"><p className="font-bold">'Pris</p><p className="text-[var(--green-White-BG)]">{selectedWashData?.wash_price_per_month} kr./md.</p></div>
-                <div className="flex flex-row gap-2 mt-3">
-                  <div className="border-[1.5px] border-[var(--grey-60)] rounded flex flex-row items-center gap-1 p-1"><FaApple/><p>Pay</p></div>
-                  <p>Apple Pay</p>
-                  </div>
-                  <button className="bg-[var(--solid-Black)] text-white flex flex-row rounded items-center gap-1 px-3 py-2 mt-2 w-full justify-center cursor-pointer hover:bg-[var(--grey-80)]"
-                  onClick={async () => { handleSubmit(); setShowPaymentPopup(false); setShowFinalPopup(true)}}
-                  >
-                    <FaApple/><p>Pay</p>
-                  </button>
-                  <div className="flex flex-row gap-2 mt-2 items-center">
-                    <FaCreditCard/>
-                    <p>Cards</p>
-                    <div className="text-red-700"><FaCcMastercard/></div>
-                    <div className="text-blue-600"><FaCcVisa/></div>
           
-                  </div>
-                  <div className="flex flex-row gap-2 mt-5 items-center">
-                    <div className="flex flex-row gap-1 border-[1.5px] border-[var(--grey-60)] rounded-2xl items-center p-1">
-                      <FcGoogle/><p>Pay</p>
-                    </div>
-                    <p className="!text-l">Google Pay</p>
-                  </div>
-                  
-              <div className="flex items-center justify-between gap-3 mt-5 -mx-5 -my-5">
-                  <button
-                    onClick={() => setShowPaymentPopup(false)}
-                    className="px-4 py-2 flex underline text-[var(--grey-60)]  !text-sm"
-                  >
-                    ANNULLER
-                  </button>
-                  
-                
-              </div>
-            </div>
-            </div>
-          )}
           {showFinalPopup && (
             
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
