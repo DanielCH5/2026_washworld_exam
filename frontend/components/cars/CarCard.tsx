@@ -67,8 +67,7 @@ const getDaysAgo = (epochSeconds: number) => {
 //<button aria-label="Slet" onClick={() => deleteCar(car.car_pk)}><FaRegTrashAlt/></button>
   
   return (
-    <div className="bg-[var(--grey-5)] mb-4 mt-4">
-
+    <div className="bg-[var(--grey-5)] mb-4 mt-4"data-cy="car-card">
       <div className="px-5 pt-4 pb-3">
 
         <div className="flex justify-between items-start mb-1">
@@ -89,7 +88,7 @@ const getDaysAgo = (epochSeconds: number) => {
   {!isEditing && (
     <div className="flex gap-3 pt-1">
       <button aria-label="Rediger" onClick={() => setIsEditing(true)}><FiEdit3/></button>
-      <button aria-label="Slet" onClick={() => setShowDeletePopup(true)}><FaRegTrashAlt/></button>
+      <button aria-label="Slet" data-cy="delete-button" onClick={() => setShowDeletePopup(true)}><FaRegTrashAlt/></button>
     </div>
   )}
 </div>

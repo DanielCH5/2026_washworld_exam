@@ -65,7 +65,7 @@ const handleDelete = (carPk: string) => {
         ></Image>
       <div className="flex justify-between items-center mb-4">
       <div><h1>Dine Køretøjer</h1></div>
-      <div><PlusButton text="Registrer" onClick={() => setShowCreateCarPopup(true)}/></div>
+      <div><PlusButton text="Registrer" onClick={() => setShowCreateCarPopup(true)} /></div>
       </div>
       <h5>Se og rediger i dine køretøjer og deres medlemskaber</h5>
       <div>
