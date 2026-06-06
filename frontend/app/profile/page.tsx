@@ -8,6 +8,7 @@ import Image from 'next/image';
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ name: string; email: string; created_at: number } | null>(null);
 

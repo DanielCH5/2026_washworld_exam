@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 interface DeleteAccountModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onDeleted?: () => void; // 👈 add this
+    onDeleted?: () => void; 
 
 }
 
@@ -37,7 +37,7 @@ export default function DeleteAccountModal({
 
             setPassword('');
             onClose();
-            onDeleted?.(); // 👈 notify parent
+            onDeleted?.(); 
         } catch (err) {
             setError({
                 error: err instanceof Error ? err.message : 'Der opstod en fejl.',
