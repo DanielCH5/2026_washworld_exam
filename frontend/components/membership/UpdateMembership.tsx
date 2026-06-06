@@ -263,7 +263,7 @@ const checkValidation = () => {
     
             <div className="flex justify-end gap-3 mt-3 !h-18">
             <CheckButton
-  text="Betal"
+  text="Ændre medlemskab"
   onClick={() => {
     if (checkValidation()) {
       handleSubmit(); setShowFinalPopup(true);
@@ -281,7 +281,7 @@ const checkValidation = () => {
     <GoBackButton/>
     <div className="bg-white rounded p-6 max-w-md w-full mx-4 text-center">
       <h2 className="text-xl font-semibold">
-        Medlem registreret
+        Medlem ændret
       </h2>
 
       <p className="text-sm text-gray-500 mt-2">
