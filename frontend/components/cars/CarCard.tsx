@@ -8,6 +8,7 @@ import TextInput from "../InputForms";
 import { useDeleteCar } from "../../app/hooks/useDeleteCar";
 import { useUpdateCar } from "../../app/hooks/useUpdateCar";
 import CreateMembership from "@/components/membership/CreateMembership";
+import UpdateMembership from "@/components/membership/UpdateMembership";
 import { MdClose } from "react-icons/md";
 import { IoMdCheckmark } from "react-icons/io";
 
@@ -33,7 +34,8 @@ const getNewestOrder = async (carPk: string) => {
 
 
 export default function CarCard({car, onDelete, onUpdate} : CarCardProps,) {
-  const [showCreateMembershipModal, setShowCreateMembershipModal] = useState(false);
+  const [showCreateMembership, setShowCreateMembership] = useState(false);
+  const [showUpdateMembership, setShowUpdateMembership] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const { deleteCar } = useDeleteCar();
   const { updateCar, loading, error } = useUpdateCar();
@@ -139,31 +141,28 @@ const getDaysAgo = (epochSeconds: number) => {
         {!car.subscription_pk ? (
   <ArrowButton
     text="Tilføj medlemskab"
-    onClick={() => setShowCreateMembershipModal(true)}
+    onClick={() => setShowCreateMembership(true)}
   />
 ) : (
   <ArrowButton
     text="Ændre medlemskab"
+    onClick={() => setShowUpdateMembership(true)}
   />
 )}
   
-  {/* FOR EDITING MEMBERSHIP
-  <ArrowButton
-    text="Ændre medlemskab"
-    onClick={() => setShowEditMembershipModal(true)}
-  />
-  )*/}
+  
+  
        <CreateMembership
         car={car}
-        isOpen={showCreateMembershipModal}
-        onClose={() => setShowCreateMembershipModal(false)}
+        isOpen={showCreateMembership}
+        onClose={() => setShowCreateMembership(false)}
       />
-     {/*  FOR EDITING MEMBERSHIP
-      <EditMembership
+       FOR EDITING MEMBERSHIP
+      <UpdateMembership
   car={car}
-  isOpen={showEditMembershipModal}
-  onClose={() => setShowEditMembershipModal(false)}
-/>*/} 
+  isOpen={showUpdateMembership}
+  onClose={() => setShowUpdateMembership(false)}
+/> 
 
       {showDeletePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">

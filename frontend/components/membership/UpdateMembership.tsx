@@ -3,7 +3,7 @@
 import { MdClose } from "react-icons/md";
 import { Car } from "@/types/car";
 import { useWashes } from "../../app/hooks/useWashes";
-import { useCreateSubscription } from "../../app/hooks/useCreateSubscription";
+import { useUpdateSubscription } from "../../app/hooks/useUpdateSubscription";
 import { useEffect, useState } from "react";
 import CheckButton from "@/components/buttons/__CheckButton";
 import ArrowButton from "@/components/buttons/__ArrowButton";
@@ -13,7 +13,7 @@ import { FaCreditCard } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 
-type CreateMembershipProps = {
+type UpdateMembershipModalProps = {
   car: Car;
   isOpen: boolean;
   onClose: () => void;
@@ -22,22 +22,22 @@ type CreateMembershipProps = {
 
 
 
-export default function CreateMembership({
+export default function UpdateMembership({
   car,
   isOpen,
   onClose,
-}: CreateMembershipProps) {
+}: UpdateMembershipModalProps) {
     const {washes, error, setWashes} = useWashes()
     const router = useRouter();
     const [locations, setLocations] = useState([]);
     const [locationQuery, setLocationQuery] = useState("");
     const [showLocations, setShowLocations] = useState(false);
-    const [selectedLocationPk, setSelectedLocationPk] = useState<string | null>(null);
-    const [allLocations, setAllLocations] = useState(false);
-    const [acceptAll, setAcceptAll] = useState(false);
-    const [acceptTerms, setAcceptTerms] = useState(false);
-    const { createSubscription, loading } = useCreateSubscription();
-    const [acceptMarketing, setAcceptMarketing] = useState(false);
+    const [selectedLocationPk, setSelectedLocationPk] = useState<string | null>(car.location_fk);
+    const [allLocations, setAllLocations] = useState(car.all_locations);
+    const [acceptAll, setAcceptAll] = useState(car.marketing_accepted);
+    const [acceptTerms, setAcceptTerms] = useState(true);
+    const { updateSubscription, loading } = useUpdateSubscription();
+    const [acceptMarketing, setAcceptMarketing] = useState(car.marketing_accepted);
     const [showPaymentPopup, setShowPaymentPopup] = useState(false);
     const [showFinalPopup, setShowFinalPopup] = useState(false);
 
@@ -49,13 +49,28 @@ export default function CreateMembership({
     .then((data) => setLocations(data));
 }, []);
 
+
+
 const filteredLocations = locations.filter((location) =>
   `${location.location_name} ${location.location_address}`
     .toLowerCase()
     .includes(locationQuery.toLowerCase())
 );
 
-const [selectedWash, setSelectedWash] = useState<string  | null>(null);
+useEffect(() => {
+  const location = locations.find(
+    (l) => String(l.location_pk) === String(selectedLocationPk)
+  );
+
+  if (location) {
+    setLocationQuery(
+      `${location.location_name} - ${location.location_address}`
+    );
+  }
+}, [locations, selectedLocationPk]);
+
+
+const [selectedWash, setSelectedWash] = useState<number  | null>(car.wash_fk);
   if (!isOpen) return null;
   
 const isValid =
@@ -66,7 +81,8 @@ const isValid =
   const handleSubmit = async () => {
  
 
-  await createSubscription({
+  await updateSubscription({
+    subscription_pk: String(car.subscription_pk),
     wash_pk: String(selectedWash),
     car_pk: String(car.car_pk),
     location_pk: String(selectedLocationPk),
