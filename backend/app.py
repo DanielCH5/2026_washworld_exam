@@ -336,7 +336,47 @@ def create_subscription():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
         
+
+ ##############################
+## UPDATE SUBSCRIPTIUON WITH PUT
+@app.put("/subscription/<subscription_pk>")
+@jwt_required()
+def update_subscription(subscription_pk):
+    try:
+    
+        subscription_pk = x.validate_uuid4(subscription_pk)
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        all_locations = x.validate_01(request.form.get("all_locations", ""))
+        location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+        marketing_accepted = x.validate_01(request.form.get("marketing_accepted", ""))
+    
+        db, cursor = x.db()
+        q = """
+            UPDATE `subscriptions` SET `wash_fk`=%s,`location_fk`=%s,
+            `all_locations`=%s,`car_fk`=%s,`marketing_accepted`=%s WHERE `subscription_pk`=%s
+        """
+        cursor.execute(q, (wash_fk, location_fk, all_locations, car_fk, marketing_accepted, subscription_pk))
+        db.commit()
+
+        return jsonify({"message": "Subscription updated"}), 200
+    except Exception as ex:
+
+        if "company_exception number" in str(ex):
+            return jsonify({"message": "Wash_pk is invalid"}), 400
+        if "company_exception key" in str(ex):
+            return jsonify({"message": "Invalid key"}), 400
+        if "company_exception 01" in str(ex):
+            return jsonify({"message": "All_locations and marketing accepted must be 0 or 1"}), 400
+        
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+       
 ##############################
+## UPDATE SUBSCRIPTIUON WITH PATCH
+'''
 @app.patch("/subscription/<subscription_pk>")
 @jwt_required()
 def update_subscription(subscription_pk):
@@ -392,7 +432,7 @@ def update_subscription(subscription_pk):
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-
+'''
 ##############################
 @app.delete("/subscription/<subscription_pk>")
 @jwt_required()
@@ -487,6 +527,7 @@ def get_car(car_pk):
     subscriptions.wash_fk,
     subscriptions.location_fk,
     subscriptions.all_locations,
+    subscriptions.marketing_accepted,
     washes.wash_name AS wash_name,
     locations.location_name AS location_name
 FROM cars
@@ -533,6 +574,7 @@ def get_cars():
     subscriptions.wash_fk,
     subscriptions.location_fk,
     subscriptions.all_locations,
+    subscriptions.marketing_accepted,
     washes.wash_name AS wash_name,
     locations.location_name AS location_name
 FROM cars

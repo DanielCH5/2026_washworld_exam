@@ -3,7 +3,7 @@
 import { MdClose } from "react-icons/md";
 import { Car } from "@/types/car";
 import { useWashes } from "../../app/hooks/useWashes";
-import { useCreateSubscription } from "../../app/hooks/useCreateSubscription";
+import { useUpdateSubscription } from "../../app/hooks/useUpdateSubscription";
 import { useEffect, useState } from "react";
 import CheckButton from "@/components/buttons/__CheckButton";
 import ArrowButton from "@/components/buttons/__ArrowButton";
@@ -13,7 +13,7 @@ import { FaCreditCard } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 
-type CreateMembershipProps = {
+type UpdateMembershipProps = {
   car: Car;
   isOpen: boolean;
   onClose: () => void;
@@ -22,22 +22,22 @@ type CreateMembershipProps = {
 
 
 
-export default function CreateMembership({
+export default function UpdateMembership({
   car,
   isOpen,
   onClose,
-}: CreateMembershipProps) {
+}: UpdateMembershipProps) {
     const {washes, error, setWashes} = useWashes()
     const router = useRouter();
     const [locations, setLocations] = useState([]);
     const [locationQuery, setLocationQuery] = useState("");
     const [showLocations, setShowLocations] = useState(false);
-    const [selectedLocationPk, setSelectedLocationPk] = useState<string | null>(null);
-    const [allLocations, setAllLocations] = useState(false);
-    const [acceptAll, setAcceptAll] = useState(false);
-    const [acceptTerms, setAcceptTerms] = useState(false);
-    const { createSubscription, loading } = useCreateSubscription();
-    const [acceptMarketing, setAcceptMarketing] = useState(false);
+    const [selectedLocationPk, setSelectedLocationPk] = useState<string | null>(car.location_fk);
+    const [allLocations, setAllLocations] = useState(car.all_locations);
+    const [acceptAll, setAcceptAll] = useState(car.marketing_accepted);
+    const [acceptTerms, setAcceptTerms] = useState(true);
+    const { updateSubscription, loading } = useUpdateSubscription();
+    const [acceptMarketing, setAcceptMarketing] = useState(car.marketing_accepted);
     const [showPaymentPopup, setShowPaymentPopup] = useState(false);
     const [showFinalPopup, setShowFinalPopup] = useState(false);
 
@@ -49,13 +49,28 @@ export default function CreateMembership({
     .then((data) => setLocations(data));
 }, []);
 
+
+
 const filteredLocations = locations.filter((location) =>
   `${location.location_name} ${location.location_address}`
     .toLowerCase()
     .includes(locationQuery.toLowerCase())
 );
 
-const [selectedWash, setSelectedWash] = useState<string  | null>(null);
+useEffect(() => {
+  const location = locations.find(
+    (l) => String(l.location_pk) === String(selectedLocationPk)
+  );
+
+  if (location) { 
+    setLocationQuery(
+      `${location.location_name} - ${location.location_address}`
+    );
+  }
+}, [locations, selectedLocationPk]);
+
+
+const [selectedWash, setSelectedWash] = useState<number  | null>(car.wash_fk);
   if (!isOpen) return null;
   
 const isValid =
@@ -66,7 +81,8 @@ const isValid =
   const handleSubmit = async () => {
  
 
-  await createSubscription({
+  await updateSubscription({
+    subscription_pk: String(car.subscription_pk),
     wash_pk: String(selectedWash),
     car_pk: String(car.car_pk),
     location_pk: String(selectedLocationPk),
@@ -247,10 +263,10 @@ const checkValidation = () => {
     
             <div className="flex justify-end gap-3 mt-3 !h-18">
             <CheckButton
-  text="Betal"
+  text="Ændre medlemskab"
   onClick={() => {
     if (checkValidation()) {
-      setShowPaymentPopup(true);
+      handleSubmit(); setShowFinalPopup(true);
     }
   }}
   disabled={!isValid}
@@ -258,55 +274,14 @@ const checkValidation = () => {
                       </div>
           </div>
           </div>
-          {showPaymentPopup && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-              <div className=" bg-[var(--solid-White)] p-5 w-[370px]">
-                <h3>Betal for valgt vask</h3>
-                <p>Tilføj din betalingstype her</p>
-                <div className="flex flex-row gap-2"><p className="font-bold">'Pris</p><p className="text-[var(--green-White-BG)]">{selectedWashData?.wash_price_per_month} kr./md.</p></div>
-                <div className="flex flex-row gap-2 mt-3">
-                  <div className="border-[1.5px] border-[var(--grey-60)] rounded flex flex-row items-center gap-1 p-1"><FaApple/><p>Pay</p></div>
-                  <p>Apple Pay</p>
-                  </div>
-                  <button className="bg-[var(--solid-Black)] text-white flex flex-row rounded items-center gap-1 px-3 py-2 mt-2 w-full justify-center cursor-pointer hover:bg-[var(--grey-80)]"
-                  onClick={async () => { handleSubmit(); setShowPaymentPopup(false); setShowFinalPopup(true)}}
-                  >
-                    <FaApple/><p>Pay</p>
-                  </button>
-                  <div className="flex flex-row gap-2 mt-2 items-center">
-                    <FaCreditCard/>
-                    <p>Cards</p>
-                    <div className="text-red-700"><FaCcMastercard/></div>
-                    <div className="text-blue-600"><FaCcVisa/></div>
           
-                  </div>
-                  <div className="flex flex-row gap-2 mt-5 items-center">
-                    <div className="flex flex-row gap-1 border-[1.5px] border-[var(--grey-60)] rounded-2xl items-center p-1">
-                      <FcGoogle/><p>Pay</p>
-                    </div>
-                    <p className="!text-l">Google Pay</p>
-                  </div>
-                  
-              <div className="flex items-center justify-between gap-3 mt-5 -mx-5 -my-5">
-                  <button
-                    onClick={() => setShowPaymentPopup(false)}
-                    className="px-4 py-2 flex underline text-[var(--grey-60)]  !text-sm"
-                  >
-                    ANNULLER
-                  </button>
-                  
-                
-              </div>
-            </div>
-            </div>
-          )}
           {showFinalPopup && (
             
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <GoBackButton/>
     <div className="bg-white rounded p-6 max-w-md w-full mx-4 text-center">
       <h2 className="text-xl font-semibold">
-        Medlem registreret
+        Medlem ændret
       </h2>
 
       <p className="text-sm text-gray-500 mt-2">
