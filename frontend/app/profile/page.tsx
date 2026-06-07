@@ -124,7 +124,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="flex flex-col gap-3 mt-6">
-        <button onClick={logout} className="py-4 bg-[var(--solid-Black)] text-white mx-5">
+        <button onClick={logout} data-cy="logout-button" className="py-4 bg-[var(--solid-Black)] text-white mx-5">
           <p className="font-bold">Logout</p>
         </button>
         <button onClick={() => setShowDeleteModal(true)} className="py-4 bg-[var(--warning-Red)] text-white mx-5 mb-16">

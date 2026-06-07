@@ -11,6 +11,7 @@ import { FaApple, FaCcVisa, FaCcMastercard } from "react-icons/fa";
 import { FaCreditCard } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { IoMdCheckmark } from "react-icons/io";
+import WashTimer from "@/components/orders/WashTimer";
 
 
 export default function OrdersPage() {
@@ -151,7 +152,7 @@ useEffect(() => {
   const timer = setTimeout(() => {
     setShowEndWashPopup(false);
     router.push(`/`)
-  }, 1 * 60 * 1000); // 1 * 10 = seconds
+  }, 1 * 10 * 1000); // 1 * 10 = seconds
 
   return () => clearTimeout(timer);
 }, [showEndWashPopup]);
@@ -279,12 +280,18 @@ if (!car) {
 
 {showWashProcessPopup && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-    <div className=" bg-white p-6">
-      <b>Følg din vaskeprocess her</b>
-      <p>VASKE IKON HER!!!!!!!!!</p>
-      <p>Din vask er i gang</p>
-      <p>TIMER HER HER!!!!!!!!!</p>
-  </div>
+    <div className="bg-white p-6 w-[340px]">
+      <h3 className="text-xl font-semibold mb-6">Følg din bilvask process</h3>
+
+      <WashTimer totalSeconds={10} />
+
+      <div className="flex items-center gap-2 text-sm text-gray-400 mt-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        Assistance
+      </div>
+    </div>
   </div>
 )}
 
@@ -292,12 +299,9 @@ if (!car) {
   <div className="fixed inset-0 flex items-center justify-center bg-black/50">
     <div className="bg-white p-6">
       <h3>Vask færdig</h3>
-      <div className="rounded-[100%] border-5 border-[var(--green-White-BG)] flex justify-center items-center m-5">
-        <div className="text-[130px] text-[var(--green-White-BG)] justify-center items-center flex py-20 px-10">
-        <IoMdCheckmark/>
-        </div>
-
-      </div>
+      <div className="w-[220px] h-[220px] rounded-full border-[10px] border-[var(--green-White-BG)] flex justify-center items-center mx-auto my-6">
+  <IoMdCheckmark className="text-[120px] text-[var(--green-White-BG)]"/>
+</div>
       <p>Din vask er færdig og du kan nu køre ud af vaskehallen</p>
   </div>
   </div>
