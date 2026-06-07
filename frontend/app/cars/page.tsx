@@ -10,7 +10,7 @@ import RegisterCar from "@/components/cars/RegisterCar";
 
 
 export default function CarsPage() {
-const {cars, error, setCars} = useCars()
+const {cars, carsError, carsLoading, setCars} = useCars()
 const {createCar, loading} = useCreateCar()
 const [showCreateCarPopup, setShowCreateCarPopup] = useState(false);
 const [carNickName, setCarNickName] = useState('')
@@ -52,6 +52,13 @@ const handleDelete = (carPk: string) => {
   setCars(prev => prev.filter(car => car.car_pk !== carPk));
 };
 
+if (carsLoading) {
+  return <p>Loading cars...</p>;
+}
+
+if (carsError) {
+  return <p>Error: {carsError}</p>;
+}
 
   return (
     <main className="mb-13">
@@ -72,7 +79,7 @@ const handleDelete = (carPk: string) => {
         {cars.map((car) => (
           
           <CarCard
-            key={car.car_pk ?? crypto.randomUUID()}
+            key={car.car_pk}
             car={car}
             onDelete={handleDelete}
             onUpdate={handleUpdateCar}

@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 
 export function useAddons(washPk?: number | null) {
   const [addons, setAddons] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [addonsLoading, setAddonsLoading] = useState(false);
+  const [addonsError, setAddonsError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAddons = async () => {
       try {
-        setError(null);
+        setAddonsLoading(true);
+        setAddonsError(null);
 
       const url =
       `http://localhost/addons/${washPk}`
@@ -21,12 +23,14 @@ export function useAddons(washPk?: number | null) {
         setAddons(data);
 
       } catch (err: any) {
-        setError(err.message);
-      } 
+        setAddonsError(err.message);
+      } finally {
+        setAddonsLoading(false);
+      }
     };
 
     fetchAddons();
   }, [washPk]);
 
-  return { addons, error };
+  return { addons, addonsLoading, addonsError };
 }

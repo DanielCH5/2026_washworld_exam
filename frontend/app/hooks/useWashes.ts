@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 export function useWashes() {
 
   const [washes, setWashes] = useState<[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [washesLoading, setWashesLoading] = useState(false);
+  const [washesError, setWashesError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        setError(null);
+        setWashesLoading(true);
+        setWashesError(null);
 
         const res = await fetch(`http://localhost/washes`, {
           credentials: "include",
@@ -20,12 +22,14 @@ export function useWashes() {
         const data = await res.json();
         setWashes(data);
       } catch (err: any) {
-        setError(err.message);
+        setWashesError(err.message);
+      } finally {
+        setWashesLoading(false);
       }
     };
 
     fetchCars();
   }, []);
 
-  return { washes, error, setWashes };
+  return { washes, washesError, washesLoading, setWashes };
 }

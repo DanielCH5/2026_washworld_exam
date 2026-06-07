@@ -33,9 +33,11 @@ const searchParams = useSearchParams();
 
 //-------------------------------------- GET CARS AND ADDONS FROM HOOKS----------------------------------------------------
  
-const { car } = useCar(carPk);
- const { addons: washAddons } = useAddons(car?.wash_fk ?? 1)
- //const { addons: allAddons } = useAddons();
+const { car, carError, carLoading } = useCar(carPk);
+
+
+const { addons: washAddons , addonsLoading, addonsError} = useAddons(car?.wash_fk ?? 1)
+
  const allAddons = [
   { addon_pk: 1, addon_name: "Foam Splash", description: "skumforvask"},
   { addon_pk: 2, addon_name: "Shampoo", description: "Hos Wash World anvender vi produkter af højeste kvalitet, så vi sikrer det bedste resultat af din bilvask" },
@@ -50,6 +52,7 @@ const { car } = useCar(carPk);
   { addon_pk: 11, addon_name: "Affedtning", description: "Affedtning fjerner snavs fra bilen" },
   { addon_pk: 12, addon_name: "Sæsonskyl", description: "Ekstra skyl til fjernelse af sæsonsnavs" },
 ];
+
 
 //-------------------------------------- UPDATE ORDER STATUS ----------------------------------------------------
  
@@ -154,6 +157,19 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, [showEndWashPopup]);
 
+//------------------------------------------ CAR LOADING AND ERRORS -----------------------------------------------------------------
+
+if (carLoading) {
+  return <p>Loading car...</p>;
+}
+
+if (carError) {
+  return <p>Error loading car: {carError}</p>;
+}
+
+if (!car) {
+  return <p>Car not found.</p>;
+}
 
 //------------------------------------------ RETURN HTML ------------------------------------------------------------------
 
@@ -166,19 +182,26 @@ useEffect(() => {
   <p className="!text-xs text-[var(--green-White-BG)]">*Ved medlemskab kan tilvalg koste ekstra ved næste månedtligt beløb</p>
 </div>
      
-  
-{allAddons.map((addon) => (
-  <div key={addon.addon_pk} className="flex items-center gap-2 w-full">
-    <Checkbox
-      checked={selectedAddons.includes(addon.addon_pk)}
-      onChange={() => toggleAddon(addon.addon_pk)}
-    />
-    <div className="bg-[var(--grey-5)] p-3 flex-1">
-      <h4>{addon.addon_name}</h4>
-      <p className="text-sm text-gray-500">{addon.description}</p>
+{addonsLoading ? (
+  <p>Loading addons...</p>
+) : addonsError ? (
+  <p>Error: {addonsError}</p>
+) : washAddons.length === 0 ? (
+  <p>No addons available.</p>
+) : (
+  allAddons.map((addon) => (
+    <div key={addon.addon_pk} className="flex items-center gap-2 w-full">
+      <Checkbox
+        checked={selectedAddons.includes(addon.addon_pk)}
+        onChange={() => toggleAddon(addon.addon_pk)}
+      />
+      <div className="bg-[var(--grey-5)] p-3 flex-1">
+        <h4>{addon.addon_name}</h4>
+        <p className="text-sm text-gray-500">{addon.description}</p>
+      </div>
     </div>
-  </div>
-))}
+  ))
+)}
 </div>
 <div className="flex items-center justify-between gap-4 mt-5 -mx-4 mb-16">
 <button onClick={() => router.push(`/`)} className="px-4 py-2 justify-center flex-1 flex text-[var(--grey-60)] underline cursor-pointer"> ANNULLER </button>
