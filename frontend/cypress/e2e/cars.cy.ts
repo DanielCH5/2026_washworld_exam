@@ -1,5 +1,6 @@
  beforeEach(() => {
     cy.visit("/");
+    cy.wait(1000)
 
     cy.get('input[type="email"]')
       .type("john@mail.com");
@@ -16,6 +17,7 @@ describe("Cars create and delete", () => {
   it("Car and delete successfully", () => {
     cy.visit("/cars");
 
+    cy.wait(1000)
     cy.contains('Registrer', { timeout: 10000 })
         .should('be.visible');
     cy.contains('button', 'Registrer').click();

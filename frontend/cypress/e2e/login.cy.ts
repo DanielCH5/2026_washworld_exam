@@ -2,6 +2,7 @@ describe("Login", () => {
   it("Logged in and out successfully", () => {
     cy.visit("/");
 
+    cy.wait(1000)
     cy.get('input[type="email"]')
       .type("john@mail.com");
 
