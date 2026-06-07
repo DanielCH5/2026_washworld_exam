@@ -70,6 +70,7 @@ const filteredModels = models.filter((model) =>
           </label>
           <input
             type="text"
+            data-cy="car-nickname"
             placeholder="Køretøjets navn"
             value={carNickName}
             onChange={(e) => setCarNickName(e.target.value)}
@@ -84,6 +85,7 @@ const filteredModels = models.filter((model) =>
 
   <input
     type="text"
+    data-cy="car-model"
     placeholder="Søg efter mærke og model"
     value={modelQuery}
     onChange={(e) => {
@@ -122,6 +124,7 @@ const filteredModels = models.filter((model) =>
           </label>
           <input
             type="text"
+            data-cy="car-licenseplate"
             placeholder="Nummerplade"
             value={licensePlate}
             onChange={(e) => setLicensePlate(e.target.value)}
@@ -139,6 +142,7 @@ const filteredModels = models.filter((model) =>
         <div className="flex justify-end gap-3 mt-3 !h-18">
         <CheckButton
               text="Registrer køretøj"
+              data-cy="registrer-button"
               onClick={async () => {
                 await onCreateCar({
                   car_pk: licensePlate,
