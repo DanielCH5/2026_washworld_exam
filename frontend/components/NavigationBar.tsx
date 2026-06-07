@@ -15,7 +15,7 @@ export default function NavigationBar() {
     { label: "Medlem", href: "/membership", icon: "images/membershipbutton.svg" },
     { label: "", href: "/", icon: "images/homebutton.svg", featured: true },
     { label: "Hjælp", href: "/help", icon: "images/helpbutton.svg" },
-    { label: user.name, href: "/profile", icon: "images/profilbutton.svg" },
+    { label: user.name, href: "/profile", icon: "images/profilbutton.svg"},
   ];
 
   return (
