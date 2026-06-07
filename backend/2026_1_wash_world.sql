@@ -2,10 +2,10 @@
 -- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Vært: mariadb
--- Genereringstid: 05. 06 2026 kl. 23:02:43
--- Serverversion: 10.6.20-MariaDB-ubu2004
--- PHP-version: 8.3.26
+-- Host: mariadb
+-- Generation Time: Jun 07, 2026 at 02:56 PM
+-- Server version: 10.6.20-MariaDB-ubu2004
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `addons`
+-- Table structure for table `addons`
 --
 
 CREATE TABLE `addons` (
@@ -33,7 +33,7 @@ CREATE TABLE `addons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `addons`
+-- Dumping data for table `addons`
 --
 
 INSERT INTO `addons` (`addon_pk`, `addon_name`) VALUES
@@ -53,7 +53,7 @@ INSERT INTO `addons` (`addon_pk`, `addon_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `addons_orders`
+-- Table structure for table `addons_orders`
 --
 
 CREATE TABLE `addons_orders` (
@@ -62,10 +62,19 @@ CREATE TABLE `addons_orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `addons_orders`
+-- Dumping data for table `addons_orders`
 --
 
 INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
+('123e4567e89b42d3a456426614174000', 1),
+('123e4567e89b42d3a456426614174000', 2),
+('123e4567e89b42d3a456426614174000', 3),
+('123e4567e89b42d3a456426614174000', 4),
+('123e4567e89b42d3a456426614174000', 5),
+('123e4567e89b42d3a456426614174000', 6),
+('123e4567e89b42d3a456426614174000', 7),
+('123e4567e89b42d3a456426614174000', 8),
+('123e4567e89b42d3a456426614174000', 9),
 ('16fd27068baf433b82eb8c7fada847da', 1),
 ('16fd27068baf433b82eb8c7fada847da', 2),
 ('16fd27068baf433b82eb8c7fada847da', 3),
@@ -81,25 +90,6 @@ INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
 ('223e4567e89b42d3a456426614174001', 5),
 ('223e4567e89b42d3a456426614174001', 6),
 ('223e4567e89b42d3a456426614174001', 7),
-('6ba7b8109dad41d180b400c04fd430c8', 1),
-('6ba7b8109dad41d180b400c04fd430c8', 2),
-('6ba7b8109dad41d180b400c04fd430c8', 3),
-('6ba7b8109dad41d180b400c04fd430c8', 4),
-('6ba7b8109dad41d180b400c04fd430c8', 5),
-('6ba7b8109dad41d180b400c04fd430c8', 6),
-('6ba7b8109dad41d180b400c04fd430c8', 7),
-('6ba7b8109dad41d180b400c04fd430c8', 8),
-('6ba7b8109dad41d180b400c04fd430c8', 9),
-('6ba7b8109dad41d180b400c04fd430c8', 10),
-('123e4567e89b42d3a456426614174000', 1),
-('123e4567e89b42d3a456426614174000', 2),
-('123e4567e89b42d3a456426614174000', 3),
-('123e4567e89b42d3a456426614174000', 4),
-('123e4567e89b42d3a456426614174000', 5),
-('123e4567e89b42d3a456426614174000', 6),
-('123e4567e89b42d3a456426614174000', 7),
-('123e4567e89b42d3a456426614174000', 8),
-('123e4567e89b42d3a456426614174000', 9),
 ('323e4567e89b42d3a456426614174002', 1),
 ('323e4567e89b42d3a456426614174002', 2),
 ('323e4567e89b42d3a456426614174002', 3),
@@ -109,18 +99,15 @@ INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
 ('323e4567e89b42d3a456426614174002', 7),
 ('323e4567e89b42d3a456426614174002', 8),
 ('323e4567e89b42d3a456426614174002', 9),
-('7d4448409dc041d1b2455ffdce74fad2', 1),
-('7d4448409dc041d1b2455ffdce74fad2', 2),
-('7d4448409dc041d1b2455ffdce74fad2', 3),
-('7d4448409dc041d1b2455ffdce74fad2', 4),
-('7d4448409dc041d1b2455ffdce74fad2', 5),
-('7d4448409dc041d1b2455ffdce74fad2', 6),
-('7d4448409dc041d1b2455ffdce74fad2', 7),
-('7d4448409dc041d1b2455ffdce74fad2', 8),
-('7d4448409dc041d1b2455ffdce74fad2', 9),
-('7d4448409dc041d1b2455ffdce74fad2', 10),
-('7d4448409dc041d1b2455ffdce74fad2', 11),
-('7d4448409dc041d1b2455ffdce74fad2', 12),
+('3580be9557ea452094307f642fdc6720', 1),
+('3580be9557ea452094307f642fdc6720', 2),
+('3580be9557ea452094307f642fdc6720', 3),
+('3580be9557ea452094307f642fdc6720', 4),
+('3580be9557ea452094307f642fdc6720', 5),
+('3580be9557ea452094307f642fdc6720', 6),
+('3580be9557ea452094307f642fdc6720', 7),
+('3580be9557ea452094307f642fdc6720', 8),
+('3580be9557ea452094307f642fdc6720', 9),
 ('423e4567e89b42d3a456426614174003', 1),
 ('423e4567e89b42d3a456426614174003', 2),
 ('423e4567e89b42d3a456426614174003', 3),
@@ -133,6 +120,57 @@ INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
 ('423e4567e89b42d3a456426614174003', 10),
 ('423e4567e89b42d3a456426614174003', 11),
 ('423e4567e89b42d3a456426614174003', 12),
+('6ba7b8109dad41d180b400c04fd430c8', 1),
+('6ba7b8109dad41d180b400c04fd430c8', 2),
+('6ba7b8109dad41d180b400c04fd430c8', 3),
+('6ba7b8109dad41d180b400c04fd430c8', 4),
+('6ba7b8109dad41d180b400c04fd430c8', 5),
+('6ba7b8109dad41d180b400c04fd430c8', 6),
+('6ba7b8109dad41d180b400c04fd430c8', 7),
+('6ba7b8109dad41d180b400c04fd430c8', 8),
+('6ba7b8109dad41d180b400c04fd430c8', 9),
+('6ba7b8109dad41d180b400c04fd430c8', 10),
+('6ba7b8109dad41d180b400c04fd430c8', 12),
+('72584820429646b293d68fd427ff949e', 1),
+('72584820429646b293d68fd427ff949e', 2),
+('72584820429646b293d68fd427ff949e', 3),
+('72584820429646b293d68fd427ff949e', 4),
+('72584820429646b293d68fd427ff949e', 5),
+('72584820429646b293d68fd427ff949e', 6),
+('72584820429646b293d68fd427ff949e', 7),
+('72584820429646b293d68fd427ff949e', 8),
+('72584820429646b293d68fd427ff949e', 9),
+('72584820429646b293d68fd427ff949e', 10),
+('7a88ed1859e048368471f76eab46c947', 1),
+('7a88ed1859e048368471f76eab46c947', 2),
+('7a88ed1859e048368471f76eab46c947', 3),
+('7a88ed1859e048368471f76eab46c947', 4),
+('7a88ed1859e048368471f76eab46c947', 5),
+('7a88ed1859e048368471f76eab46c947', 6),
+('7a88ed1859e048368471f76eab46c947', 7),
+('7d4448409dc041d1b2455ffdce74fad2', 1),
+('7d4448409dc041d1b2455ffdce74fad2', 2),
+('7d4448409dc041d1b2455ffdce74fad2', 3),
+('7d4448409dc041d1b2455ffdce74fad2', 4),
+('7d4448409dc041d1b2455ffdce74fad2', 5),
+('7d4448409dc041d1b2455ffdce74fad2', 6),
+('7d4448409dc041d1b2455ffdce74fad2', 7),
+('7d4448409dc041d1b2455ffdce74fad2', 8),
+('7d4448409dc041d1b2455ffdce74fad2', 9),
+('7d4448409dc041d1b2455ffdce74fad2', 10),
+('7d4448409dc041d1b2455ffdce74fad2', 11),
+('7d4448409dc041d1b2455ffdce74fad2', 12),
+('8254a4c7b97f443fb9e4f47c9d33f342', 1),
+('8254a4c7b97f443fb9e4f47c9d33f342', 2),
+('8254a4c7b97f443fb9e4f47c9d33f342', 3),
+('8254a4c7b97f443fb9e4f47c9d33f342', 4),
+('8254a4c7b97f443fb9e4f47c9d33f342', 5),
+('8254a4c7b97f443fb9e4f47c9d33f342', 6),
+('8254a4c7b97f443fb9e4f47c9d33f342', 7),
+('8254a4c7b97f443fb9e4f47c9d33f342', 8),
+('8254a4c7b97f443fb9e4f47c9d33f342', 9),
+('8254a4c7b97f443fb9e4f47c9d33f342', 10),
+('8254a4c7b97f443fb9e4f47c9d33f342', 11),
 ('a23e4567e89b42d3a456426614174009', 1),
 ('a23e4567e89b42d3a456426614174009', 2),
 ('a23e4567e89b42d3a456426614174009', 3),
@@ -145,26 +183,6 @@ INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
 ('a23e4567e89b42d3a456426614174009', 10),
 ('a23e4567e89b42d3a456426614174009', 11),
 ('a23e4567e89b42d3a456426614174009', 12),
-('3580be9557ea452094307f642fdc6720', 1),
-('3580be9557ea452094307f642fdc6720', 2),
-('3580be9557ea452094307f642fdc6720', 3),
-('3580be9557ea452094307f642fdc6720', 4),
-('3580be9557ea452094307f642fdc6720', 5),
-('3580be9557ea452094307f642fdc6720', 6),
-('3580be9557ea452094307f642fdc6720', 7),
-('3580be9557ea452094307f642fdc6720', 9),
-('3580be9557ea452094307f642fdc6720', 8),
-('8254a4c7b97f443fb9e4f47c9d33f342', 1),
-('8254a4c7b97f443fb9e4f47c9d33f342', 2),
-('8254a4c7b97f443fb9e4f47c9d33f342', 3),
-('8254a4c7b97f443fb9e4f47c9d33f342', 4),
-('8254a4c7b97f443fb9e4f47c9d33f342', 5),
-('8254a4c7b97f443fb9e4f47c9d33f342', 6),
-('8254a4c7b97f443fb9e4f47c9d33f342', 7),
-('8254a4c7b97f443fb9e4f47c9d33f342', 8),
-('8254a4c7b97f443fb9e4f47c9d33f342', 9),
-('8254a4c7b97f443fb9e4f47c9d33f342', 10),
-('8254a4c7b97f443fb9e4f47c9d33f342', 11),
 ('c3ec510ea26848a5bf6259a661bc6ab8', 1),
 ('c3ec510ea26848a5bf6259a661bc6ab8', 2),
 ('c3ec510ea26848a5bf6259a661bc6ab8', 3),
@@ -176,29 +194,12 @@ INSERT INTO `addons_orders` (`order_fk`, `addon_fk`) VALUES
 ('c3ec510ea26848a5bf6259a661bc6ab8', 9),
 ('c3ec510ea26848a5bf6259a661bc6ab8', 10),
 ('c3ec510ea26848a5bf6259a661bc6ab8', 11),
-('c3ec510ea26848a5bf6259a661bc6ab8', 12),
-('72584820429646b293d68fd427ff949e', 1),
-('72584820429646b293d68fd427ff949e', 2),
-('72584820429646b293d68fd427ff949e', 3),
-('72584820429646b293d68fd427ff949e', 4),
-('72584820429646b293d68fd427ff949e', 5),
-('72584820429646b293d68fd427ff949e', 6),
-('72584820429646b293d68fd427ff949e', 7),
-('72584820429646b293d68fd427ff949e', 10),
-('72584820429646b293d68fd427ff949e', 9),
-('72584820429646b293d68fd427ff949e', 8),
-('7a88ed1859e048368471f76eab46c947', 1),
-('7a88ed1859e048368471f76eab46c947', 2),
-('7a88ed1859e048368471f76eab46c947', 3),
-('7a88ed1859e048368471f76eab46c947', 4),
-('7a88ed1859e048368471f76eab46c947', 5),
-('7a88ed1859e048368471f76eab46c947', 6),
-('7a88ed1859e048368471f76eab46c947', 7);
+('c3ec510ea26848a5bf6259a661bc6ab8', 12);
 
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `brands`
+-- Table structure for table `brands`
 --
 
 CREATE TABLE `brands` (
@@ -207,7 +208,7 @@ CREATE TABLE `brands` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `brands`
+-- Dumping data for table `brands`
 --
 
 INSERT INTO `brands` (`brand_pk`, `brand_name`) VALUES
@@ -264,7 +265,7 @@ INSERT INTO `brands` (`brand_pk`, `brand_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `cars`
+-- Table structure for table `cars`
 --
 
 CREATE TABLE `cars` (
@@ -275,7 +276,7 @@ CREATE TABLE `cars` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `cars`
+-- Dumping data for table `cars`
 --
 
 INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`) VALUES
@@ -303,7 +304,7 @@ INSERT INTO `cars` (`car_pk`, `user_fk`, `model_fk`, `car_nickname`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `locations`
+-- Table structure for table `locations`
 --
 
 CREATE TABLE `locations` (
@@ -328,7 +329,7 @@ CREATE TABLE `locations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `locations`
+-- Dumping data for table `locations`
 --
 
 INSERT INTO `locations` (`location_pk`, `location_name`, `location_address`, `location_lat`, `location_lon`, `location_open_hours`, `location_wash_halls`, `location_empty_wash_halls`, `location_self_wash`, `location_mat_cleaner`, `location_vacuum`, `location_pre_wash`, `location_max_meters`, `location_max_mirrors_width_meters`, `region_fk`, `location_end_url`, `location_image_end_url`, `location_status_message`) VALUES
@@ -407,7 +408,7 @@ INSERT INTO `locations` (`location_pk`, `location_name`, `location_address`, `lo
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `models`
+-- Table structure for table `models`
 --
 
 CREATE TABLE `models` (
@@ -418,7 +419,7 @@ CREATE TABLE `models` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `models`
+-- Dumping data for table `models`
 --
 
 INSERT INTO `models` (`model_pk`, `brand_fk`, `model_name`, `car_electric`) VALUES
@@ -502,7 +503,7 @@ INSERT INTO `models` (`model_pk`, `brand_fk`, `model_name`, `car_electric`) VALU
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `orders`
+-- Table structure for table `orders`
 --
 
 CREATE TABLE `orders` (
@@ -515,7 +516,7 @@ CREATE TABLE `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `orders`
+-- Dumping data for table `orders`
 --
 
 INSERT INTO `orders` (`order_pk`, `user_fk`, `order_time_at`, `location_fk`, `car_fk`, `status_fk`) VALUES
@@ -555,7 +556,7 @@ INSERT INTO `orders` (`order_pk`, `user_fk`, `order_time_at`, `location_fk`, `ca
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `regions`
+-- Table structure for table `regions`
 --
 
 CREATE TABLE `regions` (
@@ -564,7 +565,7 @@ CREATE TABLE `regions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `regions`
+-- Dumping data for table `regions`
 --
 
 INSERT INTO `regions` (`region_pk`, `region_name`) VALUES
@@ -575,7 +576,7 @@ INSERT INTO `regions` (`region_pk`, `region_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `status`
+-- Table structure for table `status`
 --
 
 CREATE TABLE `status` (
@@ -584,7 +585,7 @@ CREATE TABLE `status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `status`
+-- Dumping data for table `status`
 --
 
 INSERT INTO `status` (`status_pk`, `status_name`) VALUES
@@ -595,7 +596,7 @@ INSERT INTO `status` (`status_pk`, `status_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `subscriptions`
+-- Table structure for table `subscriptions`
 --
 
 CREATE TABLE `subscriptions` (
@@ -608,7 +609,7 @@ CREATE TABLE `subscriptions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `subscriptions`
+-- Dumping data for table `subscriptions`
 --
 
 INSERT INTO `subscriptions` (`subscription_pk`, `wash_fk`, `location_fk`, `all_locations`, `car_fk`, `marketing_accepted`) VALUES
@@ -623,7 +624,7 @@ INSERT INTO `subscriptions` (`subscription_pk`, `wash_fk`, `location_fk`, `all_l
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -642,7 +643,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_pk`, `user_first_name`, `user_last_name`, `user_email`, `user_hashed_password`, `user_created_at`, `user_verified_at`, `user_changed_at`, `user_deleted_at`, `user_reset_at`, `user_reset_password_key`, `user_verification_key`) VALUES
@@ -654,7 +655,7 @@ INSERT INTO `users` (`user_pk`, `user_first_name`, `user_last_name`, `user_email
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `washes`
+-- Table structure for table `washes`
 --
 
 CREATE TABLE `washes` (
@@ -664,7 +665,7 @@ CREATE TABLE `washes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `washes`
+-- Dumping data for table `washes`
 --
 
 INSERT INTO `washes` (`wash_pk`, `wash_name`, `wash_price_per_month`) VALUES
@@ -675,7 +676,7 @@ INSERT INTO `washes` (`wash_pk`, `wash_name`, `wash_price_per_month`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `washes_addons`
+-- Table structure for table `washes_addons`
 --
 
 CREATE TABLE `washes_addons` (
@@ -684,7 +685,7 @@ CREATE TABLE `washes_addons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `washes_addons`
+-- Dumping data for table `washes_addons`
 --
 
 INSERT INTO `washes_addons` (`wash_fk`, `addon_fk`) VALUES
@@ -718,30 +719,31 @@ INSERT INTO `washes_addons` (`wash_fk`, `addon_fk`) VALUES
 (3, 12);
 
 --
--- Begrænsninger for dumpede tabeller
+-- Indexes for dumped tables
 --
 
 --
--- Indeks for tabel `addons`
+-- Indexes for table `addons`
 --
 ALTER TABLE `addons`
   ADD PRIMARY KEY (`addon_pk`);
 
 --
--- Indeks for tabel `addons_orders`
+-- Indexes for table `addons_orders`
 --
 ALTER TABLE `addons_orders`
+  ADD PRIMARY KEY (`order_fk`,`addon_fk`),
   ADD KEY `addon_fk` (`addon_fk`),
   ADD KEY `order_fk` (`order_fk`);
 
 --
--- Indeks for tabel `brands`
+-- Indexes for table `brands`
 --
 ALTER TABLE `brands`
   ADD PRIMARY KEY (`brand_pk`);
 
 --
--- Indeks for tabel `cars`
+-- Indexes for table `cars`
 --
 ALTER TABLE `cars`
   ADD PRIMARY KEY (`car_pk`),
@@ -749,21 +751,21 @@ ALTER TABLE `cars`
   ADD KEY `idx_cars_model` (`model_fk`);
 
 --
--- Indeks for tabel `locations`
+-- Indexes for table `locations`
 --
 ALTER TABLE `locations`
   ADD PRIMARY KEY (`location_pk`),
   ADD KEY `idx_locations_region` (`region_fk`);
 
 --
--- Indeks for tabel `models`
+-- Indexes for table `models`
 --
 ALTER TABLE `models`
   ADD PRIMARY KEY (`model_pk`),
   ADD KEY `idx_models_brand` (`brand_fk`);
 
 --
--- Indeks for tabel `orders`
+-- Indexes for table `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_pk`),
@@ -773,19 +775,19 @@ ALTER TABLE `orders`
   ADD KEY `idx_orders_status` (`status_fk`) USING BTREE;
 
 --
--- Indeks for tabel `regions`
+-- Indexes for table `regions`
 --
 ALTER TABLE `regions`
   ADD PRIMARY KEY (`region_pk`);
 
 --
--- Indeks for tabel `status`
+-- Indexes for table `status`
 --
 ALTER TABLE `status`
   ADD PRIMARY KEY (`status_pk`);
 
 --
--- Indeks for tabel `subscriptions`
+-- Indexes for table `subscriptions`
 --
 ALTER TABLE `subscriptions`
   ADD PRIMARY KEY (`subscription_pk`),
@@ -794,85 +796,86 @@ ALTER TABLE `subscriptions`
   ADD KEY `idx_subscriptions_location` (`location_fk`);
 
 --
--- Indeks for tabel `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_pk`),
   ADD UNIQUE KEY `user_email` (`user_email`);
 
 --
--- Indeks for tabel `washes`
+-- Indexes for table `washes`
 --
 ALTER TABLE `washes`
   ADD PRIMARY KEY (`wash_pk`);
 
 --
--- Indeks for tabel `washes_addons`
+-- Indexes for table `washes_addons`
 --
 ALTER TABLE `washes_addons`
+  ADD PRIMARY KEY (`wash_fk`,`addon_fk`),
   ADD KEY `wash_fk` (`wash_fk`),
   ADD KEY `addon_fk_rule` (`addon_fk`);
 
 --
--- Brug ikke AUTO_INCREMENT for slettede tabeller
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- Tilføj AUTO_INCREMENT i tabel `addons`
+-- AUTO_INCREMENT for table `addons`
 --
 ALTER TABLE `addons`
   MODIFY `addon_pk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `regions`
+-- AUTO_INCREMENT for table `regions`
 --
 ALTER TABLE `regions`
   MODIFY `region_pk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `status`
+-- AUTO_INCREMENT for table `status`
 --
 ALTER TABLE `status`
   MODIFY `status_pk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `washes`
+-- AUTO_INCREMENT for table `washes`
 --
 ALTER TABLE `washes`
   MODIFY `wash_pk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- Begrænsninger for dumpede tabeller
+-- Constraints for dumped tables
 --
 
 --
--- Begrænsninger for tabel `addons_orders`
+-- Constraints for table `addons_orders`
 --
 ALTER TABLE `addons_orders`
   ADD CONSTRAINT `addon_fk` FOREIGN KEY (`addon_fk`) REFERENCES `addons` (`addon_pk`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `order_fk` FOREIGN KEY (`order_fk`) REFERENCES `orders` (`order_pk`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Begrænsninger for tabel `cars`
+-- Constraints for table `cars`
 --
 ALTER TABLE `cars`
   ADD CONSTRAINT `fk_cars_model` FOREIGN KEY (`model_fk`) REFERENCES `models` (`model_pk`),
   ADD CONSTRAINT `fk_cars_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`);
 
 --
--- Begrænsninger for tabel `locations`
+-- Constraints for table `locations`
 --
 ALTER TABLE `locations`
   ADD CONSTRAINT `fk_locations_region` FOREIGN KEY (`region_fk`) REFERENCES `regions` (`region_pk`);
 
 --
--- Begrænsninger for tabel `models`
+-- Constraints for table `models`
 --
 ALTER TABLE `models`
   ADD CONSTRAINT `fk_models_brand` FOREIGN KEY (`brand_fk`) REFERENCES `brands` (`brand_pk`);
 
 --
--- Begrænsninger for tabel `orders`
+-- Constraints for table `orders`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`),
@@ -881,7 +884,7 @@ ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`);
 
 --
--- Begrænsninger for tabel `subscriptions`
+-- Constraints for table `subscriptions`
 --
 ALTER TABLE `subscriptions`
   ADD CONSTRAINT `fk_subscriptions_car` FOREIGN KEY (`car_fk`) REFERENCES `cars` (`car_pk`) ON DELETE CASCADE,
@@ -889,7 +892,7 @@ ALTER TABLE `subscriptions`
   ADD CONSTRAINT `fk_subscriptions_wash` FOREIGN KEY (`wash_fk`) REFERENCES `washes` (`wash_pk`);
 
 --
--- Begrænsninger for tabel `washes_addons`
+-- Constraints for table `washes_addons`
 --
 ALTER TABLE `washes_addons`
   ADD CONSTRAINT `addon_fk_rule` FOREIGN KEY (`addon_fk`) REFERENCES `addons` (`addon_pk`),
