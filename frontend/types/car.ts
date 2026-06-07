@@ -9,6 +9,7 @@ export type Car = {
   model_name: string
   brand_name: string
   subscription_pk: string
+  marketing_accepted: string
   user_fk: string
   wash_fk: number
   wash_name: string
