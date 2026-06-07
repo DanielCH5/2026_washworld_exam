@@ -46,9 +46,12 @@ def refresh_expiring_jwts(response):
     except (RuntimeError, KeyError):
         # Case where there is not a valid JWT. Just return the original response
         return response
-##############################
-@app.get("/washes")
-def get_Washes():
+    
+
+################################################### MODELS, WASHES AND ADDONS ##############################################
+@jwt_required()
+@app.get("/models")
+def get_models():
     try:
         db, cursor = x.db()
         q = """
@@ -401,24 +404,24 @@ def create_car():
         db.commit()
 
         q = """SELECT
-    cars.*,
-    models.car_electric,
-    subscriptions.subscription_pk,
-    subscriptions.wash_fk,
-    subscriptions.location_fk,
-    subscriptions.all_locations,
-    washes.wash_name AS wash_name,
-    locations.location_name AS location_name
-FROM cars
-LEFT JOIN models
-    ON cars.model_fk = models.model_pk
-LEFT JOIN subscriptions
-    ON subscriptions.car_fk = cars.car_pk
-LEFT JOIN washes
-    ON subscriptions.wash_fk = washes.wash_pk
-LEFT JOIN locations
-    ON subscriptions.location_fk = locations.location_pk
-WHERE cars.car_pk = %s"""
+                    cars.*,
+                    models.car_electric,
+                    subscriptions.subscription_pk,
+                    subscriptions.wash_fk,
+                    subscriptions.location_fk,
+                    subscriptions.all_locations,
+                    washes.wash_name AS wash_name,
+                    locations.location_name AS location_name
+                FROM cars
+                LEFT JOIN models
+                ON cars.model_fk = models.model_pk
+                LEFT JOIN subscriptions
+                    ON subscriptions.car_fk = cars.car_pk
+                LEFT JOIN washes
+                    ON subscriptions.wash_fk = washes.wash_pk
+                LEFT JOIN locations
+                    ON subscriptions.location_fk = locations.location_pk
+                WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk, ))
 
         new_car = cursor.fetchone()
@@ -450,25 +453,25 @@ def get_car(car_pk):
         db, cursor = x.db()
         car_pk = x.validate_license_plate(car_pk)
         q = """SELECT
-    cars.*,
-    models.car_electric,
-    subscriptions.subscription_pk,
-    subscriptions.wash_fk,
-    subscriptions.location_fk,
-    subscriptions.all_locations,
-    subscriptions.marketing_accepted,
-    washes.wash_name AS wash_name,
-    locations.location_name AS location_name
-FROM cars
-LEFT JOIN models
-    ON cars.model_fk = models.model_pk
-LEFT JOIN subscriptions
-    ON subscriptions.car_fk = cars.car_pk
-LEFT JOIN washes
-    ON subscriptions.wash_fk = washes.wash_pk
-LEFT JOIN locations
-    ON subscriptions.location_fk = locations.location_pk
-WHERE cars.car_pk = %s"""
+                    cars.*,
+                    models.car_electric,
+                    subscriptions.subscription_pk,
+                    subscriptions.wash_fk,
+                    subscriptions.location_fk,
+                    subscriptions.all_locations,
+                    subscriptions.marketing_accepted,
+                    washes.wash_name AS wash_name,
+                    locations.location_name AS location_name
+                FROM cars
+                LEFT JOIN models
+                    ON cars.model_fk = models.model_pk
+                LEFT JOIN subscriptions
+                    ON subscriptions.car_fk = cars.car_pk
+                LEFT JOIN washes
+                    ON subscriptions.wash_fk = washes.wash_pk
+                LEFT JOIN locations
+                    ON subscriptions.location_fk = locations.location_pk
+                WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
 
@@ -494,29 +497,29 @@ def get_cars():
         db, cursor = x.db()
         user_fk = x.validate_uuid4(get_jwt_identity())
         q = """SELECT
-    cars.*,
-    models.car_electric,
-    models.model_name,
-    brands.brand_name,
-    subscriptions.subscription_pk,
-    subscriptions.wash_fk,
-    subscriptions.location_fk,
-    subscriptions.all_locations,
-    subscriptions.marketing_accepted,
-    washes.wash_name AS wash_name,
-    locations.location_name AS location_name
-FROM cars
-LEFT JOIN models
-    ON cars.model_fk = models.model_pk
-LEFT JOIN brands
-    ON models.brand_fk = brands.brand_pk
-LEFT JOIN subscriptions
-    ON subscriptions.car_fk = cars.car_pk
-LEFT JOIN washes
-    ON subscriptions.wash_fk = washes.wash_pk
-LEFT JOIN locations
-    ON subscriptions.location_fk = locations.location_pk
-WHERE cars.user_fk = %s"""
+                    cars.*,
+                    models.car_electric,
+                    models.model_name,
+                    brands.brand_name,
+                    subscriptions.subscription_pk,
+                    subscriptions.wash_fk,
+                    subscriptions.location_fk,
+                    subscriptions.all_locations,
+                    subscriptions.marketing_accepted,
+                    washes.wash_name AS wash_name,
+                    locations.location_name AS location_name
+                FROM cars
+                LEFT JOIN models
+                    ON cars.model_fk = models.model_pk
+                LEFT JOIN brands
+                    ON models.brand_fk = brands.brand_pk
+                LEFT JOIN subscriptions
+                    ON subscriptions.car_fk = cars.car_pk
+                LEFT JOIN washes
+                    ON subscriptions.wash_fk = washes.wash_pk
+                LEFT JOIN locations
+                    ON subscriptions.location_fk = locations.location_pk
+                WHERE cars.user_fk = %s"""
         cursor.execute(q, (user_fk,))
         cars = cursor.fetchall()
 
