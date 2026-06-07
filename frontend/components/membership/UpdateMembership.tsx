@@ -27,7 +27,7 @@ export default function UpdateMembership({
   isOpen,
   onClose,
 }: UpdateMembershipProps) {
-    const {washes, error, setWashes} = useWashes()
+    const {washes, washesError, washesLoading, setWashes} = useWashes()
     const router = useRouter();
     const [locations, setLocations] = useState([]);
     const [locationQuery, setLocationQuery] = useState("");
@@ -129,7 +129,14 @@ const checkValidation = () => {
       </h2>
 
       <div className="space-y-3">
-        {washes?.map((wash) => (
+        {washesLoading ? (
+    <p>Loading memberships...</p>
+  ) : washesError ? (
+    <p>Error: {washesError}</p>
+  ) : washes.length === 0 ? (
+    <p>No memberships available.</p>
+  ) : (
+        washes?.map((wash) => (
   <label
     key={wash.wash_pk}
     className="flex items-center justify-between p-3 border rounded cursor-pointer"
@@ -149,7 +156,7 @@ const checkValidation = () => {
       {wash.wash_price_per_month} kr./md.
     </span>
   </label>
-))}
+)))}
 <b>Hvor vil du vaske?</b>
 <div className="relative">
   <input
