@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "../cypress/e2e/login.cy.ts", "../cypress/e2e/cars.cy.ts"  ],
   "exclude": ["node_modules"]
 }

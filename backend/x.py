@@ -14,6 +14,7 @@ load_dotenv() # Loads the .env variables
 
 db_password = os.getenv("DB_PASSWORD")
 ic.configureOutput(prefix=f"_____ | ", includeContext=True)
+
 ##############################
 def db():
     try:
@@ -31,17 +32,39 @@ def db():
 
 
 ##############################
-def no_cache(view):
-    @wraps(view)
-    def no_cache_view(*args, **kwargs):
-        response = make_response(view(*args, **kwargs))
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return response
-    return no_cache_view
+REGEX_ONE_NUMBER = f"^\d$"
+def validate_one_number(number):
+    if not re.match(REGEX_ONE_NUMBER, number):
+        raise Exception("company_exception number")
+    return number
+
 
 ##############################
+REGEX_UUID4 = "^[0-9a-f]{32}$"
+def validate_uuid4(key):
+    key = key.strip()
+    if not re.match(REGEX_UUID4, key):
+        raise Exception("company_exception key")
+    return key
+
+
+##############################
+REGEX_NUMBER_UPTO_12 = r"^(?:[1-9]|1[0-2])$"
+def validate_numbers_upto_12(number):
+    if not re.match(REGEX_NUMBER_UPTO_12, number):
+        raise Exception("company_exception number12")
+    return number
+
+
+##############################
+REGEX_01 = f"^[01]$"
+def validate_01(key):
+    if not re.match(REGEX_01, key):
+        raise Exception("company_exception 01")
+    return key
+
+
+################################################### CAR VALIDATION ####################################################
 def check_car_active_order(car_pk):
     try:
         connection, cursor = db()
@@ -67,33 +90,13 @@ def check_car_active_order(car_pk):
     
 
 ##############################
-REGEX_NUMBER_UPTO_12 = r"^(?:[1-9]|1[0-2])$"
-def validate_numbers_upto_12(number):
-    if not re.match(REGEX_NUMBER_UPTO_12, number):
-        raise Exception("company_exception number12")
-    return number
-
-##############################
-REGEX_01 = f"^[01]$"
-def validate_01(key):
-    if not re.match(REGEX_01, key):
-        raise Exception("company_exception 01")
-    return key
-
-##############################
-REGEX_ONE_NUMBER = f"^\d$"
-def validate_one_number(number):
-    if not re.match(REGEX_ONE_NUMBER, number):
-        raise Exception("company_exception number")
-    return number
-
-##############################
 REGEX_LICENSE_PLATE = "^[A-Za-z0-9]{1,10}$"
 def validate_license_plate(key):
     key = key.strip()
     if not re.match(REGEX_LICENSE_PLATE, key):
         raise Exception("company_exception license plate")
     return key
+
 
 ##############################
 NICKNAME_MIN = 1
@@ -105,44 +108,15 @@ def validate_nickname(name):
         raise Exception("company_exception nickname")
     return nickname
 
-##############################
-REGEX_01 = f"^[01]$"
-def validate_01(key):
-    if not re.match(REGEX_01, key):
-        raise Exception("company_exception 01")
-    return key
 
-##############################
-REGEX_ONE_NUMBER = f"^\d$"
-def validate_one_number(number):
-    if not re.match(REGEX_ONE_NUMBER, number):
-        raise Exception("company_exception number")
-    return number
-
-
-##############################
-REGEX_UUID4 = "^[0-9a-f]{32}$"
-def validate_uuid4(key):
-    key = key.strip()
-    if not re.match(REGEX_UUID4, key):
-        raise Exception("company_exception key")
-    return key
-##############################
-REGEX_UUID4_paranoia = "^[0-9a-f]{64}$"
-def validate_uuid4_paranoia(key):
-    key = key.strip()
-    if not re.match(REGEX_UUID4_paranoia, key):
-        raise Exception("company_exception paranoia")
-    return key
 ################################################### USERS VALIDATION ####################################################
-
-##############################
 REGEX_EMAIL = "^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$"
 def validate_email(email):
     email = email.strip()
     if not re.match(REGEX_EMAIL, email):
         raise Exception("company_exception email")
     return email
+
 
 ##############################
 USER_PASSWORD_MIN = 8
@@ -154,6 +128,7 @@ def validate_user_password(password):
         raise Exception("company_exception user_password")
     return user_password
 
+
 ##############################
 NAME_MIN = 2
 NAME_MAX = 20
@@ -164,9 +139,8 @@ def validate_name(name, input_field):
         raise Exception(f"company_exception {input_field}")
     return name
 
-################################################### VALIDATIONS END ####################################################
 
-##############################
+################################################### VALIDATIONS END ####################################################
 def send_email(subject, html, user_email):
     try:    
         # Create a gmail 
