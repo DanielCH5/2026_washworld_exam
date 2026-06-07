@@ -5,12 +5,14 @@ import { Car } from "@/types/car";
 export function useCars() {
 
   const [cars, setCars] = useState<Car[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [carsLoading, setCarsLoading] = useState(false);
+  const [carsError, setCarsError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        setError(null);
+        setCarsLoading(true);
+        setCarsError(null);
 
         const res = await fetch(`http://localhost/cars`, {
           credentials: "include",
@@ -21,12 +23,14 @@ export function useCars() {
         const data = await res.json();
         setCars(data);
       } catch (err: any) {
-        setError(err.message);
+        setCarsError(err.message);
+      } finally {
+        setCarsLoading(false);
       }
     };
 
     fetchCars();
   }, []);
 
-  return { cars, error, setCars };
+  return { cars, carsError, carsLoading, setCars };
 }

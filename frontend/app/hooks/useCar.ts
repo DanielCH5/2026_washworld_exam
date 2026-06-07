@@ -3,12 +3,14 @@ import { Car } from "@/types/car";
 
 export function useCar(carPk: string | null) {
   const [car, setCar] = useState<Car>();
-  const [error, setError] = useState<string | null>(null);
+  const [carLoading, setCarLoading] = useState(false);
+  const [carError, setCarError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        setError(null);
+        setCarLoading(true);
+        setCarError(null);
 
         const res = await fetch(`http://localhost/car/${carPk}`, {
           credentials: "include",
@@ -19,12 +21,14 @@ export function useCar(carPk: string | null) {
         const data = await res.json();
         setCar(data);
       } catch (err: any) {
-        setError(err.message);
+        setCarError(err.message);
+      } finally {
+        setCarLoading(false);
       }
     };
 
     fetchCar();
   }, [carPk]);
 
-  return { car, error };
+  return { car, carError, carLoading };
 }
