@@ -91,28 +91,25 @@ const getDaysAgo = (epochSeconds: number) => {
     </div>
   )}
 </div>
-        <div className="flex items-center gap-2 text-[15px] mb-4">
-          {car?.car_electric == 1 && (
-          <span className="w-[18px] h-[18px] rounded-full bg-blue-600 text-white text-[11px] font-large flex items-center justify-center">
-            e
-          </span>)}
-          <h5>{car.brand_name} {car.model_name}</h5>
-        </div>
+     <div className="flex items-center gap-2 text-[15px] mb-2">
+      {car?.car_electric == 1 && (
+      <span className="w-[18px] h-[18px] rounded-full bg-blue-600 text-white text-[11px] font-large flex items-center justify-center">
+       e
+      </span>)}
+     <h5>{car.brand_name} {car.model_name}</h5>
+    </div>
 
-        <div className="flex row gap-1 font-bold">
-          
-          {(car.all_locations === 1 || car.location_name) && (
-            <div className="flex row gap-1 font-bold">
-              <h5>Lokation:</h5>
-
-            <h5 className="text-[var(--green-White-BG)]">
-          {car.all_locations === 1
-            ? "ALLE"
-            : car.location_name}
-            </h5>
-            </div>
-          )}
-        </div>
+    
+    {car.wash_name && (
+  <div className="flex items-center gap-2 mb-3">
+    <span className="px-2 py-0.5 text-xs font-semibold bg-[var(--green-White-BG)] text-white">
+      {car.wash_name}
+    </span>
+    <span className="px-2 py-0.5 text-xs font-semibold border border-[var(--green-White-BG)] text-[var(--green-White-BG)]">
+      {car.all_locations === 1 ? "ALLE lokationer" : car.location_name}
+    </span>
+  </div>
+)}
 
         <p className="mt-1 text-[var(--grey-60)]">
           Sidst besøg –  {newestOrder ? `${getDaysAgo(Number(newestOrder.order_time_at))} dage siden` : "Ingen ordre"}
