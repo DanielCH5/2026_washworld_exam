@@ -54,7 +54,7 @@ const handleDelete = (carPk: string) => {
 
 
   return (
-    <main>
+    <main className="mb-13">
       
       <Image 
         src="/images/carimage.jpg"
