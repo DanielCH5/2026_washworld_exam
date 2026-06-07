@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import uuid
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
@@ -21,6 +21,7 @@ app.config["JWT_SECRET_KEY"] = "super-secret-key"
 app.config["JWT_COOKIE_SECURE"] = True # Cookies skal være sikre for at tillade CSRF i browser
 app.config["JWT_COOKIE_SAMESITE"] = "None" # Tillader CSRF
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
 jwt = JWTManager(app)
 
@@ -29,6 +30,22 @@ import os
 from dotenv import load_dotenv 
 load_dotenv() # Loads the .env variables
 
+##############################
+# Using an `after_request` callback, we refresh any token that is within 30
+# minutes of expiring. Change the timedeltas to match the needs of your application.
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
 ##############################
 @app.get("/washes")
 def get_Washes():
@@ -819,7 +836,9 @@ def get_me():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 ##############################
+
 @app.delete("/api/delete-user")
 @jwt_required()
 def delete_user():
