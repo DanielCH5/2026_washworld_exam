@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import uuid
 import time
+from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x
@@ -20,6 +21,7 @@ app.config["JWT_SECRET_KEY"] = "super-secret-key"
 app.config["JWT_COOKIE_SECURE"] = True # Cookies skal være sikre for at tillade CSRF i browser
 app.config["JWT_COOKIE_SAMESITE"] = "None" # Tillader CSRF
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
 jwt = JWTManager(app)
 
@@ -29,34 +31,119 @@ from dotenv import load_dotenv
 load_dotenv() # Loads the .env variables
 
 ##############################
-@app.get("/location-status/<location_pk>")
-def get_location_status(location_pk):
-    try: 
-        location_pk = x.validate_uuid4(location_pk)
+# Using an `after_request` callback, we refresh any token that is within 30
+# minutes of expiring. Change the timedeltas to match the needs of your application.
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
+    
+
+################################################### MODELS, WASHES AND ADDONS ##############################################
+@jwt_required()
+@app.get("/models")
+def get_models():
+    try:
         db, cursor = x.db()
-        q = "SELECT location_status_message FROM `locations` WHERE location_pk = %s"
-        cursor.execute(q, (location_pk,))
-        location_status = cursor.fetchone()
-        return jsonify(location_status), 200
+        q = """
+    SELECT
+        models.*,
+        brands.brand_name
+    FROM models
+    LEFT JOIN brands
+        ON models.brand_fk = brands.brand_pk
+    """
+        cursor.execute(q, ())
+        models = cursor.fetchall()
+
+        return jsonify(models), 200
+
     except Exception as ex:
-        if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}),  400
-        
-        return str(ex), 500
+        return ex, 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
 
+##############################
+@jwt_required()
+@app.get("/washes")
+def get_washes():
+    try:
+        db, cursor = x.db()
+        q = "SELECT * FROM `washes`"
+        cursor.execute(q, ())
+        models = cursor.fetchall()
+
+        return jsonify(models), 200
+
+    except Exception as ex:
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
 ##############################
+@jwt_required()
+@app.get("/addons")
+def get_addons():
+    try:
+        db, cursor = x.db()
+        q = "SELECT * from addons"
+        cursor.execute(q, ())
+        addons = cursor.fetchall()
+        ic(addons)
+
+        return jsonify(addons), 200
+
+    except Exception as ex:
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+##############################
+@jwt_required()
+@app.get("/addons/<wash_pk>")
+def get_addons_for_wash(wash_pk):
+    try:
+        wash_pk = x.validate_one_number(wash_pk)
+        db, cursor = x.db()
+        q = """SELECT a.addon_pk, a.addon_name FROM washes_addons wa
+    JOIN addons a ON wa.addon_fk = a.addon_pk WHERE wa.wash_fk = %s;"""
+        cursor.execute(q, (wash_pk,))
+        addons = cursor.fetchall()
+        ic(addons)
+
+        return jsonify(addons), 200
+
+    except Exception as ex:
+        if "company_exception number" in str(ex):
+            return jsonify({"message": "Invalid wash type"}),  400
+        return ex, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+################################################### ORDERS ##############################################
 @app.post("/order")
 @jwt_required()
 def create_order():
     try:
         order_pk = uuid.uuid4().hex
         user_fk = x.validate_uuid4(get_jwt_identity())
-        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
         order_time_at = int(time.time())
         location_fk = x.validate_uuid4(request.form.get("location_pk", "",))
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
@@ -67,8 +154,8 @@ def create_order():
             return jsonify({"message": "This car already has an active order"}), 400
         
         db, cursor = x.db()
-        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(q, (order_pk, user_fk, wash_fk, order_time_at, location_fk, car_fk, car_status ))
+        q = "INSERT INTO `orders` VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (order_pk, user_fk, order_time_at, location_fk, car_fk, car_status ))
         db.commit()
         
         q = "Insert into `addons_orders` VALUES(%s, %s)"
@@ -77,6 +164,7 @@ def create_order():
         db.commit()
         
         return jsonify({"message": "Order created"}), 201
+    
     except Exception as ex:
         if "company_exception license plate" in str(ex):
             return jsonify({"message": "Invalid license plate"}), 400
@@ -90,46 +178,49 @@ def create_order():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
 ##############################
-@app.get("/order/<order_pk>")
+@app.get("/order/new/<car_pk>")
 @jwt_required() 
-def get_order(order_pk):
+def get_newest_order(car_pk):
     try:
         db, cursor = x.db()
-        order_pk = x.validate_uuid4(order_pk)
-        q = """SELECT 
-    o.*,
-    GROUP_CONCAT(ao.addon_fk) AS addon_list
-FROM orders o
-LEFT JOIN addons_orders ao 
-    ON o.order_pk = ao.order_fk
-WHERE o.order_pk = %s
-GROUP BY o.order_pk
-"""
-        cursor.execute(q, (order_pk,))
+        car_pk = x.validate_license_plate(car_pk)
+        q = """SELECT *
+        FROM orders
+        WHERE car_fk = %s
+        ORDER BY order_time_at DESC
+        LIMIT 1;
+        """
+        cursor.execute(q, (car_pk,))
         order = cursor.fetchone()
 
         return jsonify(order)
     except Exception as ex:
-        if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}), 400
+        if "company_exception license plate" in str(ex):
+            return jsonify({"message": "Invalid license plate"}), 400
         
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
 ##############################
-@app.patch("/order/status/<order_pk>")
+@app.patch("/order/status/<car_pk>")
 @jwt_required() 
-def change_order_status(order_pk):
+def change_order_status(car_pk):
     try:
-        order_pk = x.validate_uuid4(order_pk)
+        car_pk = x.validate_license_plate(car_pk)
 
         db, cursor = x.db()
-        q = "SELECT `location_fk`, `status_fk` FROM `orders` WHERE order_pk=%s"
-        cursor.execute(q, (order_pk,))
+        q = "SELECT * FROM `orders` WHERE car_fk = %s AND NOT status_fk = %s LIMIT 1"
+        cursor.execute(q, (car_pk, "3"))
         order = cursor.fetchone()
+        if not order:
+           return jsonify({"message": "This car does not have an active order"}), 400
+
+        order_pk = order["order_pk"]
         order_status = order["status_fk"]
         location_fk = order["location_fk"]
     
@@ -141,11 +232,9 @@ def change_order_status(order_pk):
         if order_status == 1:
             order_status = 2
             location_empty_wash_halls = location_empty_wash_halls-1
-        elif order_status == 2:
+        else:
             order_status = 3
             location_empty_wash_halls = location_empty_wash_halls+1
-        else:
-            return jsonify({"message": "This order is already done"}), 400
 
         q = "UPDATE `orders` SET status_fk=%s WHERE order_pk=%s"
         cursor.execute(q, (order_status, order_pk))
@@ -156,40 +245,16 @@ def change_order_status(order_pk):
 
         return jsonify({"message": "Order status updated"}), 200
     except Exception as ex:
-        if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}), 400
+        if "company_exception license plate" in str(ex):
+            return jsonify({"message": "Invalid license plate"}), 400
         
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-
-##############################
-@app.delete("/order/<order_pk>")
-@jwt_required()
-def delete_order(order_pk):
-   try: 
-        db, cursor = x.db()
-        order_pk = x.validate_uuid4(order_pk)
-        q = 'DELETE FROM `orders` WHERE order_pk=%s and status_fk=1'
-        cursor.execute(q, (order_pk, ))
-        db.commit()
-
-        if cursor.rowcount == 0:
-            return jsonify({"message": "Order not deleted(Not found or status not reserved)"}), 400
-
-        return jsonify({"message": "Order deleted"}), 200
-   except Exception as ex:
-       if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}), 400
-       
-       return str(ex), 500
-   finally:
-       if "cursor" in locals(): cursor.close()
-       if "db" in locals(): db.close()
    
 
-##############################
+################################################### SUBSCRIPTIONS ##############################################
 @app.post("/subscription")
 @jwt_required()
 def create_subscription():
@@ -199,10 +264,11 @@ def create_subscription():
         car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
         all_locations = x.validate_01(request.form.get("all_locations", ""))
         location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+        marketing_accepted = x.validate_01(request.form.get("marketing_accepted", ""))
 
         db, cursor = x.db()
-        q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk ))
+        q = "INSERT INTO `subscriptions` VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (subscription_pk, wash_fk, location_fk, all_locations, car_fk, marketing_accepted ))
         db.commit(),
 
         return jsonify({"message": "Subscription created"}), 201
@@ -214,7 +280,7 @@ def create_subscription():
         if "company_exception key" in str(ex):
             return jsonify({"message": "Invalid key"}), 400
         if "company_exception 01" in str(ex):
-            return jsonify({"message": "All locations must be 0 or 1"}), 400
+            return jsonify({"message": "All locations and marketing accepted must be either 0 or 1"}), 400
         if "company_exception number" in str(ex):
             return jsonify({"message": "Wash ID is incorrect"}), 400
         
@@ -223,44 +289,25 @@ def create_subscription():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
         
+
 ##############################
-@app.patch("/subscription/<subscription_pk>")
+@app.put("/subscription/<subscription_pk>")
 @jwt_required()
 def update_subscription(subscription_pk):
     try:
-        parts = []
-        values = []
-
         subscription_pk = x.validate_uuid4(subscription_pk)
-
-        if "wash_pk" in request.form:
-            wash_fk = x.validate_one_number(request.form.get("wash_pk", ""))
-            parts.append("wash_fk = %s")
-            values.append(wash_fk)
-
-        if "location_pk" in request.form:
-            location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
-            parts.append("location_fk = %s")
-            values.append(location_fk)
-        
-        if "all_locations" in request.form:
-            all_locations = x.validate_01(request.form.get("all_locations", ""))
-            parts.append("all_locations = %s")
-            values.append(all_locations)
-        
-        if "wash_pk" not in request.form and "location_pk" not in request.form and "all_locations" not in request.form:
-            return jsonify({"message": "Nothing to update"}), 400
-        
-        partial_query = ", ".join(parts)
-        values.append(subscription_pk)
-
+        wash_fk = x.validate_one_number(request.form.get("wash_pk", "",))
+        car_fk = x.validate_license_plate(request.form.get("car_pk", "",))
+        all_locations = x.validate_01(request.form.get("all_locations", ""))
+        location_fk = x.validate_uuid4(request.form.get("location_pk", ""))
+        marketing_accepted = x.validate_01(request.form.get("marketing_accepted", ""))
+    
         db, cursor = x.db()
-        q = f"""
-            UPDATE subscriptions
-            SET	{partial_query}
-            WHERE subscription_pk = %s
+        q = """
+            UPDATE `subscriptions` SET `wash_fk`=%s,`location_fk`=%s,
+            `all_locations`=%s,`car_fk`=%s,`marketing_accepted`=%s WHERE `subscription_pk`=%s
         """
-        cursor.execute(q, values)
+        cursor.execute(q, (wash_fk, location_fk, all_locations, car_fk, marketing_accepted, subscription_pk))
         db.commit()
 
         return jsonify({"message": "Subscription updated"}), 200
@@ -270,15 +317,14 @@ def update_subscription(subscription_pk):
             return jsonify({"message": "Wash_pk is invalid"}), 400
         if "company_exception key" in str(ex):
             return jsonify({"message": "Invalid key"}), 400
-        if "company_exception key" in str(ex):
-            return jsonify({"message": "Invalid key"}), 400
         if "company_exception 01" in str(ex):
-            return jsonify({"message": "All_locations must be 0 or 1"}), 400
+            return jsonify({"message": "All_locations and marketing accepted must be 0 or 1"}), 400
         
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+       
 
 ##############################
 @app.delete("/subscription/<subscription_pk>")
@@ -300,10 +346,49 @@ def delete_subscription(subscription_pk):
    finally:
        if "cursor" in locals(): cursor.close()
        if "db" in locals(): db.close()
+
+
+################################################### MEMBERSHIPS ##############################################
+@app.get("/memberships")
+def get_memberships():
+    try:
+        db, cursor = x.db()
+        q = """
+            SELECT 
+                w.wash_pk,
+                w.wash_name,
+                GROUP_CONCAT(a.addon_pk ORDER BY a.addon_pk) AS addon_ids,
+                GROUP_CONCAT(a.addon_name ORDER BY a.addon_pk SEPARATOR '|') AS addon_names
+            FROM washes w
+            LEFT JOIN washes_addons wa ON w.wash_pk = wa.wash_fk
+            LEFT JOIN addons a ON wa.addon_fk = a.addon_pk
+            GROUP BY w.wash_pk, w.wash_name
+            ORDER BY w.wash_pk DESC
+        """
+        cursor.execute(q)
+        rows = cursor.fetchall()
+
+        memberships = []
+        for row in rows:
+            addon_ids = [int(i) for i in row["addon_ids"].split(",")] if row["addon_ids"] else []
+            addon_names = row["addon_names"].split("|") if row["addon_names"] else []
+            wash_programs = [{"addon_pk": pk, "addon_name": name} for pk, name in zip(addon_ids, addon_names)]
+            memberships.append({
+                "membership_pk": row["wash_pk"],
+                "membership_name": row["wash_name"],
+                "wash_programs": wash_programs
+            })
+
+        return jsonify(memberships), 200
+
+    except Exception as ex:
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
    
-
-
-##############################
+################################################### CARS ##############################################
 @app.post("/car")
 @jwt_required()
 def create_car():
@@ -318,7 +403,30 @@ def create_car():
         cursor.execute(q, (car_pk, user_fk, model_fk, car_nickname))
         db.commit()
 
-        return jsonify({"message": "Car created"}), 201
+        q = """SELECT
+                    cars.*,
+                    models.car_electric,
+                    subscriptions.subscription_pk,
+                    subscriptions.wash_fk,
+                    subscriptions.location_fk,
+                    subscriptions.all_locations,
+                    washes.wash_name AS wash_name,
+                    locations.location_name AS location_name
+                FROM cars
+                LEFT JOIN models
+                ON cars.model_fk = models.model_pk
+                LEFT JOIN subscriptions
+                    ON subscriptions.car_fk = cars.car_pk
+                LEFT JOIN washes
+                    ON subscriptions.wash_fk = washes.wash_pk
+                LEFT JOIN locations
+                    ON subscriptions.location_fk = locations.location_pk
+                WHERE cars.car_pk = %s"""
+        cursor.execute(q, (car_pk, ))
+
+        new_car = cursor.fetchone()
+
+        return jsonify(new_car), 201
     except Exception as ex:
         if "Duplicate entry" in str(ex):
             return jsonify({"message": "License plate already exists"}), 400
@@ -345,24 +453,25 @@ def get_car(car_pk):
         db, cursor = x.db()
         car_pk = x.validate_license_plate(car_pk)
         q = """SELECT
-    cars.*,
-    models.car_electric,
-    subscriptions.subscription_pk,
-    subscriptions.wash_fk,
-    subscriptions.location_fk,
-    subscriptions.all_locations,
-    washes.wash_name AS wash_name,
-    locations.location_name AS location_name
-FROM cars
-LEFT JOIN models
-    ON cars.model_fk = models.model_pk
-LEFT JOIN subscriptions
-    ON subscriptions.car_fk = cars.car_pk
-LEFT JOIN washes
-    ON subscriptions.wash_fk = washes.wash_pk
-LEFT JOIN locations
-    ON subscriptions.location_fk = locations.location_pk
-WHERE cars.car_pk = %s"""
+                    cars.*,
+                    models.car_electric,
+                    subscriptions.subscription_pk,
+                    subscriptions.wash_fk,
+                    subscriptions.location_fk,
+                    subscriptions.all_locations,
+                    subscriptions.marketing_accepted,
+                    washes.wash_name AS wash_name,
+                    locations.location_name AS location_name
+                FROM cars
+                LEFT JOIN models
+                    ON cars.model_fk = models.model_pk
+                LEFT JOIN subscriptions
+                    ON subscriptions.car_fk = cars.car_pk
+                LEFT JOIN washes
+                    ON subscriptions.wash_fk = washes.wash_pk
+                LEFT JOIN locations
+                    ON subscriptions.location_fk = locations.location_pk
+                WHERE cars.car_pk = %s"""
         cursor.execute(q, (car_pk,))
         car = cursor.fetchone()
 
@@ -380,7 +489,6 @@ WHERE cars.car_pk = %s"""
         if "db" in locals(): db.close()
 
 
-
 ##############################
 @app.get("/cars")
 @jwt_required() 
@@ -389,23 +497,29 @@ def get_cars():
         db, cursor = x.db()
         user_fk = x.validate_uuid4(get_jwt_identity())
         q = """SELECT
-    cars.*,
-    models.car_electric,
-    subscriptions.subscription_pk,
-    subscriptions.wash_fk,
-    subscriptions.location_fk,
-    washes.wash_name AS wash_name,
-    locations.location_name AS location_name
-FROM cars
-LEFT JOIN models
-    ON cars.model_fk = models.model_pk
-LEFT JOIN subscriptions
-    ON subscriptions.car_fk = cars.car_pk
-LEFT JOIN washes
-    ON subscriptions.wash_fk = washes.wash_pk
-LEFT JOIN locations
-    ON subscriptions.location_fk = locations.location_pk
-WHERE cars.user_fk = %s"""
+                    cars.*,
+                    models.car_electric,
+                    models.model_name,
+                    brands.brand_name,
+                    subscriptions.subscription_pk,
+                    subscriptions.wash_fk,
+                    subscriptions.location_fk,
+                    subscriptions.all_locations,
+                    subscriptions.marketing_accepted,
+                    washes.wash_name AS wash_name,
+                    locations.location_name AS location_name
+                FROM cars
+                LEFT JOIN models
+                    ON cars.model_fk = models.model_pk
+                LEFT JOIN brands
+                    ON models.brand_fk = brands.brand_pk
+                LEFT JOIN subscriptions
+                    ON subscriptions.car_fk = cars.car_pk
+                LEFT JOIN washes
+                    ON subscriptions.wash_fk = washes.wash_pk
+                LEFT JOIN locations
+                    ON subscriptions.location_fk = locations.location_pk
+                WHERE cars.user_fk = %s"""
         cursor.execute(q, (user_fk,))
         cars = cursor.fetchall()
 
@@ -442,6 +556,7 @@ def update_car(car_pk):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
 ##############################
 @app.delete("/car/<car_pk>")
 @jwt_required()
@@ -464,16 +579,7 @@ def delete_car(car_pk):
        if "db" in locals(): db.close()
    
 
-##############################
-@app.get("/signup")
-def show_signup():
-    try:
-        signup_page = render_template("page_signup.html")
-        return signup_page
-    except Exception as ex:
-        ic(ex)
-        str(ex), 500
-##############################
+################################################### SIGNUP AND VERIFY ##############################################
 @app.post("/api/user-signup")
 def user_signup():
     try:
@@ -494,9 +600,6 @@ def user_signup():
 
         user_reset_password_key = uuid.uuid4().hex
         user_verification_key = uuid.uuid4().hex
-
-
-        
         
         db, cursor = x.db()
         q = "INSERT INTO users VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -508,13 +611,17 @@ def user_signup():
         db.commit()
 
         html = render_template("email_welcome.html", user_verification_key=user_verification_key, user_first_name=user_first_name, user_last_name=user_last_name)
-        response = jsonify({"msg": "User created"})
+        response = jsonify({"message": "User created"})
         access_token = create_access_token(identity=user_pk)
         set_access_cookies(response, access_token)
         x.send_email("Please verify your account", html, user_email)
+
         return response, 201
+    
     except Exception as ex:
         ic(ex)
+        if "Duplicate entry" in str(ex):
+            return jsonify({"error": f"User already exists", "error_field": "email"}), 400
         if "company_exception user_first_name" in str(ex): 
             return jsonify({"error": f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_first_name"}), 400
         if "company_exception user_last_name" in str(ex):
@@ -523,6 +630,7 @@ def user_signup():
             return jsonify({"error": "Please enter a valid email", "error_field": "email"}), 400
         if "company_exception user_password" in str(ex):
             return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", "error_field": "password"}), 400
+       
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -564,7 +672,8 @@ def user_verify_account(key):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-######################### LOGIN API AND RESET/CHANGE    #########################
+
+################################################### LOGIN API AND RESET/CHANGE ##############################################
 @app.post("/login")
 def login():
     try:
@@ -577,15 +686,17 @@ def login():
         user = cursor.fetchone()
         #ic(user)
         if not user:
-            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
+            return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         if not check_password_hash(user["user_hashed_password"], user_password):
-            return jsonify({"error": "Invalid email or password", "error_field": "form"}), 401
+            return jsonify({"error": "Forkert email eller adgangskode", "error_field": "form"}), 401
         
-        response = jsonify({"msg": "login successful"})
+        response = jsonify({"message": "login successful"})
         additional_claims = {"user_first_name": user["user_first_name"], "user_last_name": user["user_last_name"]}
         access_token = create_access_token(identity=user["user_pk"], additional_claims=additional_claims)
         set_access_cookies(response, access_token)
+        
         return response, 200
+    
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
@@ -595,31 +706,41 @@ def login():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
 ##############################
 @app.post("/api/logout")
 @jwt_required()
 def logout_user():
     try:
-        response = jsonify({"msg": "logout successful"})
+        response = jsonify({"message": "logout successful"})
+
+        # In reality, we should keep the token in a diff db to "revoke it"
+
         unset_jwt_cookies(response)
         return response
+    
     except Exception as ex:
         ic(ex)
 
         return str(ex), 500
+
+
+##############################
 @app.get("/api/me")
 @jwt_required()
 def get_me():
     try:
-        user_id = x.validate_uuid4(get_jwt_identity())
-        q = "SELECT user_first_name, user_last_name, user_email FROM users where user_pk = %s"
+        user_pk = x.validate_uuid4(get_jwt_identity())
+        q = "SELECT user_first_name, user_last_name, user_email, user_created_at FROM users where user_pk = %s"
 
         db, cursor = x.db()
 
-        cursor.execute(q, (user_id,))
+        cursor.execute(q, (user_pk,))
         user = cursor.fetchone()
         ic(user)
-        return jsonify(id=user_id, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"])
+
+        return jsonify(id=user_pk, name=user["user_first_name"] + " " + user["user_last_name"], email=user["user_email"], created_at=user["user_created_at"]), 200
 
     except Exception as ex:
         # JWT library kinda handles the exceptions here?
@@ -628,33 +749,57 @@ def get_me():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-##############################
-@app.get("/login")
-def show_login():
-    return render_template("page_login.html")
 
-##############################
-@app.get("/")
-def index():
-    return jsonify({"status":"ok", "message":"Connected"})
 
 ##############################
 
-@app.get("/forgot-password")
-def show_forgot_password():
-    return render_template("page_forgot_password.html")
+@app.delete("/api/delete-user")
+@jwt_required()
+def delete_user():
+    try:
+        user_pk = x.validate_uuid4(get_jwt_identity())
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+        
+        db, cursor = x.db()
+        q = "SELECT user_hashed_password FROM users WHERE user_pk = %s"
+        cursor.execute(q, (user_pk,))
+        user = cursor.fetchone()
+        if not check_password_hash(user["user_hashed_password"], user_password):
+            return jsonify({"error": "Forkert adgangskode", "error_field": "password"}), 401
+        
+        delete_q = "DELETE FROM `users` WHERE user_pk = %s"
+        cursor.execute(delete_q, (user_pk,))
+        db.commit()
+        response = jsonify({"message": "User deleted"})
+        # In reality, we should keep the token in a diff db to "revoke it"
+        unset_jwt_cookies(response)
+
+        return response, 200
+    
+    except Exception as ex:
+        ic(ex)
+        if "company_exception user_password" in str(ex):
+            return jsonify({"error": "Invalid password", "error_field": "password"}), 400
+        if "company_exception key" in str(ex):
+            return jsonify({"error":"Please login again"}), 400
+        if "CONSTRAINT `fk_cars_user`" in str(ex):
+            return jsonify({"error": "Du har stadig aktive biler, slet dem venligst først"}), 400
+        return str(ex), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
 ##############################
-
-@app.post("/forgot-password")
-def forgot_password():
+@app.post("/api/forgot-password")
+def forgot_password(): 
     try:
         user_email = x.validate_email( request.form.get("user_email", "") )
         db, cursor = x.db()
         q = "SELECT user_reset_password_key AS 'key' FROM users WHERE user_email = %s"
         cursor.execute(q, (user_email,))
         row = cursor.fetchone()
-        if not row: return "Email not found", 400
+        if not row: return jsonify ({"message": "ok"}), 200 # Still sends a 200, as to not leak potential emails in DB
 
         ic(row)
         user_reset_password_key = row["key"]
@@ -669,20 +814,20 @@ def forgot_password():
 
         x.send_email("Reset your password", html, user_email)
 
-        return "Check your email"
+        return jsonify ({"message": "ok"}), 200
 
     except Exception as ex:
         ic(ex)
         if "company_exception email" in str(ex):
-            return "Invalid email", 400
-        return str(ex), 500
+            return jsonify ({"error": "Invalid email", "error_field": "email"}), 400
+        return jsonify ({"error": "Something went wrong", "error_field": "form"}), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
 
 ##############################
-@app.get("/reset-password/<key>")
+@app.get("/api/reset-password/<key>")
 def show_reset_password(key):
     try:
 
@@ -693,7 +838,7 @@ def show_reset_password(key):
         ic(key_time)
         current_time = int(time.time())
         if current_time > (key_time + 3600):
-            return "Link expired"
+            return jsonify({"error" : "link_expired", "error_message": "Link expired, please request a new one"}), 410
         # TODO: Connect to the db
         db, cursor = x.db()
 
@@ -702,67 +847,134 @@ def show_reset_password(key):
 
         cursor.execute(q, (user_reset_password_key, key_time))
         row = cursor.fetchone()
-        if not row: return "Please click the link in the email again.", 400 # User has messed with the epoch in the link sent to them (potential malicious behavior)
+        # User has messed with the epoch in the link sent to them (potential malicious behavior)
+        if not row: return jsonify({"error": "link_manipulated", "error_message": "Please click the link in the email again."}), 400 
 
-        # Change this to work with React/Nextjs
-        return render_template("page_reset_password.html", key=key)
+        # short-lived JWT, e.g. 15 minutes
+        token = create_access_token(identity=user_reset_password_key, expires_delta=timedelta(minutes=15))
 
+        # Return token needed for the protected route
+        return jsonify({"token": token}), 200
 
-        return f"User is verified with key {key}"
     except Exception as ex:
         ic(ex)
         if "company_exception key" in str(ex):
-            return "Invalid key", 400
+            return jsonify({"message":"Invalid key"}), 400
 
-        if "company_exception no_user" in str(ex):
-            return "Ups", 400
         
         return str(ex), 500
 
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
 ##############################
-@app.post("/reset-password")
+@app.patch("/api/reset-password")
+@jwt_required()
 def reset_password():
     try:
-        key_split = request.form.get("key", "").split("-")
-        ic(key_split)
-        key = x.validate_uuid4_paranoia( key_split[0] )
-        password = x.validate_user_password( request.form.get("password", "") ).strip()
+        key = x.validate_uuid4(get_jwt_identity())
+        ic(key)
+        password = x.validate_user_password( request.form.get("user_password", "") ).strip()
         ic(password)
         confirm_password = x.validate_user_password( request.form.get("confirm-password","") ).strip()
         new_password = generate_password_hash(confirm_password)
         if password != confirm_password:
-            return "Passwords do not match", 400
+            return jsonify({"error":"Passwords do not match", "error_field": "form"}), 400
 
-        new_key = uuid.uuid4().hex + uuid.uuid4().hex 
-        # Check if key is in DB
+        new_key = uuid.uuid4().hex 
+        #Check if key is in DB
         db, cursor = x.db()
 
-        q = "UPDATE users SET user_password = %s, user_reset_password_key = %s WHERE user_reset_password_key = %s "
+        q = "UPDATE users SET user_hashed_password = %s, user_reset_password_key = %s WHERE user_reset_password_key = %s "
         cursor.execute(q, (new_password, new_key, key))
 
         if cursor.rowcount == 0:
             return "Ups...", 400
         db.commit()
-        return "Password changed, please login"
+        return jsonify ({"message": "ok"}), 200
 
     except Exception as ex:
         ic(ex)
 
         if "company_exception user_password" in str(ex):
-            return f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", 400
+            return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}",
+                            "error_field": "form"}), 400
 
-        if "company_exception paranoia" in str(ex):
+        if "company_exception key" in str(ex):
             return "Invalid key", 400
         return str(ex), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
 ##############################
+@app.patch("/api/update-user")
+@jwt_required()
+def update_user():
+    try:
+        # Validation of password first
+        user_pk = x.validate_uuid4(get_jwt_identity())
+        user_password = x.validate_user_password(request.form.get("user_password", ""))
+        db, cursor = x.db()
+        q = "SELECT user_hashed_password FROM users WHERE user_pk = %s"
+        cursor.execute(q, (user_pk,))
+        user = cursor.fetchone()
+
+        if not check_password_hash(user["user_hashed_password"], user_password):
+            return jsonify({"error": "Forkert adgangskode", "error_field": "form"}), 401
+
+        user_first_name = x.validate_name(request.form.get("user_first_name", ""), "user_first_name").capitalize()
+        user_last_name = x.validate_name(request.form.get("user_last_name", ""), "user_last_name").capitalize()
+        user_email = x.validate_email(request.form.get("user_email", ""))
+        partial_q = "user_first_name = %s, user_last_name = %s, user_email = %s"
+
+        values = [user_first_name, user_last_name, user_email]
+
+        user_new_password = request.form.get("user_new_password", "")
+        user_new_confirmed_password = request.form.get("user_new_confirmed_password", "")
+        if user_new_password and user_new_confirmed_password:
+            user_new_password = x.validate_user_password(user_new_password)
+            user_new_confirmed_password = x.validate_user_password(user_new_confirmed_password)
+            if user_new_password != user_new_confirmed_password:
+                return jsonify({"error":"Passwords do not match", "error_field": "form"}), 400
+            
+            user_hashed_password = generate_password_hash(user_new_password)
+            partial_q = partial_q + ", user_hashed_password = %s"
+            values.append(user_hashed_password)
+        
+        values.append(user_pk)
+        new_q = f"UPDATE users SET {partial_q} WHERE users.user_pk = %s;"
+        cursor.execute(new_q, values)
+
+        db.commit()
+        response = jsonify({"message": "User updated, please login again"})
+        # In reality, we should keep the token in a diff db to "revoke it"
+        unset_jwt_cookies(response)
+
+        return response, 200
+
+    except Exception as ex:
+        ic(ex)
+        if "company_exception user_first_name" in str(ex): 
+            return jsonify({"error": f"First name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_first_name"}), 400
+        if "company_exception user_last_name" in str(ex):
+            return jsonify({"error": f"Last name must be between {x.NAME_MIN} and {x.NAME_MAX}", "error_field": "user_last_name"}), 400 
+        if "company_exception email" in str(ex):
+            return jsonify({"error": "Please enter a valid email", "error_field": "email"}), 400
+        if "company_exception user_password" in str(ex):
+            return jsonify({"error": f"Password must be between {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX}", "error_field": "password"}), 400
+        return jsonify({"error": "Something went wrong"}), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+################################################### LOCATIONS ##############################################
 @app.get("/get-data")
+@jwt_required()
 def get_data():
     try:
         db, cursor = x.db()
@@ -771,9 +983,8 @@ def get_data():
         cursor.execute(q)
         locations = cursor.fetchall()
 
-
-
         return locations
+    
     except Exception as ex:
         ic(ex)
         return "ups", 500
@@ -781,6 +992,7 @@ def get_data():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
     
+
 ##############################
 @app.get("/get-locations_da")
 def get_locations_da():
@@ -844,16 +1056,6 @@ def get_locations_da():
             location_pre_wash, location_max_meters, location_max_mirror_width_meters, region_fk, location_end_url, location_image_end_url, location_status_message))
             db.commit()
 
-
-
-            # Add to DB, should wait till we've designed the DB
-            #ic(name, address, lat, lon, open_hours, wash_halls, self_wash, max_height_meters, max_mirror_width_meters, region, url,image_url,
-            #mat_cleaner,
-            #vacuum,
-            #pre_wash)
-            
-        ic("done")
-        #ic(count)
         return locations    
 
     except Exception as ex:
@@ -865,26 +1067,28 @@ def get_locations_da():
         if "db" in locals(): db.close()
 
 
- 
+#############################
+@app.get("/get-data/<location_pk>")
+@jwt_required()
+def get_single_location(location_pk):
+    try:
+        location_pk = x.validate_uuid4(location_pk)
+        db, cursor = x.db()
+        q = "SELECT * FROM locations WHERE location_pk = %s"
+        cursor.execute(q, (location_pk,))
+        location = cursor.fetchone()
+        return jsonify(location), 200
 
- 
-
-##############################
-
- 
-
-"""
-##############################
-@app.route("/forgot-password", methods=["GET", "POST"])
-def show_forgot_password():
-    if request.method == "GET":
-        return render_template("page_forgot_password.html")
-    
-    if request.method == "POST":
-        try:
+    except Exception as ex:
+        return str(ex), 500
         
-        except Exception as ex:
-            
-        finally:
-"""
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+ 
+
+
+
+
 

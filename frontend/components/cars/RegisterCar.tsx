@@ -1,3 +1,161 @@
 "use client"
+import CarCard from "@/components/cars/CarCard";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import PlusButton from "@/components/buttons/__PlusButton";
+import { useCars } from "../hooks/useCars";
+import { useCreateCar } from "../hooks/useCreateCar";
+import CheckButton from "@/components/buttons/__CheckButton";
 
-//for pop up when u press "registrer" on cars page.
+type Model = {
+  model_pk: string;
+  brand_name: string;
+  model_name: string;
+};
+
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreateCar: (data: {
+    car_pk: string;
+    car_nickname: string;
+    model_pk: string;
+  }) => Promise<void> | void;
+};
+
+
+export default function RegisterCar({
+  isOpen,
+  onClose,
+  onCreateCar,
+}: Props)  {
+
+    if (!isOpen) return null;
+
+const [carNickName, setCarNickName] = useState('')
+const [licensePlate, setLicensePlate] = useState('')
+
+const [models, setModels] = useState<Model[]>([]);
+const [modelQuery, setModelQuery] = useState("");
+const [selectedModelPk, setSelectedModelPk] = useState("");
+const [showModels, setShowModels] = useState(false);
+
+
+
+useEffect(() => {
+  fetch("http://localhost/models", {
+    credentials: "include",
+  })
+    .then(res => res.json())
+    .then(data => setModels(data));
+}, []);
+
+const filteredModels = models.filter((model) =>
+  `${model.brand_name} ${model.model_name}`
+    .toLowerCase()
+    .includes(modelQuery.toLowerCase())
+);
+
+
+
+  return (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+    <div className="bg-white p-5 w-[370px]">
+      <h3>Registrer dit køretøj</h3>
+
+      <div className="mt-4 flex flex-col gap-3">
+        <div>
+          <label className="block mb-1">
+            Navngiv dit køretøj:
+          </label>
+          <input
+            type="text"
+            data-cy="car-nickname"
+            placeholder="Køretøjets navn"
+            value={carNickName}
+            onChange={(e) => setCarNickName(e.target.value)}
+            className="w-full bg-[var(--grey-5)] border-b-2 border-gray-300 focus:border-b-[3px] focus:border-[var(--green-White-BG)] outline-none px-3 py-3 text-sm"
+          />
+        </div>
+
+       <div className="relative">
+  <label className="block mb-1">
+    Køretøjets mærke og model:
+  </label>
+
+  <input
+    type="text"
+    data-cy="car-model"
+    placeholder="Søg efter mærke og model"
+    value={modelQuery}
+    onChange={(e) => {
+      setModelQuery(e.target.value);
+      setShowModels(true);
+    }}
+    className="w-full bg-[var(--grey-5)] border-b-2 border-gray-300 focus:border-b-[3px] focus:border-[var(--green-White-BG)] outline-none px-3 py-3 text-sm"
+  />
+
+  {showModels && filteredModels.length > 0 && (
+    <div className="absolute z-50 mt-1 w-full rounded border bg-white shadow-lg max-h-60 overflow-y-auto">
+      {filteredModels.map((model) => (
+        <button
+          key={model.model_pk}
+          type="button"
+          className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+          onClick={() => {
+            setSelectedModelPk(model.model_pk);
+            setModelQuery(
+              `${model.brand_name} ${model.model_name}`
+            );
+            setShowModels(false);
+          }}
+        >
+          {model.brand_name} {model.model_name}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+
+        <div>
+          <label className="mb-1 flex flex-col">            
+            <span>Køretøjets nummerplade</span>
+            <span className="text-sm text-[var(--green-White-BG)]">*Skriv din nummerplade uden mellemrum</span>
+          </label>
+          <input
+            type="text"
+            data-cy="car-licenseplate"
+            placeholder="Nummerplade"
+            value={licensePlate}
+            onChange={(e) => setLicensePlate(e.target.value)}
+            className="w-full bg-[var(--grey-5)] border-b-2 border-gray-300 focus:border-b-[3px] focus:border-[var(--green-White-BG)] outline-none px-3 py-3 text-sm"
+          />
+        </div>
+        <div className="flex justify-between items-center mt-5">
+        <button
+          onClick={onClose} 
+          className="px-4 py-2 flex underline text-[var(--grey-60)]  !text-sm"
+        >
+          ANNULLER
+        </button>
+
+        <div className="flex justify-end gap-3 mt-3 !h-18">
+        <CheckButton
+              text="Registrer køretøj"
+              data-cy="registrer-button"
+              onClick={async () => {
+                await onCreateCar({
+                  car_pk: licensePlate,
+                  car_nickname: carNickName,
+                  model_pk: selectedModelPk,
+                });
+
+                onClose();
+              }}
+            />
+                  </div>
+      </div>
+    </div>
+    </div>
+  </div>
+)}

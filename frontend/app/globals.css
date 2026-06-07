@@ -44,19 +44,20 @@
   /*box shadow for occupied wash hall*/
   --box-Shadow-Hall-Occupied: 0px 0px 10px 0px var(--warning-Red);
 
+
+  input[type="checkbox"] {
+  accent-color: #00843d;
+  border-radius: 0px!important;
+  }
+
+  
+
 }
 
 body {
   background: var(--grey-10);
   margin: 0;
   padding: 0;
-}
-
-main{
-  background: var(--solid-White);
-  color: var(--solid-Black);
-  margin-top: 1.5em;
-  margin-inline: 0.5em;
 }
 
 /*----------------FONTS----------------*/
@@ -73,6 +74,12 @@ a {
   font-size: 14px;
   color: var(--green-White-BG)
 }
+
+label{
+  font-family: 'GilroyBold';
+  font-size: 14px;
+}
+
 
 /*------------------LAYOUT SO LOOKS LIKE APP-----------------*/
 .app-shell {

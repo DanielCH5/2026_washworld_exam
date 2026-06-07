@@ -42,14 +42,14 @@ export function AuthProvider({ children }) {
                 setLoading(true);
                 await fetchUser()
                 setLoading(false)
-                return { success: true }
+                return { ok: true }
             } else {
-                return { success: false, error: data.error, error_field: data.error_field }
+                return { ok: false, error: data.error, error_field: data.error_field }
             }
         } finally {
             setLoading(false)
         }
-            
+
     }
     const signup = async (firstName: string, lastName: string, email: string, password: string) => {
         setLoading(true)
@@ -64,16 +64,16 @@ export function AuthProvider({ children }) {
                 body: formData,
                 credentials: "include"
             })
-    
+
             const data = await response.json()
             if (response.ok) {
                 // Re-fetch full user profile instead of using login response directly
                 setLoading(true)
                 await fetchUser()
                 setLoading(false)
-                return { success: true }
+                return { ok: true }
             } else {
-                return { success: false, error: data.error, error_field: data.error_field }
+                return { ok: false, error: data.error, error_field: data.error_field }
             }
         } finally {
             setLoading(false)
@@ -91,8 +91,76 @@ export function AuthProvider({ children }) {
         window.location.href = '/'
     }
 
+    const forgotPassword = async (email: string) => {
+        setLoading(true)
+        try {
+            const formData = new FormData();
+            formData.append("user_email", email)
+            const response = await fetch('http://localhost/api/forgot-password', {
+                method: "POST",
+                body: formData,
+                credentials: "include",
+            })
+            const data = await response.json()
+            if (response.ok) {
+                return { ok: true, message: data.message }
+            } else {
+                return { ok: false, error: data.error, error_field: data.error_field }
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const resetPassword = async (password: string, confirmPassword: string, resetKey: string) => {
+        setLoading(true)
+        try {
+            const formData = new FormData();
+            formData.append("user_password", password)
+            formData.append("confirm-password", confirmPassword)
+            const response = await fetch('http://localhost/api/reset-password', {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${resetKey}`,
+                },
+                body: formData,
+                credentials: "include"
+            })
+            const data = await response.json()
+            console.log(data)
+            if (response.ok) {
+                return { ok: true, message: data.message }
+            } else {
+                return { ok: false, error: data.error, error_field: data.error_field }
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+    const deleteUser = async (password: string) => {
+        const formData = new FormData();
+        formData.append("user_password", password)
+        const response = await fetch('http://localhost/api/delete-user', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': Cookies.get('csrf_access_token') ?? ""
+            },
+            body: formData,
+            credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Kunne ikke slette brugeren');
+        }
+
+        setUser(null)
+    };
+
+
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, login, logout, signup }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout, signup, forgotPassword, resetPassword, deleteUser }}>
             {children}
         </AuthContext.Provider>
     )
